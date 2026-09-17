@@ -461,3 +461,31 @@
   padding: 1px 6px;
   color: var(--muted);
 }
+
+/* Mobile: pin lab controls to bottom of lab for thumb reach */
+@media (max-width: 800px) {
+  .lab {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .lab-controls {
+    order: 99;
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    background: color-mix(in srgb, var(--bg) 94%, #fff);
+    border-bottom: 0;
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -4px 16px rgba(42, 36, 22, 0.06);
+  }
+
+  .lab-controls .btn {
+    min-height: 44px;
+  }
+
+  .lab-controls select,
+  .lab-controls input[type="range"] {
+    min-height: 44px;
+  }
+}
