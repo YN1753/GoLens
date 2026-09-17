@@ -53,32 +53,38 @@ Go 面试八股（GMP 调度、Channel 底层、GC 三色标记）高度依赖�
 
 ```
 /
-  index.html          # 首页 / 章节总览
-  gmp.html
-  channel.html
-  gc.html
-  css/
-    tokens.css        # 色板、字号、间距
-    layout.css        # 侧栏、正文、响应式
-    components.css    # 按钮、卡片、代码块、callout
-  js/
-    site.js           # 侧栏高亮、主题持久、移动抽屉
-    gmp-lab.js
-    channel-lab.js
-    gc-lab.js
-  assets/             # 如有本地图形资源
+  site/                 # Pages 部署根
+    index.html
+    gmp.html
+    channel.html
+    gc.html
+    favicon.svg
+    assets/
+      css/
+        tokens.css
+        layout.css
+        components.css
+      js/
+        site.js
+        gmp-lab.js
+        channel-lab.js
+        gc-lab.js
+  scripts/check.sh      # 结构 / 相对路径 / JS 语法校验
+  package.json          # npm run dev | check
+  docs/compose/spec/
+  .github/workflows/pages.yml
 ```
 
 - 共享侧栏导航写在各 HTML 中（无构建注入）；`site.js` 负责当前页高亮与窄屏抽屉。
-- 所有资源相对路径，可直接 `file://` 或任意静态托管打开；GitHub Pages 项目页 `/GoLens/` 用相对路径兼容。
-- 不引入外部字体 CDN、图表库或 JS 框架。
+- 所有资源相对 `site/` 根路径；Pages 项目页 `/GoLens/` 兼容。
+- 不引入外部字体 CDN、图表库或 JS 框架；不引入打包器。
 
 ### 部署（GitHub Actions → Pages）
 
 - Remote：`git@github.com:YN1753/GoLens.git`；默认分支 `main`。
 - 工作流：`.github/workflows/pages.yml`，在 `push` 到 `main` 以及 `workflow_dispatch` 时触发。
 - 权限：`contents: read`，`pages: write`，`id-token: write`；`concurrency.group=pages`。
-- 步骤：`actions/checkout` → `actions/configure-pages` → 将站点文件拷入 `_site/`（仅 html/css/js/favicon）→ `actions/upload-pages-artifact`（`path: _site`）→ `actions/deploy-pages`。
+- 步骤：`actions/checkout` → `actions/configure-pages` → `actions/upload-pages-artifact`（`path: site`）→ `actions/deploy-pages`。
 - 仓库侧需在 Settings → Pages 将 Source 设为 **GitHub Actions**。
 
 ### 交互契约

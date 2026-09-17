@@ -1,0 +1,11 @@
+{
+  "name": "golens",
+  "private": true,
+  "version": "0.1.0",
+  "description": "GoLens — interactive Go runtime interview study site (static, no bundler)",
+  "scripts": {
+    "dev": "python3 -m http.server 5173 --directory site",
+    "check": "bash scripts/check.sh",
+    "serve": "npm run dev"
+  }
+}

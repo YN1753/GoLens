@@ -27,16 +27,10 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Stage site files only
-        run: |
-          mkdir -p _site
-          cp index.html gmp.html channel.html gc.html favicon.svg _site/
-          cp -R css js _site/
-
-      - name: Upload artifact
+      - name: Upload site/
         uses: actions/upload-pages-artifact@v3
         with:
-          path: _site
+          path: site
 
       - name: Deploy to GitHub Pages
         id: deployment
