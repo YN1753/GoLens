@@ -78,7 +78,7 @@ Go 面试八股（GMP 调度、Channel 底层、GC 三色标记）高度依赖�
 - Remote：`git@github.com:YN1753/GoLens.git`；默认分支 `main`。
 - 工作流：`.github/workflows/pages.yml`，在 `push` 到 `main` 以及 `workflow_dispatch` 时触发。
 - 权限：`contents: read`，`pages: write`，`id-token: write`；`concurrency.group=pages`。
-- 步骤：`actions/checkout` → `actions/configure-pages` → `actions/upload-pages-artifact`（`path: .`，站点文件在仓库根）→ `actions/deploy-pages`。
+- 步骤：`actions/checkout` → `actions/configure-pages` → 将站点文件拷入 `_site/`（仅 html/css/js/favicon）→ `actions/upload-pages-artifact`（`path: _site`）→ `actions/deploy-pages`。
 - 仓库侧需在 Settings → Pages 将 Source 设为 **GitHub Actions**。
 
 ### 交互契约

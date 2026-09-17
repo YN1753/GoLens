@@ -1,5 +1,26 @@
-*.log
+# OS
 .DS_Store
+Thumbs.db
+__MACOSX/
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs / local tooling
+*.log
 .playwright-cli/
 .worktrees/
 node_modules/
+
+# Build / deploy staging
+_site/
+dist/
+
+# Env / secrets
+.env
+.env.*
+*.pem
