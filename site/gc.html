@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="assets/css/tokens.css" />
   <link rel="stylesheet" href="assets/css/layout.css" />
   <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/lab-motion.css" />
 </head>
 <body data-page="gc">
   <div class="scrim" aria-hidden="true"></div>
@@ -68,29 +69,43 @@
 
         <div class="lab" id="gc-lab">
           <div class="lab-head">
-            <div class="lab-title"><span class="led" aria-hidden="true"></span>GC Lab</div>
-            <div class="legend" aria-hidden="true">
-              <span><i style="background:var(--gc-white)"></i>白</span>
-              <span><i style="background:var(--gc-gray)"></i>灰</span>
-              <span><i style="background:var(--gc-black)"></i>黑</span>
-            </div>
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>GC Lab · Topology + Barrier</div>
+            <span class="chip">SVG graph · scan wave · compare</span>
           </div>
           <div class="lab-controls">
             <label class="chip" style="cursor:pointer">
               <input type="checkbox" id="gc-barrier" checked />
-              写屏障 ON
+              混合写屏障 ON
             </label>
             <div class="btn-row">
-              <button type="button" class="btn btn-primary" id="gc-roots">标记根</button>
+              <button type="button" class="btn btn-primary" id="gc-roots">标记根 STW</button>
               <button type="button" class="btn" id="gc-step">处理一个灰</button>
-              <button type="button" class="btn" id="gc-mutate">改指针 B→D</button>
+              <button type="button" class="btn" id="gc-mutate">Mutator：断 A→B 挂 C→B</button>
               <button type="button" class="btn btn-ghost" id="gc-reset">重置</button>
             </div>
             <span class="chip" id="gc-phase">idle</span>
           </div>
-          <div class="lab-body">
+          <div class="timeline-bar" data-gc-timeline>
+            <span class="tl-label" data-timeline-label>—</span>
+            <input type="range" data-timeline-range min="0" max="0" value="0" aria-label="GC 时间轴" />
+            <span class="tl-label">scrub</span>
+          </div>
+          <div class="lab-grid-3">
             <div class="lab-stage" id="gc-stage" aria-live="polite"></div>
-            <div class="lab-log" id="gc-log" aria-live="polite" aria-label="GC 事件日志"></div>
+            <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+              <div class="code-panel" id="gc-code">
+                <div class="code-title">pseudo · shade / barrier</div>
+                <pre>
+<span class="code-line" data-code-key="stw_start">STW start: enable barrier; gray roots</span>
+<span class="code-line" data-code-key="scan">shade(u): white→gray; scan children</span>
+<span class="code-line" data-code-key="black">mark black after outbound scan</span>
+<span class="code-line" data-code-key="barrier">barrier: shade pointer target</span>
+<span class="code-line" data-code-key="leak">no barrier: black→white = leak risk</span>
+<span class="code-line" data-code-key="stw_term">STW terminate: disable barrier</span>
+                </pre>
+              </div>
+              <div class="lab-log" id="gc-log" aria-live="polite" aria-label="GC 事件日志"></div>
+            </div>
           </div>
         </div>
 
@@ -129,6 +144,7 @@
     </div>
   </div>
   <script src="assets/js/site.js"></script>
+  <script src="assets/js/motion.js"></script>
   <script src="assets/js/gc-lab.js"></script>
 </body>
 </html>

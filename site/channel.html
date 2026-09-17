@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="assets/css/tokens.css" />
   <link rel="stylesheet" href="assets/css/layout.css" />
   <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/lab-motion.css" />
 </head>
 <body data-page="channel">
   <div class="scrim" aria-hidden="true"></div>
@@ -71,32 +72,51 @@
 
         <div class="lab" id="channel-lab">
           <div class="lab-head">
-            <div class="lab-title"><span class="led" aria-hidden="true"></span>Channel Lab</div>
-            <div class="legend" aria-hidden="true">
-              <span><i style="background:var(--accent)"></i>缓冲值</span>
-              <span><i style="background:var(--st-block)"></i>等待中</span>
-              <span><i style="background:var(--danger)"></i>已关闭</span>
-            </div>
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>Channel Lab · Circular hchan</div>
+            <span class="chip">SVG ring · sendx/recvx · FLIP</span>
           </div>
           <div class="lab-controls">
             <label>容量
               <select id="ch-cap" aria-label="channel 容量">
                 <option value="0">0 · 同步</option>
                 <option value="1" selected>1</option>
+                <option value="3">3</option>
                 <option value="4">4</option>
+                <option value="6">6</option>
               </select>
             </label>
             <div class="btn-row">
-              <button type="button" class="btn btn-primary" id="ch-send">发送</button>
-              <button type="button" class="btn btn-primary" id="ch-recv">接收</button>
-              <button type="button" class="btn" id="ch-close">关闭</button>
+              <button type="button" class="btn btn-primary" id="ch-send">发送 send</button>
+              <button type="button" class="btn btn-primary" id="ch-recv">接收 recv</button>
+              <button type="button" class="btn" id="ch-close">关闭 close</button>
               <button type="button" class="btn btn-ghost" id="ch-reset">重置</button>
             </div>
             <span class="chip" id="ch-state-chip">open</span>
           </div>
-          <div class="lab-body">
+          <div class="timeline-bar" data-ch-timeline>
+            <span class="tl-label" data-timeline-label>—</span>
+            <input type="range" data-timeline-range min="0" max="0" value="0" aria-label="事件时间轴" />
+            <span class="tl-label">timeline</span>
+          </div>
+          <div class="lab-grid-3">
             <div class="lab-stage" id="ch-stage" aria-live="polite"></div>
-            <div class="lab-log" id="ch-log" aria-live="polite" aria-label="channel 事件日志"></div>
+            <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+              <div class="code-panel" id="ch-code">
+                <div class="code-title">pseudo · chansend / chanrecv</div>
+                <pre>
+<span class="code-line" data-code-key="send_handoff">chansend: recvq waiting → direct handoff</span>
+<span class="code-line" data-code-key="send_buf">chansend: buf[sendx]=val; sendx++</span>
+<span class="code-line" data-code-key="send_park">chansend: park on sendq (full/sync)</span>
+<span class="code-line" data-code-key="send_closed">chansend: closed → panic</span>
+<span class="code-line" data-code-key="recv_sendq">chanrecv: wake sender / fill slot</span>
+<span class="code-line" data-code-key="recv_buf">chanrecv: val=buf[recvx]; recvx++</span>
+<span class="code-line" data-code-key="recv_zero">chanrecv: closed empty → zero</span>
+<span class="code-line" data-code-key="recv_park">chanrecv: park on recvq</span>
+<span class="code-line" data-code-key="close">closechan: wake recvq; senders panic</span>
+                </pre>
+              </div>
+              <div class="lab-log" id="ch-log" aria-live="polite" aria-label="channel 事件日志"></div>
+            </div>
           </div>
         </div>
 
@@ -135,6 +155,7 @@
     </div>
   </div>
   <script src="assets/js/site.js"></script>
+  <script src="assets/js/motion.js"></script>
   <script src="assets/js/channel-lab.js"></script>
 </body>
 </html>

@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="assets/css/tokens.css" />
   <link rel="stylesheet" href="assets/css/layout.css" />
   <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/lab-motion.css" />
 </head>
 <body data-page="gmp">
   <div class="scrim" aria-hidden="true"></div>
@@ -92,12 +93,7 @@
         <div class="lab" id="gmp-lab">
           <div class="lab-head">
             <div class="lab-title"><span class="led" aria-hidden="true"></span>GMP Lab</div>
-            <div class="legend" aria-hidden="true">
-              <span><i style="background:var(--st-run)"></i>可运行</span>
-              <span><i style="background:var(--st-run-cpu)"></i>运行中</span>
-              <span><i style="background:var(--st-block)"></i>阻塞</span>
-              <span><i style="background:var(--st-done)"></i>结束</span>
-            </div>
+            <span class="chip">FLIP · drag G · GOMAXPROCS</span>
           </div>
           <div class="lab-controls">
             <label>场景
@@ -108,18 +104,45 @@
                 <option value="block">G 阻塞 · M 解绑</option>
               </select>
             </label>
+            <label>GOMAXPROCS
+              <select id="gmp-procs" aria-label="GOMAXPROCS">
+                <option value="1">1</option>
+                <option value="2" selected>2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+              </select>
+            </label>
             <div class="btn-row">
               <button type="button" class="btn" id="gmp-step">单步</button>
               <button type="button" class="btn btn-primary" id="gmp-play">播放</button>
+              <button type="button" class="btn" id="gmp-inject">注入 G</button>
               <button type="button" class="btn btn-ghost" id="gmp-reset">重置</button>
             </div>
             <label>速度
               <input type="range" id="gmp-speed" min="1" max="10" value="5" />
             </label>
           </div>
-          <div class="lab-body">
+          <div class="timeline-bar" data-gmp-timeline>
+            <span class="tl-label" data-timeline-label>—</span>
+            <input type="range" data-timeline-range min="0" max="0" value="0" aria-label="调度时间轴" />
+            <span class="tl-label">scrub</span>
+          </div>
+          <div class="lab-grid-3">
             <div class="lab-stage" id="gmp-stage" aria-live="polite"></div>
-            <div class="lab-log" id="gmp-log" aria-live="polite" aria-label="调度事件日志"></div>
+            <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+              <div class="code-panel" id="gmp-code">
+                <div class="code-title">pseudo · findrunnable / steal</div>
+                <pre>
+<span class="code-line" data-code-key="schedule">schedule: local runnext / local queue</span>
+<span class="code-line" data-code-key="global">schedule: global queue half-pop</span>
+<span class="code-line" data-code-key="steal">stealWork: steal half from other P</span>
+<span class="code-line" data-code-key="execute">execute: M binds P, runs G</span>
+<span class="code-line" data-code-key="block">block: detach M from P; spare M</span>
+<span class="code-line" data-code-key="unbound">M without P: spin or park</span>
+                </pre>
+              </div>
+              <div class="lab-log" id="gmp-log" aria-live="polite" aria-label="调度事件日志"></div>
+            </div>
           </div>
         </div>
 
@@ -162,6 +185,7 @@
     </div>
   </div>
   <script src="assets/js/site.js"></script>
+  <script src="assets/js/motion.js"></script>
   <script src="assets/js/gmp-lab.js"></script>
 </body>
 </html>

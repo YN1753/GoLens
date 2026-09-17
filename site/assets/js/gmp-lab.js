@@ -1,4 +1,5 @@
 (function () {
+  const M = window.GoLens;
   const stage = document.getElementById("gmp-stage");
   const logEl = document.getElementById("gmp-log");
   const sceneSel = document.getElementById("gmp-scene");
@@ -6,90 +7,128 @@
   const playBtn = document.getElementById("gmp-play");
   const resetBtn = document.getElementById("gmp-reset");
   const speedEl = document.getElementById("gmp-speed");
-  if (!stage) return;
+  const procsEl = document.getElementById("gmp-procs");
+  const injectBtn = document.getElementById("gmp-inject");
+  const codePanel = document.getElementById("gmp-code");
+  const timelineEl = document.querySelector("[data-gmp-timeline]");
+  if (!stage || !M) return;
 
-  let timer = null;
+  const timeline = new M.Timeline();
+  let tlCtrl = null;
   let state = null;
+  let timer = null;
+  let steps = [];
+  let stepIdx = 0;
+  let dragId = null;
 
-  function log(msg, kind) {
-    if (window.GoLens && window.GoLens.log) window.GoLens.log(logEl, msg, kind);
+  const CODE = {
+    schedule: "schedule(): findrunnable() on local runnext/queue",
+    global: "schedule(): check global queue / steal half from other Ps",
+    steal: "stealWork(): take half of another P's local queue",
+    execute: "execute(): M binds P, runs G",
+    block: "G blocks → M may detach from P; new M takes P",
+    unbound: "M without P: spin or park"
+  };
+
+  function setCode(key) {
+    if (!codePanel) return;
+    codePanel.querySelectorAll(".code-line").forEach(function (line) {
+      line.classList.toggle("is-active", line.getAttribute("data-code-key") === key);
+    });
   }
 
-  function gLabel(g) {
-    return "G" + g.id;
+  function log(tag, msg) {
+    M.logLine(logEl, tag, msg);
   }
 
   function makeG(id, st) {
     return { id: id, state: st || "runnable", note: "" };
   }
 
-  function initState(scene) {
+  function cloneState(s) {
+    return JSON.parse(JSON.stringify(s));
+  }
+
+  function pushHistory(label) {
+    timeline.push(cloneState(state), label);
+    if (tlCtrl) tlCtrl.sync();
+  }
+
+  function defaultMs(n) {
+    const ms = [];
+    for (let i = 0; i < n; i++) ms.push({ id: i, boundP: null, g: null, mstate: "parked", note: "" });
+    return ms;
+  }
+
+  function initState(scene, procs) {
+    const pCount = procs;
     const base = {
       scene: scene,
+      procs: pCount,
       tick: 0,
       global: [],
-      ps: [
-        { id: 0, runnext: null, queue: [], m: null },
-        { id: 1, runnext: null, queue: [], m: null }
-      ],
-      ms: [{ id: 0 }, { id: 1 }],
+      ps: [],
+      ms: defaultMs(Math.max(pCount, 2)),
       freeGs: [],
       nextId: 1
     };
+    for (let i = 0; i < pCount; i++) {
+      base.ps.push({ id: i, runnext: null, queue: [], m: null });
+    }
 
     if (scene === "basic") {
-      base.ps[0].runnext = makeG(1, "runnable");
+      base.ps[0].runnext = makeG(1);
       base.ps[0].queue = [makeG(2), makeG(3)];
-      base.ps[1].queue = [makeG(4)];
+      if (base.ps[1]) base.ps[1].queue = [makeG(4)];
       base.nextId = 5;
     } else if (scene === "overflow") {
-      // fill P0 local queue beyond small capacity to force global push
       base.ps[0].runnext = makeG(1);
-      for (let i = 2; i <= 8; i++) base.ps[0].queue.push(makeG(i));
-      base.ps[1].queue = [makeG(9)];
+      for (let i = 2; i <= 9; i++) base.ps[0].queue.push(makeG(i));
       base.nextId = 10;
     } else if (scene === "steal") {
       base.ps[0].runnext = makeG(1);
       base.ps[0].queue = [makeG(2), makeG(3), makeG(4), makeG(5), makeG(6)];
-      base.ps[1].queue = [];
       base.nextId = 7;
     } else if (scene === "block") {
       base.ps[0].runnext = makeG(1, "running");
-      base.ps[0].m = 0;
-      base.ms[0].boundP = 0;
       base.ps[0].queue = [makeG(2), makeG(3)];
-      base.ps[1].queue = [makeG(4)];
+      if (base.ps[1]) base.ps[1].queue = [makeG(4)];
       base.nextId = 5;
     }
+    bindMs(base);
     return base;
   }
 
-  function bindMs() {
-    state.ms.forEach(function (m) {
+  function bindMs(st) {
+    st.ms.forEach(function (m) {
       m.boundP = null;
       m.g = null;
+      if (m.mstate === "running") m.mstate = "parked";
     });
-    state.ps.forEach(function (p) {
+    st.ps.forEach(function (p) {
       p.m = null;
     });
-    // bind available Ms to Ps in order
     let mi = 0;
-    state.ps.forEach(function (p) {
-      if (mi < state.ms.length) {
-        p.m = state.ms[mi].id;
-        state.ms[mi].boundP = p.id;
+    st.ps.forEach(function (p) {
+      if (mi < st.ms.length) {
+        p.m = st.ms[mi].id;
+        st.ms[mi].boundP = p.id;
+        st.ms[mi].mstate = "parked";
         mi++;
       }
     });
   }
 
-  function findG(id) {
-    const pools = [state.global];
-    state.ps.forEach(function (p) {
+  function findG(st, id) {
+    const pools = [st.global];
+    st.ps.forEach(function (p) {
       pools.push(p.queue);
       if (p.runnext) pools.push([p.runnext]);
     });
-    state.freeGs.forEach(function (x) {
+    st.ms.forEach(function (m) {
+      if (m._blocked) pools.push([m._blocked]);
+    });
+    st.freeGs.forEach(function (x) {
       pools.push([x.g]);
     });
     for (let i = 0; i < pools.length; i++) {
@@ -101,12 +140,11 @@
     return null;
   }
 
-  function removeGFromQueues(g) {
-    const id = g.id;
-    state.global = state.global.filter(function (x) {
+  function removeG(st, id) {
+    st.global = st.global.filter(function (x) {
       return x.id !== id;
     });
-    state.ps.forEach(function (p) {
+    st.ps.forEach(function (p) {
       if (p.runnext && p.runnext.id === id) p.runnext = null;
       p.queue = p.queue.filter(function (x) {
         return x.id !== id;
@@ -114,42 +152,36 @@
     });
   }
 
-  function pushGlobal(arr) {
-    arr.forEach(function (g) {
-      state.global.push(g);
-    });
-  }
-
   function scenarioScript() {
-    // returns array of step functions; each returns message or null
     if (state.scene === "basic") {
       return [
         function () {
-          bindMs();
-          return "绑定 M→P：M0↔P0，M1↔P1（无 P 不能跑用户 G）";
+          setCode("schedule");
+          return "绑定 M→P（无 P 不能跑用户 G）";
         },
         function () {
           const p = state.ps[0];
-          if (p.runnext) {
-            p.runnext.state = "running";
-            if (p.m !== null) {
-              const m = state.ms[p.m];
-              m.g = p.runnext.id;
-            }
-            return "P0 取 runnext " + gLabel(p.runnext) + " 交给 M0 执行";
+          if (!p.runnext) return "无 runnext";
+          p.runnext.state = "running";
+          if (p.m !== null) {
+            const m = state.ms[p.m];
+            m.g = p.runnext.id;
+            m.mstate = "running";
           }
-          return null;
+          setCode("execute");
+          return "P0 取 runnext G" + p.runnext.id + " → M" + p.m;
         },
         function () {
           const p = state.ps[0];
-          const m = state.ms[p.m];
+          const m = p.m !== null ? state.ms[p.m] : null;
           if (m && m.g) {
-            const g = findG(m.g);
+            const g = findG(state, m.g);
+            m.g = null;
+            m.mstate = "parked";
             if (g) {
               g.state = "done";
-              m.g = null;
-              removeGFromQueues(g);
-              return gLabel(g) + " 执行结束，从 P0 移除";
+              removeG(state, g.id);
+              return "G" + g.id + " 结束";
             }
           }
           return null;
@@ -160,192 +192,146 @@
           if (next) {
             p.runnext = next;
             next.state = "running";
-            if (p.m !== null) state.ms[p.m].g = next.id;
-            return "P0 本地队列出队 " + gLabel(next) + "，进入 runnext";
+            if (p.m !== null) {
+              state.ms[p.m].g = next.id;
+              state.ms[p.m].mstate = "running";
+            }
+            setCode("schedule");
+            return "本地队列出队 G" + next.id;
           }
-          return "P0 本地队列空，尝试全局队列…";
+          return "P0 本地空 → 看全局";
         },
         function () {
           if (state.global.length) {
             const g = state.global.shift();
-            state.ps[1].queue.push(g);
-            return "全局队列取出 " + gLabel(g) + " 放入 P1";
+            if (state.ps[1]) state.ps[1].queue.push(g);
+            setCode("global");
+            return "全局队列 → P1：" + "G" + g.id;
           }
-          const p1 = state.ps[1];
-          const n = p1.queue.shift();
-          if (n) {
-            p1.runnext = n;
-            n.state = "running";
-            if (p1.m !== null) state.ms[p1.m].g = n.id;
-            return "P1 调度 " + gLabel(n);
-          }
-          return "本轮演示结束：本地优先 → 全局兜底";
+          return "本轮结束：本地优先 → 全局兜底";
         }
       ];
     }
-
     if (state.scene === "overflow") {
       return [
         function () {
-          bindMs();
-          return "场景：P0 本地过长（演示阈值 4）";
+          setCode("schedule");
+          return "P0 本地过长（阈值 4）";
         },
         function () {
           const p = state.ps[0];
           if (p.queue.length > 4) {
             const half = Math.ceil(p.queue.length / 2);
             const moved = p.queue.splice(0, half);
-            pushGlobal(moved);
-            return (
-              "P0 本地队列过长，将 " +
-              half +
-              " 个 G 推入全局：" +
-              moved.map(gLabel).join(",")
-            );
+            state.global = state.global.concat(moved);
+            setCode("global");
+            return "推一半到全局：" + moved.map(function (g) { return "G" + g.id; }).join(",");
           }
-          return "P0 队列未超阈值";
+          return "未超阈值";
         },
         function () {
-          return (
-            "现状：P0 local=" +
-            state.ps[0].queue.length +
-            " global=" +
-            state.global.length
-          );
-        },
-        function () {
-          const g = state.global.shift();
-          if (!g) return "全局已空";
-          const p = state.ps[1];
-          p.queue.push(g);
-          return "P1 从全局取 " + gLabel(g);
+          return "local=" + state.ps[0].queue.length + " global=" + state.global.length;
         }
       ];
     }
-
     if (state.scene === "steal") {
       return [
         function () {
-          bindMs();
-          state.ps[1].queue = [];
-          state.ps[1].runnext = null;
-          return "场景：P1 饥饿，P0 积压多只 G";
+          if (state.ps[1]) {
+            state.ps[1].queue = [];
+            state.ps[1].runnext = null;
+          }
+          return "P1 饥饿，P0 积压";
         },
         function () {
-          return "P1 发现本地/全局皆空 → 随机选 P0 尝试 work stealing";
+          setCode("steal");
+          return "P1 尝试 work stealing";
         },
         function () {
           const src = state.ps[0];
+          const dst = state.ps[1];
+          if (!dst) return "无 P1";
           if (src.queue.length) {
             const half = Math.ceil(src.queue.length / 2);
             const stolen = src.queue.splice(0, half);
-            state.ps[1].queue = state.ps[1].queue.concat(stolen);
-            return (
-              "偷取成功：从 P0 本地队列拿走 " +
-              half +
-              " 个 → " +
-              stolen.map(gLabel).join(",")
-            );
+            dst.queue = dst.queue.concat(stolen);
+            log("STEAL", "偷走 " + half + " 个 G：" + stolen.map(function (g) { return "G" + g.id; }).join(","));
+            return "偷取成功 ×" + half;
           }
           if (src.runnext) {
             const g = src.runnext;
             src.runnext = null;
-            state.ps[1].runnext = g;
+            dst.runnext = g;
             g.state = "running";
-            if (state.ps[1].m !== null) state.ms[state.ps[1].m].g = g.id;
-            return "偷到 runnext " + gLabel(g) + "，P1 直接执行";
+            return "偷到 runnext G" + g.id;
           }
-          return "无可偷对象";
-        },
-        function () {
-          const n = state.ps[1].queue.shift() || state.ps[1].runnext;
-          if (n && !state.ps[1].runnext) {
-            state.ps[1].runnext = n;
-            n.state = "running";
-            return "P1 调度被偷到的 " + gLabel(n);
-          }
-          return "P1 已恢复吞吐";
+          return "无可偷";
         }
       ];
     }
-
     // block
     return [
       function () {
-        bindMs();
         const p0 = state.ps[0];
         if (p0.runnext) {
           p0.runnext.state = "running";
-          state.ms[0].g = p0.runnext.id;
+          if (p0.m !== null) {
+            state.ms[p0.m].g = p0.runnext.id;
+            state.ms[p0.m].mstate = "running";
+          }
         }
-        return "M0 正在执行 " + (p0.runnext ? gLabel(p0.runnext) : "G?");
+        setCode("execute");
+        return "M0 执行 " + (p0.runnext ? "G" + p0.runnext.id : "G?");
       },
       function () {
         const m0 = state.ms[0];
-        if (m0.g) {
-          const g = findG(m0.g);
+        if (m0 && m0.g) {
+          const g = findG(state, m0.g);
           if (g) {
             g.state = "blocked";
-            g.note = "channel/syscall";
-            if (state.ps[0].runnext && state.ps[0].runnext.id === g.id) {
-              state.ps[0].runnext = null;
-            }
-            return gLabel(g) + " 进入阻塞（channel 或 syscall）";
+            g.note = "syscall";
+            m0.mstate = "syscall";
+            if (state.ps[0].runnext && state.ps[0].runnext.id === g.id) state.ps[0].runnext = null;
+            log("SYS", "G" + g.id + " 系统调用/阻塞");
+            return "G 进入阻塞";
           }
         }
         return null;
       },
       function () {
         const p0 = state.ps[0];
-        const blockedId = state.ms[0].g;
-        const blockedG = blockedId ? findG(blockedId) : null;
-        state.ms[0].boundP = null;
+        const m0 = state.ms[0];
+        if (m0) {
+          m0.boundP = null;
+          m0.note = "carrying blocked G";
+          if (m0.g) {
+            const g = findG(state, m0.g);
+            if (g) m0._blocked = g;
+            m0.g = null;
+          }
+        }
         p0.m = null;
-        if (blockedG) state.freeGs.push({ g: blockedG });
-        state.ms[0].note = "带着阻塞 G 挂起";
-        return "M0 与 P0 解绑，P0 空出，需另寻 M";
+        setCode("block");
+        log("BLOCK", "M0 与 P0 解绑");
+        return "P0 空出，需备用 M";
       },
       function () {
         const p0 = state.ps[0];
-        const m2 = { id: state.ms.length, boundP: p0.id };
+        const m2 = { id: state.ms.length, boundP: p0.id, g: null, mstate: "parked", note: "spare M" };
         state.ms.push(m2);
         p0.m = m2.id;
         const next = p0.queue.shift();
         if (next) {
           next.state = "running";
           m2.g = next.id;
-          m2.note = "新 M 绑定 P0";
-          return "调度器为 P0 绑定新 M，继续跑 " + gLabel(next);
+          m2.mstate = "running";
+          setCode("execute");
+          return "新 M 绑定 P0，继续 G" + next.id;
         }
-        return "P0 暂无可运行 G，M 可能自旋或休眠";
+        setCode("unbound");
+        return "P0 暂无 G，M 自旋/休眠";
       }
     ];
-  }
-
-  let steps = [];
-  let stepIdx = 0;
-
-  function reset() {
-    stopPlay();
-    state = initState(sceneSel.value);
-    bindMs();
-    steps = scenarioScript();
-    stepIdx = 0;
-    if (logEl) logEl.innerHTML = "";
-    render();
-    log("已加载场景：" + sceneSel.options[sceneSel.selectedIndex].text);
-  }
-
-  function stepOnce() {
-    if (stepIdx >= steps.length) {
-      log("已到场景末尾，可重置或切换场景", "warn");
-      stopPlay();
-      return;
-    }
-    const msg = steps[stepIdx++]();
-    state.tick++;
-    render();
-    if (msg) log(msg, stepIdx === 1 ? "accent" : null);
   }
 
   function stopPlay() {
@@ -353,7 +339,42 @@
       clearInterval(timer);
       timer = null;
     }
-    playBtn.textContent = "播放";
+    if (playBtn) playBtn.textContent = "播放";
+  }
+
+  function reset() {
+    stopPlay();
+    state = initState(sceneSel.value, Number(procsEl.value));
+    steps = scenarioScript();
+    stepIdx = 0;
+    if (logEl) logEl.innerHTML = "";
+    pushHistory("reset · " + sceneSel.value);
+    render();
+    log("BIND", "场景 " + sceneSel.options[sceneSel.selectedIndex].text + " · GOMAXPROCS=" + state.procs);
+  }
+
+  function stepOnce() {
+    if (stepIdx >= steps.length) {
+      log("BLOCK", "场景结束，可重置/切场景/注入 G");
+      stopPlay();
+      return;
+    }
+    const msg = steps[stepIdx++]();
+    state.tick++;
+    pushHistory("step " + state.tick);
+    render();
+    if (msg) log("MARK", msg);
+  }
+
+  function injectG(targetKind, targetP) {
+    const g = makeG(state.nextId++);
+    g.state = "runnable";
+    if (targetKind === "global") state.global.push(g);
+    else if (typeof targetP === "number" && state.ps[targetP]) state.ps[targetP].queue.push(g);
+    else state.global.push(g);
+    pushHistory("inject G" + g.id);
+    render();
+    log("BIND", "注入 G" + g.id + " → " + (targetKind === "global" ? "全局" : "P" + targetP));
   }
 
   function togglePlay() {
@@ -363,69 +384,122 @@
     }
     playBtn.textContent = "暂停";
     const speed = Number(speedEl.value) || 5;
-    const ms = 1200 - speed * 100;
-    timer = setInterval(stepOnce, Math.max(300, ms));
+    const ms = 1100 - speed * 90;
+    timer = setInterval(stepOnce, Math.max(280, ms));
   }
 
-  function stateColor(st) {
-    if (st === "running") return "var(--st-run-cpu)";
-    if (st === "runnable") return "var(--st-run)";
-    if (st === "blocked") return "var(--st-block)";
-    if (st === "done") return "var(--st-done)";
-    return "var(--muted)";
-  }
-
-  function gChip(g) {
-    if (!g) return "";
+  function gEl(g, kind, pid) {
+    const flipId = "g-" + g.id;
     return (
-      '<span class="chip" style="border-color:' +
-      stateColor(g.state) +
-      ';color:' +
-      stateColor(g.state) +
-      '">' +
-      gLabel(g) +
-      (g.note ? " · " + g.note : "") +
+      '<span class="g-block" data-flip-id="' + flipId + '" data-gid="' + g.id +
+      '" data-state="' + g.state + '" draggable="true" title="拖到队列">' +
+      "G" + g.id +
+      (g.note ? "·" + g.note : "") +
       "</span>"
     );
   }
 
   function render() {
-    let html = "";
-    html += '<div style="display:grid;gap:12px">';
+    let html = '<div class="gmp-board">';
 
-    html += '<div class="rt-box"><div class="rt-title">全局队列 · ' + state.global.length + " G</div>";
-    html += '<div style="display:flex;flex-wrap:wrap;gap:6px">';
-    if (!state.global.length) html += '<span style="color:var(--faint)">empty</span>';
+    html += '<div class="gmp-global"><div class="rt-title">全局队列 · ' + state.global.length + "</div>";
+    html += '<div class="g-queue" data-drop="global">';
+    if (!state.global.length) html += '<span style="color:var(--faint);font-size:12px">empty — 可拖入</span>';
     state.global.forEach(function (g) {
-      html += gChip(g);
+      html += gEl(g, "global");
     });
     html += "</div></div>";
 
-    html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px">';
+    html += '<div class="rt-title" style="margin:4px 0">Processors · GOMAXPROCS=' + state.procs + "</div>";
+    html += '<div class="gmp-row">';
     state.ps.forEach(function (p) {
-      html += '<div class="rt-box"><div class="rt-title">P' + p.id + (p.m !== null ? " · M" + p.m : " · 无 M") + "</div>";
-      html += "<div>runnext: " + (p.runnext ? gChip(p.runnext) : '<span style="color:var(--faint)">—</span>') + "</div>";
-      html += '<div style="margin-top:8px">local q (' + p.queue.length + '): <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">';
-      if (!p.queue.length) html += '<span style="color:var(--faint)">empty</span>';
+      html += '<div class="gmp-p" data-p="' + p.id + '">';
+      html += '<div class="rt-title">P' + p.id + (p.m !== null ? " · M" + p.m : " · 无 M") + "</div>";
+      html += "<div>runnext: " + (p.runnext ? gEl(p.runnext, "runnext", p.id) : '<span style="color:var(--faint)">—</span>') + "</div>";
+      html += '<div style="margin-top:6px" class="g-queue" data-drop="p" data-pid="' + p.id + '">';
+      if (!p.queue.length) html += '<span style="color:var(--faint);font-size:12px">local q</span>';
       p.queue.forEach(function (g) {
-        html += gChip(g);
+        html += gEl(g, "p", p.id);
       });
-      html += "</div></div></div>";
+      html += "</div></div>";
     });
     html += "</div>";
 
-    html += '<div class="rt-box"><div class="rt-title">Machines</div><div style="display:flex;flex-wrap:wrap;gap:8px">';
+    html += '<div class="rt-title" style="margin:8px 0 4px">Machines</div>';
+    html += '<div class="gmp-row">';
     state.ms.forEach(function (m) {
+      const st = m.mstate || "parked";
       html +=
-        '<span class="chip">M' +
-        m.id +
+        '<div class="m-card" data-m="' + m.id + '">' +
+        '<div class="m-head"><span class="m-led" data-mstate="' + st + '"></span>M' + m.id +
         (m.boundP !== null && m.boundP !== undefined ? "→P" + m.boundP : " unbound") +
-        (m.g ? " exec G" + m.g : "") +
-        (m.note ? " · " + m.note : "") +
-        "</span>";
+        "</div>" +
+        '<div style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">' +
+        (m.g ? "exec G" + m.g : m._blocked ? "blocked G" + m._blocked.id : m.note || st) +
+        "</div>" +
+        (m.boundP === null || m.boundP === undefined ? '<div class="p-detach">DETACHED</div>' : "") +
+        "</div>";
     });
-    html += "</div></div></div>";
-    stage.innerHTML = html;
+    html += "</div></div>";
+
+    M.flipAnimate(stage, function () {
+      stage.innerHTML = html;
+    }, { duration: 260 });
+
+    bindDnD();
+  }
+
+  function bindDnD() {
+    stage.querySelectorAll(".g-block[draggable]").forEach(function (el) {
+      el.addEventListener("dragstart", function (e) {
+        dragId = el.getAttribute("data-gid");
+        el.classList.add("is-dragging");
+        if (e.dataTransfer) e.dataTransfer.setData("text/plain", dragId);
+      });
+      el.addEventListener("dragend", function () {
+        el.classList.remove("is-dragging");
+        dragId = null;
+      });
+    });
+    stage.querySelectorAll("[data-drop]").forEach(function (zone) {
+      zone.addEventListener("dragover", function (e) {
+        e.preventDefault();
+        zone.classList.add("is-drop-target");
+      });
+      zone.addEventListener("dragleave", function () {
+        zone.classList.remove("is-drop-target");
+      });
+      zone.addEventListener("drop", function (e) {
+        e.preventDefault();
+        zone.classList.remove("is-drop-target");
+        const id = Number((e.dataTransfer && e.dataTransfer.getData("text/plain")) || dragId);
+        if (!id) return;
+        moveG(id, zone);
+      });
+    });
+  }
+
+  function moveG(id, zone) {
+    const g = findG(state, id);
+    if (!g) return;
+    if (g.state === "blocked" || g.state === "running") {
+      log("BLOCK", "G" + id + " 当前不可拖（" + g.state + "）");
+      return;
+    }
+    removeG(state, id);
+    g.state = "runnable";
+    if (zone.getAttribute("data-drop") === "global") {
+      state.global.push(g);
+      log("BIND", "拖拽 G" + id + " → 全局队列");
+    } else {
+      const pid = Number(zone.getAttribute("data-pid"));
+      if (state.ps[pid]) {
+        state.ps[pid].queue.push(g);
+        log("BIND", "拖拽 G" + id + " → P" + pid + " 本地队列");
+      }
+    }
+    pushHistory("drag G" + id);
+    render();
   }
 
   stepBtn.addEventListener("click", function () {
@@ -435,6 +509,16 @@
   playBtn.addEventListener("click", togglePlay);
   resetBtn.addEventListener("click", reset);
   sceneSel.addEventListener("change", reset);
+  procsEl.addEventListener("change", reset);
+  injectBtn.addEventListener("click", function () {
+    injectG("global");
+  });
+
+  tlCtrl = M.bindTimelineControls(timelineEl || document, timeline, function (frame) {
+    stopPlay();
+    state = cloneState(frame.state);
+    render();
+  });
 
   reset();
 })();
