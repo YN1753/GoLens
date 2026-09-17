@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="GC 三色标记、写屏障与 STW 交互演示" />
+  <title>GC 三色标记 · GoLens</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+</head>
+<body data-page="gc">
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar" aria-label="站点导航">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">GoLens</span>
+        <span class="brand-sub">Runtime Lab</span>
+      </a>
+      <nav class="nav-section" aria-label="章节目录">
+        <div class="nav-label">目录</div>
+        <a class="nav-link" data-page="home" href="index.html"><span class="idx">00</span>首页</a>
+        <a class="nav-link" data-page="gmp" href="gmp.html"><span class="idx">01</span>GMP 调度</a>
+        <a class="nav-link" data-page="channel" href="channel.html"><span class="idx">02</span>Channel 底层</a>
+        <a class="nav-link" data-page="gc" href="gc.html"><span class="idx">03</span>GC 三色标记</a>
+      </nav>
+      <div class="sidebar-foot">tri-color + 写屏障直觉<br />非精确 pacer / 混合屏障指令集</div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
+        <div class="topbar-title">GoLens / 03 gc</div>
+        <div class="topbar-actions"><span class="chip">章节 03</span></div>
+      </header>
+
+      <article class="content lab-wide">
+        <div class="eyebrow">Chapter 03</div>
+        <h1>GC 三色标记与写屏障</h1>
+        <p class="verdict">
+          Go 并发 GC 用<strong>三色</strong>区分「还没扫 / 待扫 / 已扫」，
+          用<strong>写屏障</strong>防止标记过程中 mutator 把指针改到「从黑对象到白对象」导致漏标；
+          标记开始与结束仍需要短 STW 收束。
+        </p>
+
+        <h2>三色是什么</h2>
+        <ul>
+          <li><strong>白</strong>：尚未确认可达，结束时仍是白则可回收（概念上）。</li>
+          <li><strong>灰</strong>：已知可达，但子指针还没扫完，工作队列里躺着。</li>
+          <li><strong>黑</strong>：已扫完，从它出发的引用已处理。</li>
+        </ul>
+        <p>
+          不变式（面试可背）：标记过程中不应存在从<strong>黑直接指向白</strong>的指针——
+          否则黑已「扫完」，白可能被永久错过。写屏障就是用来在并发写指针时维持这条不变式。
+        </p>
+
+        <h2>根从哪来</h2>
+        <p>栈上变量、全局变量、寄存器等「根集合」被标灰，再从灰扩展到堆对象。Lab 用几个根节点示意即可。</p>
+
+        <div class="callout">
+          <div class="callout-title">STW 在哪</div>
+          <p>典型叙事：标记启动 STW（开启屏障、准备根）→ 并发标记 → 标记终止 STW（收尾、关屏障）→ 并发清扫。目的不是「全程停世界」，而是让并发阶段的不变式可成立。</p>
+        </div>
+
+        <h2>交互 Lab · 逐步染色</h2>
+        <p>先「标记根」，再反复「处理一个灰对象」。打开写屏障后尝试「改指针」，观察目标是否被标灰；关闭屏障对比漏标风险。</p>
+
+        <div class="lab" id="gc-lab">
+          <div class="lab-head">
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>GC Lab</div>
+            <div class="legend" aria-hidden="true">
+              <span><i style="background:var(--gc-white)"></i>白</span>
+              <span><i style="background:var(--gc-gray)"></i>灰</span>
+              <span><i style="background:var(--gc-black)"></i>黑</span>
+            </div>
+          </div>
+          <div class="lab-controls">
+            <label class="chip" style="cursor:pointer">
+              <input type="checkbox" id="gc-barrier" checked />
+              写屏障 ON
+            </label>
+            <div class="btn-row">
+              <button type="button" class="btn btn-primary" id="gc-roots">标记根</button>
+              <button type="button" class="btn" id="gc-step">处理一个灰</button>
+              <button type="button" class="btn" id="gc-mutate">改指针 B→D</button>
+              <button type="button" class="btn btn-ghost" id="gc-reset">重置</button>
+            </div>
+            <span class="chip" id="gc-phase">idle</span>
+          </div>
+          <div class="lab-body">
+            <div class="lab-stage" id="gc-stage" aria-live="polite"></div>
+            <div class="lab-log" id="gc-log" aria-live="polite" aria-label="GC 事件日志"></div>
+          </div>
+        </div>
+
+        <h2>常见追问</h2>
+        <div class="faq">
+          <details>
+            <summary>为什么并发标记还需要写屏障？</summary>
+            <p>因为 mutator 与 marker 同时跑。若黑对象新指向一个未被发现的白对象，而 barrier 不介入，对象可能被误判为垃圾。</p>
+          </details>
+          <details>
+            <summary>Dijkstra 与 Yuasa 怎么选？</summary>
+            <p>常见科普：Dijkstra 强调「插入时把目标标灰」；Yuasa 是删除屏障思路。现代 Go 用混合写屏障融合优势。Lab 只演示「插入时灰化」这一直觉。</p>
+          </details>
+          <details>
+            <summary>三色结束后白色对象一定立刻回收吗？</summary>
+            <p>教学模型是「白即可回收」；真实实现还有清扫、span 管理与并发清扫，不必在八股里展开到 mspan 字段。</p>
+          </details>
+        </div>
+
+        <h2>速查表</h2>
+        <div class="cheat">
+          <ul>
+            <li>白=未确认；灰=可达待扫；黑=已扫</li>
+            <li>不变式：避免「黑 → 白」指针被漏标</li>
+            <li>根：栈 / 全局 / 寄存器 → 标灰后扩展</li>
+            <li>写屏障：并发改指针时把相关对象拉回灰色工作</li>
+            <li>STW：标记开始与终止短暂停，保证收束</li>
+          </ul>
+        </div>
+
+        <nav class="page-nav" aria-label="上下章">
+          <a href="channel.html">← Channel 底层</a>
+          <a href="index.html">回首页 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+  <script src="js/site.js"></script>
+  <script src="js/gc-lab.js"></script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Channel 底层：hchan、环形缓冲、阻塞 send/recv 与 close" />
+  <title>Channel 底层 · GoLens</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+</head>
+<body data-page="channel">
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar" aria-label="站点导航">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">GoLens</span>
+        <span class="brand-sub">Runtime Lab</span>
+      </a>
+      <nav class="nav-section" aria-label="章节目录">
+        <div class="nav-label">目录</div>
+        <a class="nav-link" data-page="home" href="index.html"><span class="idx">00</span>首页</a>
+        <a class="nav-link" data-page="gmp" href="gmp.html"><span class="idx">01</span>GMP 调度</a>
+        <a class="nav-link" data-page="channel" href="channel.html"><span class="idx">02</span>Channel 底层</a>
+        <a class="nav-link" data-page="gc" href="gc.html"><span class="idx">03</span>GC 三色标记</a>
+      </nav>
+      <div class="sidebar-foot">四象限：有无缓冲 × 有无等待者</div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
+        <div class="topbar-title">GoLens / 02 channel</div>
+        <div class="topbar-actions"><span class="chip">章节 02</span></div>
+      </header>
+
+      <article class="content lab-wide">
+        <div class="eyebrow">Chapter 02</div>
+        <h1>Channel 底层</h1>
+        <p class="verdict">
+          Channel 不是「带锁的队列」这么简单：它在 <code>hchan</code> 上同时维护环形缓冲与收发等待队列，
+          能直接交接就不入队，队列空了才阻塞并把 G 挂到 <code>recvq</code>/<code>sendq</code>。
+        </p>
+
+        <h2>hchan 里有什么</h2>
+        <p>面试可记这几样（名称按源码习惯）：</p>
+        <ul>
+          <li><code>buf</code>：环形缓冲；无缓冲 channel 的 <code>cap = 0</code>，buf 退化为直接交接</li>
+          <li><code>sendx</code> / <code>recvx</code>：下一次收发下标；<code>count</code> 当前元素数</li>
+          <li><code>sendq</code> / <code>recvq</code>：因发送/接收阻塞的 G（sudog 链表）</li>
+          <li><code>closed</code>：关闭标记；关闭后接收可读零值，发送会 panic</li>
+          <li>互斥锁：保护上述结构的一致性（细节可一句带过）</li>
+        </ul>
+
+        <h2>发送路径（口述版）</h2>
+        <ol>
+          <li>若 <code>recvq</code> 有人等：直接把值交给等待的接收者，唤醒它（缓冲 channel 也可能先把等待者队列里的值挪出来再入队，概念上记「优先对接等待者」）。</li>
+          <li>否则若缓冲未满：写入 <code>buf</code>，成功返回。</li>
+          <li>否则：当前 G 挂入 <code>sendq</code> 阻塞，等接收方取走后再被唤醒。</li>
+        </ol>
+        <p>接收路径对称：先对接 <code>sendq</code> 等待者，否则从 buf 取，否则挂 <code>recvq</code>。</p>
+
+        <div class="callout callout-warn">
+          <div class="callout-title">close 要点</div>
+          <p>关闭会唤醒所有等待接收者（读到零值与 <code>ok=false</code>）；对已关闭 channel 发送 panic；重复 close 也 panic。向带缓冲 channel 关闭后，缓冲里已有元素仍可被取完。</p>
+        </div>
+
+        <h2>交互 Lab · 四象限演练</h2>
+        <p>切换容量，反复点「发送 / 接收 / 关闭」，看环形格子与 sendq/recvq 如何变化。</p>
+
+        <div class="lab" id="channel-lab">
+          <div class="lab-head">
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>Channel Lab</div>
+            <div class="legend" aria-hidden="true">
+              <span><i style="background:var(--accent)"></i>缓冲值</span>
+              <span><i style="background:var(--st-block)"></i>等待中</span>
+              <span><i style="background:var(--danger)"></i>已关闭</span>
+            </div>
+          </div>
+          <div class="lab-controls">
+            <label>容量
+              <select id="ch-cap" aria-label="channel 容量">
+                <option value="0">0 · 同步</option>
+                <option value="1" selected>1</option>
+                <option value="4">4</option>
+              </select>
+            </label>
+            <div class="btn-row">
+              <button type="button" class="btn btn-primary" id="ch-send">发送</button>
+              <button type="button" class="btn btn-primary" id="ch-recv">接收</button>
+              <button type="button" class="btn" id="ch-close">关闭</button>
+              <button type="button" class="btn btn-ghost" id="ch-reset">重置</button>
+            </div>
+            <span class="chip" id="ch-state-chip">open</span>
+          </div>
+          <div class="lab-body">
+            <div class="lab-stage" id="ch-stage" aria-live="polite"></div>
+            <div class="lab-log" id="ch-log" aria-live="polite" aria-label="channel 事件日志"></div>
+          </div>
+        </div>
+
+        <h2>常见追问</h2>
+        <div class="faq">
+          <details>
+            <summary>无缓冲是不是「一定同步」？</summary>
+            <p>是「交接语义」：发送方通常要等接收方就绪（或反之），像一次会合，而不是先把数据扔进中间容器。</p>
+          </details>
+          <details>
+            <summary>为什么向 nil channel 会永久阻塞？</summary>
+            <p>nil 没有底层 hchan 可操作，收发都找不到队列与缓冲，只能一直等。</p>
+          </details>
+          <details>
+            <summary>range channel 何时退出？</summary>
+            <p>channel 被关闭且缓冲读尽后，<code>for range</code> 结束。只关闭不读尽会先掏完 buf。</p>
+          </details>
+        </div>
+
+        <h2>速查表</h2>
+        <div class="cheat">
+          <ul>
+            <li>hchan：buf + sendx/recvx + sendq/recvq + closed</li>
+            <li>发送：先对接 recvq → 再入 buf → 否则挂 sendq</li>
+            <li>接收：先对接 sendq → 再取 buf → 否则挂 recvq</li>
+            <li>close：唤醒 recvq；再 send panic；buf 仍可收完</li>
+            <li>cap=0 为同步会合；nil channel 永久阻塞</li>
+          </ul>
+        </div>
+
+        <nav class="page-nav" aria-label="上下章">
+          <a href="gmp.html">← GMP 调度</a>
+          <a href="gc.html">下一章 GC →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+  <script src="js/site.js"></script>
+  <script src="js/channel-lab.js"></script>
+</body>
+</html>

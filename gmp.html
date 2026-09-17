@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="GMP 调度：G/P/M、本地与全局队列、work stealing 交互演示" />
+  <title>GMP 调度 · GoLens</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+</head>
+<body data-page="gmp">
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar" aria-label="站点导航">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">GoLens</span>
+        <span class="brand-sub">Runtime Lab</span>
+      </a>
+      <nav class="nav-section" aria-label="章节目录">
+        <div class="nav-label">目录</div>
+        <a class="nav-link" data-page="home" href="index.html"><span class="idx">00</span>首页</a>
+        <a class="nav-link" data-page="gmp" href="gmp.html"><span class="idx">01</span>GMP 调度</a>
+        <a class="nav-link" data-page="channel" href="channel.html"><span class="idx">02</span>Channel 底层</a>
+        <a class="nav-link" data-page="gc" href="gc.html"><span class="idx">03</span>GC 三色标记</a>
+      </nav>
+      <div class="sidebar-foot">面试向简化模型<br />不含 sysmon / 信号抢占细节</div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
+        <div class="topbar-title">GoLens / 01 gmp</div>
+        <div class="topbar-actions"><span class="chip">章节 01</span></div>
+      </header>
+
+      <article class="content lab-wide">
+        <div class="eyebrow">Chapter 01</div>
+        <h1>GMP 调度</h1>
+        <p class="verdict">
+          Go 用 <strong>G</strong>（goroutine）承载任务、<strong>P</strong>（逻辑处理器）持有可运行队列、<strong>M</strong>（OS 线程）真正执行；调度的本质是让 M 尽快从某个 P 的队列里拿到 G。
+        </p>
+
+        <h2>为什么需要 GMP</h2>
+        <p>
+          若每个 goroutine 都绑死一条 OS 线程，海量协程会把线程栈和切换成本打爆。
+          Go 把「可运行的 G」和「执行用的 M」解耦，中间用数量有限的 P 做缓冲与本地化：
+          <code>GOMAXPROCS</code> 决定 P 的个数，也就是同时能有多少 M「持有调度上下文」。
+        </p>
+
+        <h2>三个角色</h2>
+        <div class="table-wrap">
+          <table class="data">
+            <thead>
+              <tr><th>角色</th><th>是什么</th><th>面试关键句</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>G</code></td>
+                <td>Goroutine，含栈、指令指针、状态</td>
+                <td>用户态轻量执行体；栈可从 2KB 增长</td>
+              </tr>
+              <tr>
+                <td><code>P</code></td>
+                <td>Processor，逻辑处理器，持有本地运行队列等资源</td>
+                <td>P 数量 = GOMAXPROCS；没有 P 就不能调度用户 G</td>
+              </tr>
+              <tr>
+                <td><code>M</code></td>
+                <td>Machine，OS 线程</td>
+                <td>M 要绑定 P 才能跑 G；阻塞时可能与 P 解绑</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>队列与偷取</h2>
+        <p>
+          每个 P 有 <strong>runnext</strong>（下一只优先跑的 G，通常 1 个坑位）和 <strong>本地队列</strong>（历史上常见上限 256）。
+          本地满了会推一半到<strong>全局队列</strong>。P 空了会先看全局队列，再随机偷其他 P 本地队列的一半——这就是 work stealing。
+        </p>
+
+        <div class="callout">
+          <div class="callout-title">阻塞时发生什么</div>
+          <p>G 进入阻塞（如 channel、系统调用）后，M 可能带着 G 挂起；调度器会为 P 另找 M，保证吞吐不塌。系统调用场景下常见「M 与 G 绑住、P 被挪走」的叙述。</p>
+        </div>
+
+        <h2>交互 Lab · 调度器巡检</h2>
+        <p>选场景后单步或播放，观察队列变化与事件日志。刻意简化了抢占信号与 spinning 状态计数。</p>
+
+        <div class="lab" id="gmp-lab">
+          <div class="lab-head">
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>GMP Lab</div>
+            <div class="legend" aria-hidden="true">
+              <span><i style="background:var(--st-run)"></i>可运行</span>
+              <span><i style="background:var(--st-run-cpu)"></i>运行中</span>
+              <span><i style="background:var(--st-block)"></i>阻塞</span>
+              <span><i style="background:var(--st-done)"></i>结束</span>
+            </div>
+          </div>
+          <div class="lab-controls">
+            <label>场景
+              <select id="gmp-scene" aria-label="选择调度场景">
+                <option value="basic">正常调度</option>
+                <option value="overflow">本地队列溢出推全局</option>
+                <option value="steal">Work Stealing</option>
+                <option value="block">G 阻塞 · M 解绑</option>
+              </select>
+            </label>
+            <div class="btn-row">
+              <button type="button" class="btn" id="gmp-step">单步</button>
+              <button type="button" class="btn btn-primary" id="gmp-play">播放</button>
+              <button type="button" class="btn btn-ghost" id="gmp-reset">重置</button>
+            </div>
+            <label>速度
+              <input type="range" id="gmp-speed" min="1" max="10" value="5" />
+            </label>
+          </div>
+          <div class="lab-body">
+            <div class="lab-stage" id="gmp-stage" aria-live="polite"></div>
+            <div class="lab-log" id="gmp-log" aria-live="polite" aria-label="调度事件日志"></div>
+          </div>
+        </div>
+
+        <h2>常见追问</h2>
+        <div class="faq">
+          <details>
+            <summary>GOMAXPROCS 调大就一定更快吗？</summary>
+            <p>不一定。它控制 P 数，影响并行度；若负载以锁竞争、内存带宽或短 CPU 片段为主，盲目调大可能增加切换与缓存失效。</p>
+          </details>
+          <details>
+            <summary>runnext 有什么用？</summary>
+            <p>把「刚创建/刚唤醒的 G」放在 P 的下一执行位，改善局部性，减少进本地队列再取的开销。</p>
+          </details>
+          <details>
+            <summary>work stealing 偷多少？</summary>
+            <p>常见叙述是偷对方本地队列的一半（配合 runnext），降低失败概率并避免两边反复空转。</p>
+          </details>
+          <details>
+            <summary>没有 P 的 M 在干嘛？</summary>
+            <p>可能在自旋寻找可运行 G，或进入休眠等待被唤醒。面试答「spinning / parked」关键词即可。</p>
+          </details>
+        </div>
+
+        <h2>速查表</h2>
+        <div class="cheat">
+          <ul>
+            <li>G = goroutine；P = 逻辑处理器（GOMAXPROCS）；M = OS 线程</li>
+            <li>P 本地队列 + runnext；溢出推全局；空了找全局 / 偷其他 P</li>
+            <li>M 必须持有 P 才能调度用户 G</li>
+            <li>channel / syscall 阻塞可能导致 M–P 分离，调度器另起 M</li>
+            <li>目标：高吞吐、低延迟地把可运行 G 丢到核上</li>
+          </ul>
+        </div>
+
+        <nav class="page-nav" aria-label="上下章">
+          <a href="index.html">← 首页</a>
+          <a href="channel.html">下一章 Channel →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+  <script src="js/site.js"></script>
+  <script src="js/gmp-lab.js"></script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+:root {
+  --bg: #0b1214;
+  --bg-elev: #0f1619;
+  --surface: #121a1d;
+  --surface-2: #172226;
+  --line: #1e2c31;
+  --line-strong: #2a3b41;
+  --ink: #d7e2e5;
+  --ink-strong: #f2f7f8;
+  --muted: #8a9ba1;
+  --faint: #5c6d73;
+  --accent: #00add8;
+  --accent-dim: rgba(0, 173, 216, 0.14);
+  --accent-soft: rgba(0, 173, 216, 0.28);
+  --warn: #e4a11b;
+  --warn-dim: rgba(228, 161, 27, 0.14);
+  --danger: #e34b4b;
+  --ok: #3ddc97;
+  --ok-dim: rgba(61, 220, 151, 0.14);
+
+  --st-run: #3ddc97;
+  --st-run-cpu: #00add8;
+  --st-block: #e4a11b;
+  --st-done: #6b7c82;
+  --gc-white: #f2f5f6;
+  --gc-gray: #9aa5a8;
+  --gc-black: #4a5558;
+
+  --font-sans: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", ui-monospace, monospace;
+
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-md: 17px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 28px;
+  --text-3xl: 34px;
+
+  --lh-body: 1.75;
+  --lh-tight: 1.35;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  --sidebar-w: 260px;
+  --content-max: 760px;
+  --lab-max: 920px;
+  --header-h: 52px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  --shadow-lab: 0 12px 40px rgba(0, 0, 0, 0.35);
+  --focus: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion: 0.01ms;
+  }
+}

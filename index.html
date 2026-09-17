@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="GoLens — 可视化交互的 Go 并发与 GC 八股详解" />
+  <title>GoLens · Go 运行时可视化八股</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+</head>
+<body data-page="home">
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar" aria-label="站点导航">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">GoLens</span>
+        <span class="brand-sub">Runtime Lab</span>
+      </a>
+      <nav class="nav-section" aria-label="章节目录">
+        <div class="nav-label">目录</div>
+        <a class="nav-link" data-page="home" href="index.html"><span class="idx">00</span>首页</a>
+        <a class="nav-link" data-page="gmp" href="gmp.html"><span class="idx">01</span>GMP 调度</a>
+        <a class="nav-link" data-page="channel" href="channel.html"><span class="idx">02</span>Channel 底层</a>
+        <a class="nav-link" data-page="gc" href="gc.html"><span class="idx">03</span>GC 三色标记</a>
+      </nav>
+      <div class="sidebar-foot">
+        纯静态 · 无构建 · 可 GitHub Pages<br />
+        面试向简化模型，非 runtime 源码复刻
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
+        <div class="topbar-title">GoLens / index</div>
+        <div class="topbar-actions">
+          <span class="chip chip-accent">v0.1 MVP</span>
+        </div>
+      </header>
+
+      <article class="content">
+        <header class="hero">
+          <div class="hero-kicker">Go Runtime · Visual Study</div>
+          <h1>把调度器、Channel、GC<br />拆成可以动手拧的旋钮</h1>
+          <p>
+            GoLens 是一本交互式八股手册：不堆定义，先把运行时过程画出来，
+            再让你一步步拧动状态。首版聚焦面试最高频的三块——GMP、Channel、GC。
+          </p>
+        </header>
+
+        <div class="callout">
+          <div class="callout-title">怎么用</div>
+          <p>按目录顺序读正文 → 打开每章的 <strong>Lab</strong> 单步/播放 → 对照「常见追问」和「速查表」自测口述。链接可直接分享某一篇。</p>
+        </div>
+
+        <div class="chapter-grid">
+          <a class="chapter-card" href="gmp.html">
+            <div class="num">01 / GMP</div>
+            <h3>调度器如何派活</h3>
+            <p>G / P / M 三角、本地队列与全局队列、work stealing、阻塞导致的 M–P 解绑。</p>
+            <div class="meta">LAB · 4 场景 · 可单步</div>
+          </a>
+          <a class="chapter-card" href="channel.html">
+            <div class="num">02 / CHANNEL</div>
+            <h3>阻塞与唤醒的四象限</h3>
+            <p>hchan 与环形缓冲、无缓冲直接交接、sendq / recvq、close 时谁被叫醒。</p>
+            <div class="meta">LAB · 发送/接收/关闭</div>
+          </a>
+          <a class="chapter-card" href="gc.html">
+            <div class="num">03 / GC</div>
+            <h3>三色标记与写屏障</h3>
+            <p>白灰黑怎么染、根从哪来、并发标记时 mutator 改指针为何危险、写屏障救什么。</p>
+            <div class="meta">LAB · 对比开/关屏障</div>
+          </a>
+        </div>
+
+        <h2>设计原则</h2>
+        <ul>
+          <li><strong>面试直觉优先</strong>：叙事对齐 Go 1.21+ 常见讲解口径，刻意略去 sysmon 细节与屏障汇编。</li>
+          <li><strong>状态可观察</strong>：每个 Lab 都有事件日志，把「底层发生了什么」说成人话。</li>
+          <li><strong>零依赖</strong>：原生 HTML / CSS / JS，无 CDN，相对路径部署到 GitHub Pages 即可。</li>
+        </ul>
+
+        <p class="footer-note">GoLens MVP · 静态知识站 · 资源均相对路径</p>
+      </article>
+    </div>
+  </div>
+  <script src="js/site.js"></script>
+</body>
+</html>
