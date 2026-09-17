@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="assets/css/layout.css" />
   <link rel="stylesheet" href="assets/css/components.css" />
   <link rel="stylesheet" href="assets/css/lab-motion.css" />
+  <link rel="stylesheet" href="assets/css/guide.css" />
 </head>
 <body data-page="channel">
   <div class="scrim" aria-hidden="true"></div>
@@ -68,7 +69,10 @@
         </div>
 
         <h2>交互 Lab · 四象限演练</h2>
-        <p>切换容量，反复点「发送 / 接收 / 关闭」，看环形格子与 sendq/recvq 如何变化。</p>
+        <p class="beginner-tip">
+          <strong>零基础怎么用：</strong>先跟右边「关卡」走一遍快递柜剧本，再自己狂点 send/recv。
+          左边代码行会同步高亮——你在按钮上点的，就是代码里那一行。
+        </p>
 
         <div class="lab" id="channel-lab">
           <div class="lab-head">
@@ -92,6 +96,28 @@
               <button type="button" class="btn btn-ghost" id="ch-reset">重置</button>
             </div>
             <span class="chip" id="ch-state-chip">open</span>
+          </div>
+          <div class="story-band" id="ch-story">
+            <div class="code-track">
+              <div class="code-title">Go 代码 · 观察窗 <span class="hint">高亮 = 当前解释的底层路径</span></div>
+              <pre>
+<span class="code-line" data-code-key="make">ch := make(chan int, 1) // 开 1 格快递柜</span>
+<span class="code-line" data-code-key="send">ch &lt;- 42              // 投递；柜满则快递员门口干等</span>
+<span class="code-line" data-code-key="recv">v := &lt;-ch             // 取件；柜空则收件人干等</span>
+<span class="code-line" data-code-key="close">close(ch)             // 打烊：柜里还有件可取完</span>
+              </pre>
+            </div>
+            <div class="story-card">
+              <div class="story-step" data-story-step>关卡 1 / 5</div>
+              <h3 class="story-title" data-story-title></h3>
+              <div class="story-metaphor" data-story-metaphor></div>
+              <p class="story-body" data-story-body></p>
+              <div class="story-actions">
+                <button type="button" class="btn" data-story-prev>上一关</button>
+                <button type="button" class="btn btn-primary" data-story-next>下一关</button>
+                <div class="story-dots" data-story-dots></div>
+              </div>
+            </div>
           </div>
           <div class="timeline-bar" data-ch-timeline>
             <span class="tl-label" data-timeline-label>—</span>
@@ -156,6 +182,7 @@
   </div>
   <script src="assets/js/site.js"></script>
   <script src="assets/js/motion.js"></script>
+  <script src="assets/js/guide.js"></script>
   <script src="assets/js/channel-lab.js"></script>
 </body>
 </html>

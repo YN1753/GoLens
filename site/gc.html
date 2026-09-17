@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="assets/css/layout.css" />
   <link rel="stylesheet" href="assets/css/components.css" />
   <link rel="stylesheet" href="assets/css/lab-motion.css" />
+  <link rel="stylesheet" href="assets/css/guide.css" />
 </head>
 <body data-page="gc">
   <div class="scrim" aria-hidden="true"></div>
@@ -65,7 +66,10 @@
         </div>
 
         <h2>交互 Lab · 逐步染色</h2>
-        <p>先「标记根」，再反复「处理一个灰对象」。打开写屏障后尝试「改指针」，观察目标是否被标灰；关闭屏障对比漏标风险。</p>
+        <p class="beginner-tip">
+          <strong>零基础怎么用：</strong>把 GC 想成「图书馆盘点」。先跟关卡走：从门口名单（根）出发，灰=待查、黑=已查清、白=还没人碰。
+          并发时有人乱挪书（改指针），写屏障就是「值班员强制记一笔」。
+        </p>
 
         <div class="lab" id="gc-lab">
           <div class="lab-head">
@@ -84,6 +88,29 @@
               <button type="button" class="btn btn-ghost" id="gc-reset">重置</button>
             </div>
             <span class="chip" id="gc-phase">idle</span>
+          </div>
+          <div class="story-band" id="gc-story">
+            <div class="code-track">
+              <div class="code-title">Go 代码 · 观察窗 <span class="hint">不是你写的 GC 代码，是运行时在背后做的事</span></div>
+              <pre>
+<span class="code-line" data-code-key="root">// 根：栈上变量、全局变量</span>
+<span class="code-line" data-code-key="gray">// 从根出发，把可达对象标灰</span>
+<span class="code-line" data-code-key="scan">// 扫灰对象：子节点标灰，自己变黑</span>
+<span class="code-line" data-code-key="mutate">a.b = nil; c.b = b // 并发改指针（危险）</span>
+<span class="code-line" data-code-key="barrier">// 写屏障：目标强制标灰，防漏标</span>
+              </pre>
+            </div>
+            <div class="story-card">
+              <div class="story-step" data-story-step>关卡 1 / 5</div>
+              <h3 class="story-title" data-story-title></h3>
+              <div class="story-metaphor" data-story-metaphor></div>
+              <p class="story-body" data-story-body></p>
+              <div class="story-actions">
+                <button type="button" class="btn" data-story-prev>上一关</button>
+                <button type="button" class="btn btn-primary" data-story-next>下一关</button>
+                <div class="story-dots" data-story-dots></div>
+              </div>
+            </div>
           </div>
           <div class="timeline-bar" data-gc-timeline>
             <span class="tl-label" data-timeline-label>—</span>
@@ -145,6 +172,7 @@
   </div>
   <script src="assets/js/site.js"></script>
   <script src="assets/js/motion.js"></script>
+  <script src="assets/js/guide.js"></script>
   <script src="assets/js/gc-lab.js"></script>
 </body>
 </html>

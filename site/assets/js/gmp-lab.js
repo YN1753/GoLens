@@ -520,5 +520,85 @@
     render();
   });
 
+  // ---- beginner storyline ----
+  const storyRoot = document.getElementById("gmp-story");
+  if (storyRoot && M.StoryGuide) {
+    const levels = [
+      {
+        id: "intro",
+        title: "认识三个角色",
+        metaphor: "G=外卖订单，P=取餐窗口，M=骑手",
+        body: "G 是 goroutine（要跑的活），P 是逻辑处理器（决定同时能开几个窗口），M 是 OS 线程（真正干活的人）。没有窗口（P），骑手再多也接不了新单。",
+        codeKeys: [],
+        run: function () {
+          sceneSel.value = "basic";
+          procsEl.value = "2";
+          reset();
+          log("BIND", "剧情：认识 G / P / M");
+        }
+      },
+      {
+        id: "spawn",
+        title: "go task() 创建了一只 G",
+        metaphor: "顾客下单 → 生成一张订单票",
+        body: "每写一次 go 函数，运行时就造一张「订单票」G，先塞进当前 P 的本地队列（或 runnext）。代码高亮行就是这一刻。",
+        codeKeys: ["spawn_main", "spawn_task"],
+        run: function () {
+          sceneSel.value = "basic";
+          reset();
+          injectG("p", 0);
+          setCode("schedule");
+        }
+      },
+      {
+        id: "flood",
+        title: "循环 go worker：本地塞满会怎样？",
+        metaphor: "窗口排队人太多 → 溢出到大厅取餐架（全局队列）",
+        body: "P 的本地队列有容量。塞太多会把一半订单推到全局队列，避免一个窗口堵死整个商场。",
+        codeKeys: ["spawn_loop", "spawn_worker", "spawn_loop_end"],
+        run: function () {
+          sceneSel.value = "overflow";
+          procsEl.value = "2";
+          reset();
+          stepOnce();
+          stepOnce();
+        }
+      },
+      {
+        id: "sleep",
+        title: "time.Sleep：主 G 挂起",
+        metaphor: "顾客去门口等，不占窗口",
+        body: "Sleep / channel 等待会让当前 G 阻塞。调度器不会干等——会把其他可运行的 G 丢到 M 上继续跑。",
+        codeKeys: ["sleep"],
+        run: function () {
+          sceneSel.value = "block";
+          procsEl.value = "2";
+          reset();
+          stepOnce();
+          stepOnce();
+        }
+      },
+      {
+        id: "steal",
+        title: "有人很闲：work stealing",
+        metaphor: "空窗口骑手去别的窗口「抢一半单」",
+        body: "P 空了先看全局，再随机去偷其他 P 本地队列的一半。这样多核不容易饿死。",
+        codeKeys: ["spawn_end"],
+        run: function () {
+          sceneSel.value = "steal";
+          reset();
+          stepOnce();
+          stepOnce();
+          stepOnce();
+        }
+      }
+    ];
+    new M.StoryGuide({
+      root: storyRoot,
+      levels: levels,
+      codePanel: storyRoot.querySelector(".code-track")
+    });
+  }
+
   reset();
 })();

@@ -411,5 +411,76 @@
     setCode(lastActionCode);
   });
 
+  const storyRoot = document.getElementById("ch-story");
+  if (storyRoot && M.StoryGuide) {
+    new M.StoryGuide({
+      root: storyRoot,
+      codePanel: storyRoot.querySelector(".code-track"),
+      levels: [
+        {
+          id: "make",
+          title: "make 了一组快递柜",
+          metaphor: "cap=0 门对门；cap=1 小柜；cap=4 大柜",
+          body: "make(chan int, 1) 在堆上造出 hchan：环形柜子 + 两个指针 sendx/recvx + 两条排队名单 sendq/recvq。容量决定「能不能先放下再走」。",
+          codeKeys: ["make"],
+          run: function () {
+            capSel.value = "1";
+            reset(false);
+            setCode("make");
+            log("STW", "剧情：认识 hchan 就是快递柜");
+          }
+        },
+        {
+          id: "send",
+          title: "ch <- 42 投递",
+          metaphor: "柜子有空格 → 放进去就走人",
+          body: "缓冲未满时，值写入 ring[sendx]，sendx 转一格。快递员不用等收件人。点下面的「发送」试一次。",
+          codeKeys: ["send"],
+          run: function () {
+            capSel.value = "1";
+            reset(false);
+            doSend();
+            setCode("send_buf");
+          }
+        },
+        {
+          id: "block",
+          title: "再投一次：柜满了",
+          metaphor: "柜门全占 → 快递员站门口干等（挂 sendq）",
+          body: "缓冲满且没人来取，发送方 G 会阻塞进 sendq。它不是失败，是在等接收方腾格子。",
+          codeKeys: ["send"],
+          run: function () {
+            // assume one item already; send again to park
+            if (state.count === 0) doSend();
+            doSend();
+            setCode("send_park");
+          }
+        },
+        {
+          id: "recv",
+          title: "v := <-ch 取件",
+          metaphor: "收件人来了 → 先拿走头格，再叫醒门口快递员补位",
+          body: "接收优先对接 sendq：取走 recvx 上的值，并让被阻塞的发送方把新值放进刚腾出的格子。环形指针会转起来。",
+          codeKeys: ["recv"],
+          run: function () {
+            doRecv();
+            setCode("recv_sendq");
+          }
+        },
+        {
+          id: "close",
+          title: "close 打烊",
+          metaphor: "不再收新件；柜里旧件仍可取；门外快递员要投诉（panic）",
+          body: "close 会叫醒所有等接收的人（读零值）。对已关闭 channel 再发送会 panic——所以「谁负责 close」很重要。",
+          codeKeys: ["close"],
+          run: function () {
+            doClose();
+            setCode("close");
+          }
+        }
+      ]
+    });
+  }
+
   reset(false);
 })();

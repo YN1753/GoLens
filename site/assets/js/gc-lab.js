@@ -346,4 +346,93 @@
   pushHistory("init");
   render();
   log("MARK", "拓扑就绪。Roots: R1,R2* ；并发写演示：C→B");
+
+  const storyRoot = document.getElementById("gc-story");
+  if (storyRoot && M.StoryGuide) {
+    new M.StoryGuide({
+      root: storyRoot,
+      codePanel: storyRoot.querySelector(".code-track"),
+      levels: [
+        {
+          id: "root",
+          title: "从「门口名单」开始盘点",
+          metaphor: "白=还没翻过；灰=知道了待查；黑=已查清",
+          body: "栈上变量、全局变量就是根（带 * 的圆）。GC 先短暂停世界，把这些根标灰，再恢复你的程序并发跑。",
+          codeKeys: ["root", "gray"],
+          run: function () {
+            barrierEl.checked = true;
+            resetGraph();
+            state.barrierOn = true;
+            markRoots();
+          }
+        },
+        {
+          id: "scan",
+          title: "处理一只灰对象",
+          metaphor: "拿起一本待查书，翻开引用页，再放回「已查」架",
+          body: "灰对象出队，扫描它指向的对象：白的标灰。自己变黑。灰色面板里的圆球会滑走。",
+          codeKeys: ["scan"],
+          run: function () {
+            if (state.phase !== "mark") markRoots();
+            stepMark();
+          }
+        },
+        {
+          id: "mutate",
+          title: "有人在盘点时乱挪书",
+          metaphor: "同事把 A 书架上的 B 抽走，塞到 C 书架",
+          body: "程序（mutator）并发改指针：断开 A→B，挂上 C→B。若 C 已是「已查清」的黑，而 B 还是白，就可能漏标——书明明还在，却被扔进碎纸机。",
+          codeKeys: ["mutate"],
+          run: function () {
+            if (state.phase !== "mark") {
+              markRoots();
+              stepMark();
+              stepMark();
+              stepMark();
+            }
+            // advance a bit so C can be black in some paths
+            stepMark();
+            mutate();
+          }
+        },
+        {
+          id: "barrier_on",
+          title: "打开混合写屏障",
+          metaphor: "值班员：你一挪书，我立刻在待查本上补记",
+          body: "写屏障捕获指针写入，把目标强制标灰，维持「黑不会指向还没扫过的白」这条不变式。再点一次 Mutator，看 B 被拉回灰。",
+          codeKeys: ["barrier"],
+          run: function () {
+            barrierEl.checked = true;
+            resetGraph();
+            state.barrierOn = true;
+            markRoots();
+            stepMark();
+            stepMark();
+            mutate();
+            log("BARRIER", "剧情：屏障 ON，目标被 shade 保全");
+          }
+        },
+        {
+          id: "barrier_off",
+          title: "关掉屏障会怎样？",
+          metaphor: "值班员下班 → 漏记一本，书被误销毁",
+          body: "关掉写屏障再改指针：可能出现黑→白，结束后 B 被当成垃圾。这就是「并发 GC 为什么必须写屏障」。",
+          codeKeys: ["mutate"],
+          run: function () {
+            barrierEl.checked = false;
+            resetGraph();
+            state.barrierOn = false;
+            markRoots();
+            // scan until A/B/C progress, then mutate with barrier off
+            stepMark();
+            stepMark();
+            stepMark();
+            stepMark();
+            mutate();
+            log("PANIC", "剧情：对比 OFF——注意红色漏标提示");
+          }
+        }
+      ]
+    });
+  }
 })();

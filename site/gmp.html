@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="assets/css/layout.css" />
   <link rel="stylesheet" href="assets/css/components.css" />
   <link rel="stylesheet" href="assets/css/lab-motion.css" />
+  <link rel="stylesheet" href="assets/css/guide.css" />
 </head>
 <body data-page="gmp">
   <div class="scrim" aria-hidden="true"></div>
@@ -88,7 +89,10 @@
         </div>
 
         <h2>交互 Lab · 调度器巡检</h2>
-        <p>选场景后单步或播放，观察队列变化与事件日志。刻意简化了抢占信号与 spinning 状态计数。</p>
+        <p class="beginner-tip">
+          <strong>零基础怎么用：</strong>先看左边「真实 Go 代码」，再点右边「下一关」跟剧情走。
+          下面的队列块会跟着代码高亮一起动——这就是「代码 → 运行时」双轨。
+        </p>
 
         <div class="lab" id="gmp-lab">
           <div class="lab-head">
@@ -121,6 +125,31 @@
             <label>速度
               <input type="range" id="gmp-speed" min="1" max="10" value="5" />
             </label>
+          </div>
+          <div class="story-band" id="gmp-story">
+            <div class="code-track">
+              <div class="code-title">Go 代码 · 观察窗 <span class="hint">高亮 = 当前关卡在解释的行</span></div>
+              <pre>
+<span class="code-line" data-code-key="spawn_main">func main() {</span>
+<span class="code-line" data-code-key="spawn_task">    go task() // 1. 创建 G</span>
+<span class="code-line" data-code-key="spawn_loop">    for i := 0; i &lt; 10; i++ {</span>
+<span class="code-line" data-code-key="spawn_worker">        go worker(i) // 2. 本地队列塞满 → 溢出全局</span>
+<span class="code-line" data-code-key="spawn_loop_end">    }</span>
+<span class="code-line" data-code-key="sleep">    time.Sleep(time.Second) // 3. 主协程挂起</span>
+<span class="code-line" data-code-key="spawn_end">}</span>
+              </pre>
+            </div>
+            <div class="story-card">
+              <div class="story-step" data-story-step>关卡 1 / 5</div>
+              <h3 class="story-title" data-story-title></h3>
+              <div class="story-metaphor" data-story-metaphor></div>
+              <p class="story-body" data-story-body></p>
+              <div class="story-actions">
+                <button type="button" class="btn" data-story-prev>上一关</button>
+                <button type="button" class="btn btn-primary" data-story-next>下一关</button>
+                <div class="story-dots" data-story-dots></div>
+              </div>
+            </div>
           </div>
           <div class="timeline-bar" data-gmp-timeline>
             <span class="tl-label" data-timeline-label>—</span>
@@ -186,6 +215,7 @@
   </div>
   <script src="assets/js/site.js"></script>
   <script src="assets/js/motion.js"></script>
+  <script src="assets/js/guide.js"></script>
   <script src="assets/js/gmp-lab.js"></script>
 </body>
 </html>

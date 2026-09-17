@@ -1,0 +1,174 @@
+/* Beginner dual-track + story panel */
+
+.story-band {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(240px, 0.95fr);
+  gap: 12px;
+  margin: 0 0 12px;
+}
+
+@media (max-width: 820px) {
+  .story-band {
+    grid-template-columns: 1fr;
+  }
+}
+
+.code-track {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: #0a1012;
+  overflow: hidden;
+}
+
+.code-track .code-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+.code-track .code-title .hint {
+  color: var(--faint);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.code-track pre {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 8px 0;
+  font-size: 12.5px;
+  line-height: 1.7;
+  overflow: auto;
+}
+
+.code-track .code-line {
+  display: block;
+  padding: 1px 12px 1px 10px;
+  color: var(--faint);
+  border-left: 3px solid transparent;
+  white-space: pre;
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.code-track .code-line.is-active {
+  color: var(--ink-strong);
+  background: linear-gradient(90deg, var(--accent-dim), transparent 80%);
+  border-left-color: var(--accent);
+}
+
+.code-track .code-line.is-dim {
+  color: #4a5a60;
+}
+
+.story-card {
+  border: 1px solid rgba(0, 173, 216, 0.35);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(160deg, rgba(0, 173, 216, 0.12), transparent 50%),
+    var(--surface);
+  padding: 14px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 160px;
+}
+
+.story-step {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.story-title {
+  font-size: 16px;
+  font-weight: 650;
+  color: var(--ink-strong);
+  line-height: 1.35;
+  margin: 0;
+}
+
+.story-metaphor {
+  font-size: 13px;
+  color: var(--warn);
+  font-family: var(--font-mono);
+  line-height: 1.45;
+  border-left: 2px solid var(--warn);
+  padding-left: 8px;
+}
+
+.story-body {
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.65;
+  margin: 0;
+  flex: 1;
+}
+
+.story-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.story-dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.story-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  background: var(--line-strong);
+  cursor: pointer;
+}
+
+.story-dot.is-on {
+  background: var(--accent);
+  box-shadow: 0 0 8px rgba(0, 173, 216, 0.6);
+}
+
+.beginner-tip {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--line-strong);
+  color: var(--muted);
+  font-size: 13px;
+  background: rgba(18, 26, 29, 0.5);
+}
+
+.beginner-tip strong {
+  color: var(--ink-strong);
+}
+
+/* metaphor chips in stage */
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 8px;
+  margin: 0 6px 6px 0;
+  background: var(--surface);
+}
