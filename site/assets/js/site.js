@@ -100,12 +100,17 @@
       li.appendChild(a);
       ol.appendChild(li);
     });
-    // insert after first block after h1 (verdict/lede) — after h1's next sibling group
+    // Place TOC after intro verdict/lede when present
     const h1 = root.querySelector("h1");
-    if (h1 && h1.nextElementSibling) {
-      h1.insertAdjacentElement("afterend", nav);
-    } else if (h1) {
-      h1.insertAdjacentElement("afterend", nav);
+    let anchor = null;
+    if (h1) {
+      let el = h1.nextElementSibling;
+      while (el && (el.classList.contains("eyebrow") || el.tagName === "P" || el.classList.contains("verdict") || el.classList.contains("lede") || el.classList.contains("beginner-tip"))) {
+        anchor = el;
+        el = el.nextElementSibling;
+      }
+      if (anchor) anchor.insertAdjacentElement("afterend", nav);
+      else h1.insertAdjacentElement("afterend", nav);
     } else {
       root.insertBefore(nav, root.firstChild);
     }
@@ -189,20 +194,26 @@
     }
     if (node.nodeType === Node.TEXT_NODE) {
       const text = node.nodeValue || "";
-      const idx = text.toLowerCase().indexOf(query.toLowerCase());
-      if (idx < 0) return 0;
-      const span = document.createElement("span");
-      const before = text.slice(0, idx);
-      const mid = text.slice(idx, idx + query.length);
-      const after = text.slice(idx + query.length);
-      if (before) span.appendChild(document.createTextNode(before));
-      const mark = document.createElement("mark");
-      mark.className = "search-hit";
-      mark.textContent = mid;
-      span.appendChild(mark);
-      if (after) span.appendChild(document.createTextNode(after));
-      if (node.parentNode) node.parentNode.replaceChild(span, node);
-      return 1;
+      const lower = text.toLowerCase();
+      const q = query.toLowerCase();
+      let from = 0;
+      let hits = 0;
+      let acc = document.createDocumentFragment();
+      while (true) {
+        const idx = lower.indexOf(q, from);
+        if (idx < 0) break;
+        if (idx > from) acc.appendChild(document.createTextNode(text.slice(from, idx)));
+        const mark = document.createElement("mark");
+        mark.className = "search-hit";
+        mark.textContent = text.slice(idx, idx + query.length);
+        acc.appendChild(mark);
+        hits++;
+        from = idx + query.length;
+      }
+      if (!hits) return 0;
+      if (from < text.length) acc.appendChild(document.createTextNode(text.slice(from)));
+      if (node.parentNode) node.parentNode.replaceChild(acc, node);
+      return hits;
     }
     if (node.nodeType !== Node.ELEMENT_NODE) return 0;
     if (node.tagName === "MARK") return 0;

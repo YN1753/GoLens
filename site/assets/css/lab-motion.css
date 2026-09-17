@@ -467,6 +467,7 @@
   .lab {
     display: flex;
     flex-direction: column;
+    overflow: visible;
   }
 
   .lab-controls {
@@ -478,6 +479,11 @@
     border-bottom: 0;
     border-top: 1px solid var(--line);
     box-shadow: 0 -4px 16px rgba(42, 36, 22, 0.06);
+  }
+
+  .lab-grid-3,
+  .lab-body {
+    padding-bottom: 8px;
   }
 
   .lab-controls .btn {

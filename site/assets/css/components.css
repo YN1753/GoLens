@@ -325,6 +325,13 @@ table.data code {
   overflow: hidden;
 }
 
+@media (max-width: 800px) {
+  /* sticky lab-controls need a non-clip ancestor relative to page scroll */
+  .lab {
+    overflow: visible;
+  }
+}
+
 .lab-head {
   display: flex;
   flex-wrap: wrap;

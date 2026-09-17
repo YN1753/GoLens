@@ -1,6 +1,6 @@
 ---
 feature: ux-polish
-status: designed
+status: delivered
 updated: 2026-09-17
 branch: chore/ux-polish
 commits: 
@@ -9,6 +9,13 @@ commits:
 # UX Polish — Search / Progress / TOC / Mobile Lab Bar
 
 ## Report
+
+**What was built** — 顶栏章内搜索（`/` 聚焦、命中高亮与计数）、自动章内 TOC + 滚动高亮、侧栏阅读进度条、窄屏 Lab 控件 sticky 底栏。零构建，逻辑集中在 `site.js`。
+
+**Verification** — `node --check` PASS；gmp 搜 `work stealing` 2 命中；TOC 在 verdict 之后；375px 下 lab-controls `position:sticky` 且 `.lab overflow:visible`；三页 console 0 error。
+
+**Journey log** — 父级 `overflow:hidden` 会干掉子级相对视口的 sticky，移动端需放开。TOC 应插在导语后而非 h1 与 verdict 之间。文本节点内多处命中要循环切片，不能只标第一处。
+
 
 ## [S1] Problem
 
@@ -58,8 +65,8 @@ commits:
 
 ## Tasks
 
-- [ ] T1: 章内搜索 + `/` 快捷键 + 命中高亮 — acceptance: 在 gmp/channel/gc 可搜关键词并滚到命中区；无结果有提示 (covers: S2)
-- [ ] T2: 自动 TOC + 当前节高亮 — acceptance: 三章 h2 出现在 TOC，点击可跳，滚动时当前节高亮 (covers: S2)
-- [ ] T3: 阅读进度条 — acceptance: 侧栏显示百分比随滚动更新 (covers: S2)
-- [ ] T4: 窄屏 lab-controls sticky 底栏 — acceptance: 375px 下控件贴 lab 底部且可点 (covers: S2)
-- [ ] T5: 验收 — acceptance: npm run check；三页冒烟无 console error (covers: S2; depends: T1,T2,T3,T4)
+- [x] T1: 章内搜索 + `/` 快捷键 + 命中高亮 — acceptance: 在 gmp/channel/gc 可搜关键词并滚到命中区；无结果有提示 (covers: S2)
+- [x] T2: 自动 TOC + 当前节高亮 — acceptance: 三章 h2 出现在 TOC，点击可跳，滚动时当前节高亮 (covers: S2)
+- [x] T3: 阅读进度条 — acceptance: 侧栏显示百分比随滚动更新 (covers: S2)
+- [x] T4: 窄屏 lab-controls sticky 底栏 — acceptance: 375px 下控件贴 lab 底部且可点 (covers: S2)
+- [x] T5: 验收 — acceptance: npm run check；三页冒烟无 console error (covers: S2; depends: T1,T2,T3,T4)
