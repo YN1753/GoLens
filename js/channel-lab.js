@@ -78,28 +78,52 @@
     render();
   }
 
+  function dequeueHead() {
+    const val = state.buf[state.head];
+    state.buf[state.head] = null;
+    state.head = (state.head + 1) % state.cap;
+    state.count--;
+    return val;
+  }
+
+  function enqueue(val) {
+    state.buf[(state.head + state.count) % state.cap] = val;
+    state.count++;
+  }
+
   function doRecv() {
-    // Sender waiting (direct handoff / recv completes sender)
+    // Prefer waiting senders (unbuffered handoff, or buffer-full + wake).
     if (state.sendq.length) {
       const s = state.sendq.shift();
       if (state.cap === 0) {
         log("sendq 有等待者：接收者与 " + s + " 直接交接并唤醒发送方", "ok");
-      } else {
-        // buffered full case: receive frees a slot, wake sender who then enqueues — simplify to wake+enqueue
-        const val = nextVal();
-        state.buf[(state.head + state.count) % state.cap] = val;
-        state.count++;
-        log("从 sendq 唤醒 " + s + "：先接收腾位，再把值入缓冲 " + val, "ok");
+        render();
+        return;
       }
+      // Buffered channel is full when senders wait: take head, then sender enqueues into freed slot.
+      const received = dequeueHead();
+      const sent = nextVal();
+      enqueue(sent);
+      log(
+        "sendq 有等待者：先收 " +
+          received +
+          " 腾出槽位，唤醒 " +
+          s +
+          " 并写入 " +
+          sent +
+          "（count=" +
+          state.count +
+          "/" +
+          state.cap +
+          "）",
+        "ok"
+      );
       render();
       return;
     }
 
     if (state.count > 0) {
-      const val = state.buf[state.head];
-      state.buf[state.head] = null;
-      state.head = (state.head + 1) % state.cap;
-      state.count--;
+      const val = dequeueHead();
       log("从 buf 取出 " + val + "（count=" + state.count + "）", "ok");
       render();
       return;
@@ -124,11 +148,13 @@
       return;
     }
     state.closed = true;
-    const n = state.recvq.length;
+    const nRecv = state.recvq.length;
     state.recvq = [];
-    log("close：唤醒 recvq 中 " + n + " 个等待者（读零值）；缓冲若仍有值可继续收", "accent");
+    log("close：唤醒 recvq 中 " + nRecv + " 个等待者（读零值）；缓冲若仍有值可继续收", "accent");
     if (state.sendq.length) {
-      log("sendq 仍有人等待 — 真实 runtime 中他们将面对 send on closed → panic", "warn");
+      const nSend = state.sendq.length;
+      state.sendq = [];
+      log("唤醒 sendq 中 " + nSend + " 个发送者 → send on closed channel → panic", "warn");
     }
     render();
   }

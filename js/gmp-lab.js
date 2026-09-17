@@ -287,6 +287,9 @@
           if (g) {
             g.state = "blocked";
             g.note = "channel/syscall";
+            if (state.ps[0].runnext && state.ps[0].runnext.id === g.id) {
+              state.ps[0].runnext = null;
+            }
             return gLabel(g) + " 进入阻塞（channel 或 syscall）";
           }
         }
@@ -294,28 +297,24 @@
       },
       function () {
         const p0 = state.ps[0];
-        // M0 unbinds from P0 while carrying blocked G
+        const blockedId = state.ms[0].g;
+        const blockedG = blockedId ? findG(blockedId) : null;
         state.ms[0].boundP = null;
         p0.m = null;
-        state.freeGs.push({ g: findG(state.ms[0].g) || makeG(0, "blocked") });
+        if (blockedG) state.freeGs.push({ g: blockedG });
         state.ms[0].note = "带着阻塞 G 挂起";
         return "M0 与 P0 解绑，P0 空出，需另寻 M";
       },
       function () {
-        // spawn/reuse M for P0 if possible
         const p0 = state.ps[0];
-        if (p0.m === null && state.ms[1].boundP === null) {
-          // M1 takes P0 if P1 empty enough
-        }
-        // create virtual M2
-        state.ms.push({ id: state.ms.length, boundP: p0.id });
-        p0.m = state.ms[state.ms.length - 1].id;
-        const next = p0.queue.shift() || p0.runnext;
-        if (next === p0.runnext) p0.runnext = null;
+        const m2 = { id: state.ms.length, boundP: p0.id };
+        state.ms.push(m2);
+        p0.m = m2.id;
+        const next = p0.queue.shift();
         if (next) {
           next.state = "running";
-          state.ms[state.ms.length - 1].g = next.id;
-          state.ms[state.ms.length - 1].note = "新 M 绑定 P0";
+          m2.g = next.id;
+          m2.note = "新 M 绑定 P0";
           return "调度器为 P0 绑定新 M，继续跑 " + gLabel(next);
         }
         return "P0 暂无可运行 G，M 可能自旋或休眠";

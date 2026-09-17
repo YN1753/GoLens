@@ -22,6 +22,10 @@
     });
   }
 
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") setNavOpen(false);
+  });
+
   const page = document.body.getAttribute("data-page");
   if (page) {
     document.querySelectorAll(".nav-link[data-page]").forEach(function (link) {
@@ -48,15 +52,5 @@
     el.querySelectorAll(".log-line.is-new").forEach(function (n, i, arr) {
       if (i < arr.length - 1) n.classList.remove("is-new");
     });
-  };
-
-  window.GoLens.downloadJSON = function (data, filename) {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
   };
 })();

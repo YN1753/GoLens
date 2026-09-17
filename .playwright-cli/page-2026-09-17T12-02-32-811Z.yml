@@ -1,0 +1,156 @@
+- generic [ref=e2]:
+  - complementary "站点导航" [ref=e3]:
+    - link "GoLens Runtime Lab" [ref=e4] [cursor=pointer]:
+      - /url: index.html
+      - generic [ref=e5]: GoLens
+      - generic [ref=e6]: Runtime Lab
+    - navigation "章节目录" [ref=e7]:
+      - generic [ref=e8]: 目录
+      - link "00 首页" [ref=e9] [cursor=pointer]:
+        - /url: index.html
+        - generic [ref=e10]: "00"
+        - text: 首页
+      - link "01 GMP 调度" [ref=e11] [cursor=pointer]:
+        - /url: gmp.html
+        - generic [ref=e12]: "01"
+        - text: GMP 调度
+      - link "02 Channel 底层" [ref=e13] [cursor=pointer]:
+        - /url: channel.html
+        - generic [ref=e14]: "02"
+        - text: Channel 底层
+      - link "03 GC 三色标记" [ref=e15] [cursor=pointer]:
+        - /url: gc.html
+        - generic [ref=e16]: "03"
+        - text: GC 三色标记
+    - generic [ref=e17]: 面试向简化模型不含 sysmon / 信号抢占细节
+  - generic [ref=e18]:
+    - banner [ref=e19]:
+      - button "打开目录" [expanded] [active] [ref=e140] [cursor=pointer]: 菜单
+      - generic [ref=e20]: GoLens / 01 gmp
+      - generic [ref=e21]: 章节 01
+    - article [ref=e23]:
+      - generic [ref=e24]: Chapter 01
+      - heading "GMP 调度" [level=1] [ref=e25]
+      - paragraph [ref=e26]:
+        - text: INTERVIEW Go 用
+        - strong [ref=e27]: G
+        - text: （goroutine）承载任务、
+        - strong [ref=e28]: P
+        - text: （逻辑处理器）持有可运行队列、
+        - strong [ref=e29]: M
+        - text: （OS 线程）真正执行；调度的本质是让 M 尽快从某个 P 的队列里拿到 G。
+      - heading "为什么需要 GMP" [level=2] [ref=e30]
+      - paragraph [ref=e31]:
+        - text: 若每个 goroutine 都绑死一条 OS 线程，海量协程会把线程栈和切换成本打爆。 Go 把「可运行的 G」和「执行用的 M」解耦，中间用数量有限的 P 做缓冲与本地化：
+        - code [ref=e32]: GOMAXPROCS
+        - text: 决定 P 的个数，也就是同时能有多少 M「持有调度上下文」。
+      - heading "三个角色" [level=2] [ref=e33]
+      - table [ref=e35]:
+        - rowgroup [ref=e36]:
+          - row [ref=e37]:
+            - columnheader "角色" [ref=e38]
+            - columnheader "是什么" [ref=e39]
+            - columnheader "面试关键句" [ref=e40]
+        - rowgroup [ref=e41]:
+          - row [ref=e42]:
+            - cell [ref=e43]:
+              - code [ref=e44]: G
+            - cell "Goroutine，含栈、指令指针、状态" [ref=e45]
+            - cell "用户态轻量执行体；栈可从 2KB 增长" [ref=e46]
+          - row [ref=e47]:
+            - cell [ref=e48]:
+              - code [ref=e49]: P
+            - cell "Processor，逻辑处理器，持有本地运行队列等资源" [ref=e50]
+            - cell "P 数量 = GOMAXPROCS；没有 P 就不能调度用户 G" [ref=e51]
+          - row [ref=e52]:
+            - cell [ref=e53]:
+              - code [ref=e54]: M
+            - cell "Machine，OS 线程" [ref=e55]
+            - cell "M 要绑定 P 才能跑 G；阻塞时可能与 P 解绑" [ref=e56]
+      - heading "队列与偷取" [level=2] [ref=e57]
+      - paragraph [ref=e58]:
+        - text: 每个 P 有
+        - strong [ref=e59]: runnext
+        - text: （下一只优先跑的 G，通常 1 个坑位）和
+        - strong [ref=e60]: 本地队列
+        - text: （历史上常见上限 256）。 本地满了会推一半到
+        - strong [ref=e61]: 全局队列
+        - text: 。P 空了会先看全局队列，再随机偷其他 P 本地队列的一半——这就是 work stealing。
+      - generic [ref=e62]:
+        - generic [ref=e63]: 阻塞时发生什么
+        - paragraph [ref=e64]: G 进入阻塞（如 channel、系统调用）后，M 可能带着 G 挂起；调度器会为 P 另找 M，保证吞吐不塌。系统调用场景下常见「M 与 G 绑住、P 被挪走」的叙述。
+      - heading "交互 Lab · 调度器巡检" [level=2] [ref=e65]
+      - paragraph [ref=e66]: 选场景后单步或播放，观察队列变化与事件日志。刻意简化了抢占信号与 spinning 状态计数。
+      - generic [ref=e67]:
+        - generic [ref=e68]:
+          - generic [ref=e69]: GMP Lab
+          - generic [aria-hidden] [ref=e71]:
+            - generic [ref=e72]: 可运行
+            - generic [ref=e74]: 运行中
+            - generic [ref=e76]: 阻塞
+            - generic [ref=e78]: 结束
+        - generic [ref=e80]:
+          - generic [ref=e81]:
+            - text: 场景
+            - combobox "选择调度场景" [ref=e82]:
+              - option "正常调度" [selected]
+              - option "本地队列溢出推全局"
+              - option "Work Stealing"
+              - option "G 阻塞 · M 解绑"
+          - generic [ref=e83]:
+            - button "单步" [ref=e84] [cursor=pointer]
+            - button "播放" [ref=e85] [cursor=pointer]
+            - button "重置" [ref=e86] [cursor=pointer]
+          - generic [ref=e87]:
+            - text: 速度
+            - slider "速度" [ref=e88]: "5"
+        - generic [ref=e89]:
+          - generic [ref=e91]:
+            - generic [ref=e92]:
+              - generic [ref=e93]: 全局队列 · 0 G
+              - generic [ref=e94]: empty
+            - generic [ref=e96]:
+              - generic [ref=e97]:
+                - generic [ref=e98]: P0 · M0
+                - generic [ref=e99]:
+                  - text: "runnext:"
+                  - generic [ref=e100]: G1
+                - generic [ref=e101]:
+                  - text: "local q (2):"
+                  - generic [ref=e102]:
+                    - generic [ref=e103]: G2
+                    - generic [ref=e104]: G3
+              - generic [ref=e105]:
+                - generic [ref=e106]: P1 · M1
+                - generic [ref=e107]: "runnext: —"
+                - generic [ref=e108]:
+                  - text: "local q (1):"
+                  - generic [ref=e109]: G4
+            - generic [ref=e111]:
+              - generic [ref=e112]: Machines
+              - generic [ref=e113]:
+                - generic [ref=e114]: M0→P0
+                - generic [ref=e115]: M1→P1
+          - generic "调度事件日志" [ref=e116]: 20:02:26已加载场景：正常调度
+      - heading "常见追问" [level=2] [ref=e118]
+      - generic [ref=e119]:
+        - group [ref=e120]:
+          - generic "GOMAXPROCS 调大就一定更快吗？ +" [ref=e121] [cursor=pointer]
+        - group [ref=e122]:
+          - generic "runnext 有什么用？ +" [ref=e123] [cursor=pointer]
+        - group [ref=e124]:
+          - generic "work stealing 偷多少？ +" [ref=e125] [cursor=pointer]
+        - group [ref=e126]:
+          - generic "没有 P 的 M 在干嘛？ +" [ref=e127] [cursor=pointer]
+      - heading "速查表" [level=2] [ref=e128]
+      - list [ref=e130]:
+        - listitem [ref=e131]: G = goroutine；P = 逻辑处理器（GOMAXPROCS）；M = OS 线程
+        - listitem [ref=e132]: P 本地队列 + runnext；溢出推全局；空了找全局 / 偷其他 P
+        - listitem [ref=e133]: M 必须持有 P 才能调度用户 G
+        - listitem [ref=e134]: channel / syscall 阻塞可能导致 M–P 分离，调度器另起 M
+        - listitem [ref=e135]: 目标：高吞吐、低延迟地把可运行 G 丢到核上
+      - navigation "上下章" [ref=e136]:
+        - link "← 首页" [ref=e137] [cursor=pointer]:
+          - /url: index.html
+        - link "下一章 Channel →" [ref=e138] [cursor=pointer]:
+          - /url: channel.html

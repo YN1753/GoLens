@@ -57,7 +57,7 @@
   function markRoots() {
     state.phase = "mark";
     state.barrierOn = barrierEl.checked;
-    phaseEl.textContent = "concurrent mark";
+    phaseEl.textContent = "STW → concurrent mark";
     phaseEl.className = "chip chip-accent";
     ["R1", "R2"].forEach(function (id) {
       nodes[id].color = "gray";
@@ -96,7 +96,7 @@
 
   function finishMark() {
     state.phase = "done";
-    phaseEl.textContent = "mark done";
+    phaseEl.textContent = "STW terminate → done";
     phaseEl.className = "chip chip-ok";
     const whites = Object.keys(nodes).filter(function (id) {
       return nodes[id].color === "white";
