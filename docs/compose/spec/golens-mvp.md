@@ -3,7 +3,7 @@ feature: golens-mvp
 status: delivered
 updated: 2026-09-17
 branch: feature/golens-mvp
-commits: 44ea5df39cbb5e0f8809aadb006c9c175ceff70b..2b5a86e
+commits: 44ea5df39cbb5e0f8809aadb006c9c175ceff70b..2b5a86ec6860cb4370975d394245fab61c1c0a31
 ---
 
 # GoLens MVP — 交互式 Go 并发 / GC 八股知识站
