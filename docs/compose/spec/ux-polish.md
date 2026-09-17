@@ -3,7 +3,7 @@ feature: ux-polish
 status: delivered
 updated: 2026-09-17
 branch: chore/ux-polish
-commits: 
+commits: adf30f76e92d61152907c5f82c5f9e6a2dd07107..dde2d8a6795e165949f4145a1eb0a4f5c280894b
 ---
 
 # UX Polish — Search / Progress / TOC / Mobile Lab Bar
