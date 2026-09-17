@@ -77,7 +77,7 @@
     el.animate(
       [
         { backgroundColor: "transparent" },
-        { backgroundColor: color || "rgba(227,75,75,0.35)" },
+        { backgroundColor: color || "rgba(181,74,60,0.28)" },
         { backgroundColor: "transparent" }
       ],
       { duration: 560, iterations: times || 2, easing: "ease-in-out" }

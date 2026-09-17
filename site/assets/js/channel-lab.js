@@ -240,14 +240,14 @@
         slots +=
           '<g data-slot="' + i + '" class="slot-g">' +
           '<circle class="slot' + (filled ? " slot-full" : "") + '" cx="' + p.x + '" cy="' + p.y + '" r="22" fill="' +
-          (filled ? "rgba(0,173,216,0.35)" : "rgba(18,26,29,0.9)") +
-          '" stroke="' + (filled ? "#00ADD8" : "#2a3b41") + '" stroke-width="1.5"/>' +
+          (filled ? "rgba(31,107,90,0.16)" : "rgba(255,253,248,0.9)") +
+          '" stroke="' + (filled ? "#1f6b5a" : "#c9c0ae") + '" stroke-width="1.5"/>' +
           '<text x="' + p.x + '" y="' + (p.y + 4) + '" text-anchor="middle" font-size="11" font-family="var(--font-mono)" fill="' +
-          (filled ? "#D7E2E5" : "#5c6d73") + '">' + (val || i) + "</text>" +
+          (filled ? "#1a1814" : "#9a948c") + '">' + (val || i) + "</text>" +
           "</g>";
       }
     } else {
-      slots = '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" fill="#8A9BA1" font-size="12" font-family="var(--font-mono)">unbuffered</text>';
+      slots = '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" fill="#6b6560" font-size="12" font-family="var(--font-mono)">unbuffered</text>';
     }
 
     let pointers = "";
@@ -260,19 +260,19 @@
       const tRecv = M.polar(cx, cy, rSlot + 28, aRecv);
       pointers =
         '<line class="pointer-send pointer-tip" x1="' + cx + '" y1="' + cy + '" x2="' + pSend.x + '" y2="' + pSend.y + '" opacity="0.55"/>' +
-        '<circle class="pointer-send" cx="' + tSend.x + '" cy="' + tSend.y + '" r="5" fill="#E4A11B" stroke="none"/>' +
+        '<circle class="pointer-send" cx="' + tSend.x + '" cy="' + tSend.y + '" r="5" fill="#a67c00" stroke="none"/>' +
         '<line class="pointer-recv pointer-tip" x1="' + cx + '" y1="' + cy + '" x2="' + pRecv.x + '" y2="' + pRecv.y + '" opacity="0.55"/>' +
-        '<circle class="pointer-recv" cx="' + tRecv.x + '" cy="' + tRecv.y + '" r="5" fill="#3DDC97" stroke="none"/>';
+        '<circle class="pointer-recv" cx="' + tRecv.x + '" cy="' + tRecv.y + '" r="5" fill="#2f7d4f" stroke="none"/>';
     }
 
     const ringPath = cap > 0 ? M.createSvgArc(cx, cy, rSlot, -Math.PI / 2, -Math.PI / 2 + Math.PI * 1.999) : "";
 
     return (
       '<svg class="channel-svg" viewBox="0 0 ' + size + ' ' + size + '" role="img" aria-label="channel ring buffer">' +
-      (ringPath ? '<path d="' + ringPath + '" fill="none" stroke="#1E2C31" stroke-width="1"/>' : "") +
-      '<circle cx="' + cx + '" cy="' + cy + '" r="42" fill="#121A1D" stroke="#2a3b41"/>' +
-      '<text x="' + cx + '" y="' + (cy - 4) + '" text-anchor="middle" font-size="11" fill="#8A9BA1" font-family="var(--font-mono)">hchan</text>' +
-      '<text x="' + cx + '" y="' + (cy + 12) + '" text-anchor="middle" font-size="11" fill="#D7E2E5" font-family="var(--font-mono)">n=' + state.count + "</text>" +
+      (ringPath ? '<path d="' + ringPath + '" fill="none" stroke="#e2dcd0" stroke-width="1"/>' : "") +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="42" fill="#fffdf8" stroke="#c9c0ae"/>' +
+      '<text x="' + cx + '" y="' + (cy - 4) + '" text-anchor="middle" font-size="11" fill="#6b6560" font-family="var(--font-mono)">hchan</text>' +
+      '<text x="' + cx + '" y="' + (cy + 12) + '" text-anchor="middle" font-size="11" fill="#1a1814" font-family="var(--font-mono)">n=' + state.count + "</text>" +
       slots +
       pointers +
       '<g id="ch-beam-layer"></g>' +
@@ -313,9 +313,9 @@
       " · recv=" + (state.count > 0 ? "dequeue" : state.sendq.length ? "handoff" : state.closed ? "zero" : "park") +
       "</div>" +
       '<div class="legend" style="margin-top:8px">' +
-      '<span><i style="background:#E4A11B"></i>sendx</span>' +
-      '<span><i style="background:#3DDC97"></i>recvx</span>' +
-      '<span><i style="background:#00ADD8"></i>filled</span>' +
+      '<span><i style="background:#a67c00"></i>sendx</span>' +
+      '<span><i style="background:#2f7d4f"></i>recvx</span>' +
+      '<span><i style="background:#1f6b5a"></i>filled</span>' +
       "</div></div>";
 
     const wrap = document.createElement("div");
@@ -334,7 +334,7 @@
     }
     if (fx && fx.drainSlot != null && state.cap > 0) {
       const g = stage.querySelector('[data-slot="' + fx.drainSlot + '"] .slot');
-      if (g) M.flash(g, "rgba(61,220,151,0.45)", 1);
+      if (g) M.flash(g, "rgba(47,125,79,0.28)", 1);
     }
     if (fx && fx.beam) drawBeam(fx);
 
@@ -360,7 +360,7 @@
       "M" + startX + " " + startY + " Q " + (cx + 20) + " " + (cy - 80) + " " + endX + " " + endY
     );
     path.setAttribute("fill", "none");
-    path.setAttribute("stroke", "#00ADD8");
+    path.setAttribute("stroke", "#1f6b5a");
     path.setAttribute("stroke-width", "2");
     path.setAttribute("stroke-dasharray", "6 6");
     layer.appendChild(path);
@@ -372,7 +372,7 @@
     });
     const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     dot.setAttribute("r", "5");
-    dot.setAttribute("fill", "#3DDC97");
+    dot.setAttribute("fill", "#2f7d4f");
     layer.appendChild(dot);
     const anim = dot.animate(
       [

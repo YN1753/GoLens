@@ -32,7 +32,7 @@
 
 .btn-primary {
   background: var(--accent-dim);
-  border-color: rgba(0, 173, 216, 0.55);
+  border-color: rgba(31, 107, 90, 0.45);
   color: var(--accent);
 }
 
@@ -69,19 +69,19 @@
 
 .chip-ok {
   color: var(--ok);
-  border-color: rgba(61, 220, 151, 0.35);
+  border-color: rgba(47, 125, 79, 0.4);
   background: var(--ok-dim);
 }
 
 .chip-accent {
   color: var(--accent);
-  border-color: rgba(0, 173, 216, 0.4);
+  border-color: rgba(31, 107, 90, 0.35);
   background: var(--accent-dim);
 }
 
 .chip-warn {
   color: var(--warn);
-  border-color: rgba(228, 161, 27, 0.4);
+  border-color: rgba(166, 124, 0, 0.4);
   background: var(--warn-dim);
 }
 
@@ -104,7 +104,7 @@ pre.code,
 pre {
   margin: 0;
   overflow: auto;
-  background: #0a1012;
+  background: var(--code-bg);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   padding: var(--space-4);
@@ -182,7 +182,7 @@ pre {
 .verdict {
   font-size: var(--text-md);
   color: var(--ink-strong);
-  border: 1px solid rgba(0, 173, 216, 0.35);
+  border: 1px solid rgba(31, 107, 90, 0.28);
   background: var(--accent-dim);
   border-radius: var(--radius-lg);
   padding: var(--space-4) var(--space-5);
@@ -303,7 +303,7 @@ table.data code {
   border: 1px dashed var(--line-strong);
   border-radius: var(--radius-md);
   padding: var(--space-4);
-  background: rgba(18, 26, 29, 0.6);
+  background: color-mix(in srgb, var(--surface-2) 80%, transparent);
 }
 
 .cheat ul {
@@ -320,7 +320,7 @@ table.data code {
   margin-top: var(--space-5);
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, rgba(0, 173, 216, 0.05), transparent 120px), var(--bg-elev);
+  background: linear-gradient(180deg, rgba(31, 107, 90, 0.06), transparent 120px), var(--surface);
   box-shadow: var(--shadow-lab);
   overflow: hidden;
 }
@@ -333,7 +333,7 @@ table.data code {
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--line);
-  background: rgba(18, 26, 29, 0.85);
+  background: color-mix(in srgb, var(--bg-elev) 92%, transparent);
 }
 
 .lab-title {
@@ -404,7 +404,7 @@ table.data code {
 
 .lab-log {
   padding: var(--space-3) var(--space-4);
-  background: #0a1012;
+  background: var(--code-bg);
   font-family: var(--font-mono);
   font-size: 12px;
   line-height: 1.55;
@@ -415,7 +415,7 @@ table.data code {
 
 .lab-log .log-line {
   padding: 3px 0;
-  border-bottom: 1px solid rgba(30, 44, 49, 0.6);
+  border-bottom: 1px solid var(--line);
 }
 
 .lab-log .log-line:last-child {
@@ -476,9 +476,10 @@ table.data code {
 
 .hero h1 {
   margin: 0 0 var(--space-3);
+  font-family: var(--font-display);
   font-size: clamp(28px, 5vw, 40px);
-  letter-spacing: -0.03em;
-  line-height: 1.15;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
   color: var(--ink-strong);
 }
 
@@ -511,7 +512,7 @@ table.data code {
 }
 
 .chapter-card:hover {
-  border-color: rgba(0, 173, 216, 0.55);
+  border-color: rgba(31, 107, 90, 0.45);
   background: var(--surface-2);
   text-decoration: none;
   transform: translateY(-2px);

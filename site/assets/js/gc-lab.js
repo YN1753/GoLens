@@ -81,13 +81,13 @@
   }
 
   function fillOf(c) {
-    if (c === "black") return "#3a4548";
-    if (c === "gray") return "#9aa5a8";
-    return "#f2f5f6";
+    if (c === "black") return "#3d3a34";
+    if (c === "gray") return "#a8a29a";
+    return "#fffdf8";
   }
 
   function textOf(c) {
-    return c === "black" ? "#d7e2e5" : "#0b1214";
+    return c === "black" ? "#f7f4ec" : "#1a1814";
   }
 
   function markRoots() {
@@ -224,7 +224,7 @@
       const hoverHot = hoverId === id;
       nodeEls +=
         '<g class="node' + lostClass + '" data-node="' + id + '" transform="translate(' + p.x + "," + p.y + ')">' +
-        '<circle r="28" fill="' + fillOf(c) + '" stroke="' + (hoverHot ? "#00ADD8" : "#2a3b41") + '" stroke-width="' + (hoverHot ? 2.5 : 1.5) + '"/>' +
+        '<circle r="28" fill="' + fillOf(c) + '" stroke="' + (hoverHot ? "#1f6b5a" : "#c9c0ae") + '" stroke-width="' + (hoverHot ? 2.5 : 1.5) + '"/>' +
         '<text text-anchor="middle" dominant-baseline="central" fill="' + textOf(c) + '">' + id + (p.root ? "*" : "") + "</text>" +
         "</g>";
     });
@@ -238,10 +238,10 @@
     stage.innerHTML =
       '<div class="gc-layout"><div>' +
       '<svg class="gc-svg" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="heap object graph">' +
-      '<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="none" stroke="#2a3b41"/></marker></defs>' +
+      '<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="none" stroke="#c9c0ae"/></marker></defs>' +
       edges + nodeEls +
       '<g id="gc-wave"></g></svg>' +
-      '<div class="legend" style="margin-top:8px"><span><i style="background:#f2f5f6"></i>白</span><span><i style="background:#9aa5a8"></i>灰</span><span><i style="background:#3a4548"></i>黑</span><span>* 根</span></div>' +
+      '<div class="legend" style="margin-top:8px"><span><i style="background:#fffdf8;border:1px solid #c9c0ae"></i>白</span><span><i style="background:#a8a29a"></i>灰</span><span><i style="background:#3d3a34"></i>黑</span><span>* 根</span></div>' +
       "</div>" +
       '<div class="gray-panel"><div class="gray-title">灰色工作队列</div><div class="gray-chips">' + grayChips + "</div>" +
       '<div style="margin-top:14px" class="rt-box"><div class="rt-title">阶段</div>' +
@@ -282,7 +282,7 @@
         // crude: highlight all edges is noisy; skip path matching, pulse node instead
       });
       const target = stage.querySelector('[data-node="' + to + '"] circle');
-      if (target) M.flash(target, "rgba(0,173,216,0.35)", 1);
+      if (target) M.flash(target, "rgba(31,107,90,0.25)", 1);
     });
   }
 
@@ -300,7 +300,7 @@
       c.setAttribute("cy", 0);
       c.setAttribute("r", 28);
       c.setAttribute("fill", "none");
-      c.setAttribute("stroke", "#00ADD8");
+      c.setAttribute("stroke", "#1f6b5a");
       c.setAttribute("stroke-width", 1.5);
       g.appendChild(c);
       layer.appendChild(g);

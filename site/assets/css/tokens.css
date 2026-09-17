@@ -1,31 +1,36 @@
 :root {
-  --bg: #0b1214;
-  --bg-elev: #0f1619;
-  --surface: #121a1d;
-  --surface-2: #172226;
-  --line: #1e2c31;
-  --line-strong: #2a3b41;
-  --ink: #d7e2e5;
-  --ink-strong: #f2f7f8;
-  --muted: #8a9ba1;
-  --faint: #5c6d73;
-  --accent: #00add8;
-  --accent-dim: rgba(0, 173, 216, 0.14);
-  --accent-soft: rgba(0, 173, 216, 0.28);
-  --warn: #e4a11b;
-  --warn-dim: rgba(228, 161, 27, 0.14);
-  --danger: #e34b4b;
-  --ok: #3ddc97;
-  --ok-dim: rgba(61, 220, 151, 0.14);
+  /* Paper handbook */
+  --bg: #f7f4ec;
+  --bg-elev: #fffdf8;
+  --surface: #ffffff;
+  --surface-2: #f0ebe0;
+  --line: #e2dcd0;
+  --line-strong: #c9c0ae;
+  --ink: #2c2a26;
+  --ink-strong: #1a1814;
+  --muted: #6b6560;
+  --faint: #9a948c;
+  --accent: #1f6b5a;
+  --accent-dim: rgba(31, 107, 90, 0.1);
+  --accent-soft: rgba(31, 107, 90, 0.18);
+  --warn: #a67c00;
+  --warn-dim: rgba(166, 124, 0, 0.12);
+  --danger: #b54a3c;
+  --ok: #2f7d4f;
+  --ok-dim: rgba(47, 125, 79, 0.12);
 
-  --st-run: #3ddc97;
-  --st-run-cpu: #00add8;
-  --st-block: #e4a11b;
-  --st-done: #6b7c82;
-  --gc-white: #f2f5f6;
-  --gc-gray: #9aa5a8;
-  --gc-black: #4a5558;
+  --st-run: #2f7d4f;
+  --st-run-cpu: #1f6b5a;
+  --st-block: #a67c00;
+  --st-done: #9a948c;
+  --gc-white: #fffdf8;
+  --gc-gray: #a8a29a;
+  --gc-black: #3d3a34;
 
+  --code-bg: #f4f0e6;
+  --paper-shadow: 0 1px 2px rgba(42, 36, 22, 0.06), 0 8px 24px rgba(42, 36, 22, 0.04);
+
+  --font-display: "Songti SC", "Noto Serif SC", "Source Han Serif SC", Georgia, "Times New Roman", serif;
   --font-sans: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", "SF Mono", "Menlo", "Consolas", ui-monospace, monospace;
 
@@ -38,7 +43,7 @@
   --text-2xl: 28px;
   --text-3xl: 34px;
 
-  --lh-body: 1.75;
+  --lh-body: 1.8;
   --lh-tight: 1.35;
 
   --space-1: 4px;
@@ -50,15 +55,15 @@
   --space-7: 48px;
   --space-8: 64px;
 
-  --sidebar-w: 260px;
-  --content-max: 760px;
-  --lab-max: 920px;
+  --sidebar-w: 248px;
+  --content-max: 720px;
+  --lab-max: 960px;
   --header-h: 52px;
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
 
-  --shadow-lab: 0 12px 40px rgba(0, 0, 0, 0.35);
+  --shadow-lab: var(--paper-shadow);
   --focus: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
 }
 
