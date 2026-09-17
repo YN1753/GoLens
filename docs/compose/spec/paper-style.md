@@ -3,7 +3,7 @@ feature: paper-style
 status: delivered
 updated: 2026-09-17
 branch: chore/paper-style
-commits: 
+commits: 6d44b3304665f64a6eb6b01dad102e8adfd5bf12..ee79f7aaf2a9cec1552c1ea174bcbeaaac970a44
 ---
 
 # Paper Handbook Restyle
