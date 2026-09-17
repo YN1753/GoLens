@@ -1,14 +1,20 @@
 ---
 feature: golens-mvp
-status: in-progress
+status: delivered
 updated: 2026-09-17
 branch: feature/golens-mvp
-commits: 
+commits: 44ea5df39cbb5e0f8809aadb006c9c175ceff70b..2b5a86e
 ---
 
 # GoLens MVP — 交互式 Go 并发 / GC 八股知识站
 
 ## Report
+
+**What was built** — 纯静态多页知识站：首页 + GMP / Channel / GC 三章正文，深色终端风文档站布局（侧栏目录 + 窄屏抽屉）。每章内嵌原生 JS Lab：GMP 四场景调度模拟、Channel hchan 四象限状态机、GC 三色标记与写屏障对比。资源全部相对路径；`.github/workflows/pages.yml` 在 `push` 到 `main` 时部署 GitHub Pages。
+
+**Verification** — `node --check js/*.js` PASS；本地 `python3 -m http.server` 四页与 css/js HTTP 200；Playwright 走通三 Lab 核心路径与 375px 菜单，console 0 error；Channel 满缓冲 + sendq 接收路径经 node 语义单测与浏览器 eval 验证 `count` 不越界。首评发现的 `doRecv`/`doClose` 缺陷已修复并复审通过。
+
+**Journey log** — 空仓库 greenfield：先 git init + feature worktree 再落 spec。交互验收只看 console 不够，Channel 缓冲语义需断言 count/cap。评审后补 Escape 关抽屉与 STW 阶段文案；`.playwright-cli` 误入提交后已 ignore。
 
 ## [S1] Problem
 
@@ -125,9 +131,9 @@ Go 面试八股（GMP 调度、Channel 底层、GC 三色标记）高度依赖�
 
 ## Tasks
 
-- [ ] T1: 站点骨架与设计系统 — acceptance: 四页可互相跳转，侧栏高亮正确，tokens/layout/components 落地，首页可读 (covers: S2)
-- [ ] T2: GMP 章节正文 + GMP Lab — acceptance: 用户可单步/播放至少 4 个场景，日志与队列状态一致 (covers: S2; depends: T1)
-- [ ] T3: Channel 章节正文 + Channel Lab — acceptance: 同步/缓冲 channel 发送接收关闭四象限均可演示，阻塞与唤醒可见 (covers: S2; depends: T1)
-- [ ] T4: GC 章节正文 + GC Lab — acceptance: 可完成一次标记并观察写屏障对漏标的影响 (covers: S2; depends: T1)
-- [ ] T5: GitHub Actions Pages 工作流 — acceptance: `pages.yml` 存在且步骤/权限符合 S2；相对资源路径不依赖域名前缀 (covers: S2)
-- [ ] T6: 本地验收与相对路径检查 — acceptance: 无控制台错误，三 Lab 核心路径可玩，窄屏抽屉可用 (covers: S2; depends: T2,T3,T4,T5)
+- [x] T1: 站点骨架与设计系统 — acceptance: 四页可互相跳转，侧栏高亮正确，tokens/layout/components 落地，首页可读 (covers: S2)
+- [x] T2: GMP 章节正文 + GMP Lab — acceptance: 用户可单步/播放至少 4 个场景，日志与队列状态一致 (covers: S2; depends: T1)
+- [x] T3: Channel 章节正文 + Channel Lab — acceptance: 同步/缓冲 channel 发送接收关闭四象限均可演示，阻塞与唤醒可见 (covers: S2; depends: T1)
+- [x] T4: GC 章节正文 + GC Lab — acceptance: 可完成一次标记并观察写屏障对漏标的影响 (covers: S2; depends: T1)
+- [x] T5: GitHub Actions Pages 工作流 — acceptance: `pages.yml` 存在且步骤/权限符合 S2；相对资源路径不依赖域名前缀 (covers: S2)
+- [x] T6: 本地验收与相对路径检查 — acceptance: 无控制台错误，三 Lab 核心路径可玩，窄屏抽屉可用 (covers: S2; depends: T2,T3,T4,T5)
