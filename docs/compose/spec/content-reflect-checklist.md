@@ -3,7 +3,7 @@ feature: content-reflect-checklist
 status: delivered
 updated: 2026-09-17
 branch: chore/content-reflect-checklist
-commits: 
+commits: 5b38e963eac588133d2fdd5d191d0116594a8bbf..256ce797d6e3801f34b176bc1ec6f4b621516e1d
 ---
 
 # Content — Reflect + Engineering Checklist
