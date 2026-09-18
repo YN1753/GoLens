@@ -3,7 +3,7 @@ feature: reorder-optimize
 status: delivered
 updated: 2026-09-17
 branch: chore/reorder-optimize
-commits: 9f43ff13cf8918a53f893927ff7ee01ce177d1eb..<head>
+commits: 9f43ff13cf8918a53f893927ff7ee01ce177d1eb..d074f0ae9706b9ca59a54e77ad9a251ef99dc10f
 ---
 
 # Reorder & Project Logic Optimize
