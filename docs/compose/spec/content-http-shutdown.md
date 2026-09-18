@@ -3,7 +3,7 @@ feature: content-http-shutdown
 status: delivered
 updated: 2026-09-17
 branch: chore/content-http-shutdown
-commits: 
+commits: 4ff7759054ed6f431627891e36b92d94fae59f22..e067a330a349a4adac88f86aa07ce4e20d25fefc
 ---
 
 # Content — net/http + Graceful Shutdown
