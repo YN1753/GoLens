@@ -45,7 +45,7 @@
       return { name: c.name, pass: got === c.want, got: got, want: c.want, input: c.in };
     });
     results.forEach(function (r) {
-      log(r.pass ? "WAKE" : "PANIC", "Test/" + r.name + " got=" + r.got + " want=" + r.want + (r.pass ? " PASS" : " FAIL"));
+      log(r.pass ? "WAKE" : "BLOCK", "Test/" + r.name + " got=" + r.got + " want=" + r.want + (r.pass ? " PASS" : " FAIL"));
     });
     render();
   }

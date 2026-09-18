@@ -59,7 +59,7 @@
     waiting[0].state = "polled";
     waiting[0].note = "epoll 报告可读";
     setCode("poll");
-    log("STW", "netpoll/epoll 发现 " + waiting[0].id + " 就绪");
+    log("BIND", "netpoll/epoll 发现 " + waiting[0].id + " 就绪");
     render();
   }
 
