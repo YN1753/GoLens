@@ -41,14 +41,15 @@
 
   function wrapOnce() {
     const n = chain.length + 1;
+    const fmt = chain.length === 1 ? "db: %w" : "api: %w";
     chain.push({
       layer: "层" + n,
-      err: { layer: n, target: chain[0].err, typed: n >= 2 ? new NotFoundError("user:1") : null },
+      err: { layer: n, target: chain[0].err, typed: chain.length >= 1 ? new NotFoundError("user:1") : null },
       wrapped: true,
-      fmt: n === 1 ? "db: %w" : "api: %w"
+      fmt: fmt
     });
     setCode("wrap");
-    log("BIND", "fmt.Errorf(\"…: %w\", err) 包装第 " + n + " 层");
+    log("BIND", "fmt.Errorf(\"" + fmt + "\", err) 包装");
     render();
   }
 

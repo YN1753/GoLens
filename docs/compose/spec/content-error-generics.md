@@ -1,6 +1,6 @@
 ---
 feature: content-error-generics
-status: designed
+status: delivered
 updated: 2026-09-17
 branch: chore/content-error-generics
 commits: 
@@ -9,6 +9,13 @@ commits:
 # Content — Error Handling + Generics Chapters
 
 ## Report
+
+**What was built** — 第 10《错误处理》、11《泛型直觉》：哨兵/%w/Is/As 错误链 Lab 与约束-类型实参 Lab；清单注册至 11，首页卡片与阅读链更新。
+
+**Verification** — check 清单 PASS；包装后 Is=true；string 不满足 int|float64 报错，int Sum=6；nav 12；console 0 error。
+
+**Journey log** — 第一层包装用 db: %w，之后 api: %w。泛型失败在 Lab 中模拟「编译期」文案即可。
+
 
 ## [S1] Problem
 
@@ -44,7 +51,7 @@ commits:
 
 ## Tasks
 
-- [ ] T1: 清单/首页/底链/check — acceptance: manifest 10/11 可达，check PASS (covers: S2)
-- [ ] T2: error 章 + Lab — acceptance: Is 对包装链返回 true；As 提取类型成功 (covers: S2)
-- [ ] T3: generics 章 + Lab — acceptance: 约束与实参组合合法时输出示例 (covers: S2)
-- [ ] T4: 验收 — acceptance: 冒烟 0 console error (covers: S2; depends: T1,T2,T3)
+- [x] T1: 清单/首页/底链/check — acceptance: manifest 10/11 可达，check PASS (covers: S2)
+- [x] T2: error 章 + Lab — acceptance: Is 对包装链返回 true；As 提取类型成功 (covers: S2)
+- [x] T3: generics 章 + Lab — acceptance: 约束与实参组合合法时输出示例 (covers: S2)
+- [x] T4: 验收 — acceptance: 冒烟 0 console error (covers: S2; depends: T1,T2,T3)
