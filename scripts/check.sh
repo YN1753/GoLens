@@ -35,6 +35,8 @@ need=(
   "$site/assets/js/site.js"
   "$site/assets/js/motion.js"
   "$site/assets/js/guide.js"
+  "$site/assets/js/patterns-lab.js"
+  "$site/assets/js/drill-lab.js"
 )
 for f in "${need[@]}"; do
   if [[ -f "$f" ]]; then echo "OK  ${f#"$root"/}"; else echo "MISS ${f#"$root"/}"; fail=1; fi

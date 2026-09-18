@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Go 并发模式：worker pool、fan-out/in、pipeline" />
+  <title>并发模式 · GoLens</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/lab-motion.css" />
+  <link rel="stylesheet" href="assets/css/guide.css" />
+</head>
+<body data-page="patterns">
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar" aria-label="站点导航">
+      <a class="brand" href="index.html"><span class="brand-mark">GoLens</span><span class="brand-sub">Runtime Lab</span></a>
+      <nav class="nav-section" aria-label="章节目录"><div class="nav-label">目录</div></nav>
+      <div class="sidebar-foot">模式 = channel + goroutine + 收口</div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
+        <div class="topbar-title">GoLens / 11 patterns</div>
+        <div class="topbar-actions"><span class="chip">章节 11</span></div>
+      </header>
+      <article class="content lab-wide">
+        <div class="eyebrow">Chapter 11</div>
+        <h1>并发模式</h1>
+        <p class="verdict">
+          常见模式本质都是：<strong>channel 传数据</strong> + <strong>goroutine 干活</strong> +
+          <strong>WaitGroup / close / ctx</strong> 做生命周期收口。
+        </p>
+        <h2>Lab</h2>
+        <div class="lab" id="pat-lab">
+          <div class="lab-head">
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>Patterns Lab</div>
+            <span class="chip">worker · fan · pipeline · cancel</span>
+          </div>
+          <div class="lab-controls">
+            <div class="btn-row">
+              <label>模式
+                <select id="pat-mode">
+                  <option value="worker">Worker Pool</option>
+                  <option value="fanin">Fan-out / Fan-in</option>
+                  <option value="pipeline">Pipeline</option>
+                  <option value="ordone">or-done / 超时</option>
+                </select>
+              </label>
+              <button type="button" class="btn btn-primary" id="pat-step">下一步</button>
+              <button type="button" class="btn btn-ghost" id="pat-reset">重置</button>
+            </div>
+          </div>
+          <div class="story-band" id="pat-story">
+            <div class="code-track">
+              <div class="code-title">Go 代码 · 观察窗</div>
+              <pre>
+<span class="code-line" data-code-key="worker">for w:=0; w&lt;n; w++ { go worker(jobs, results) }</span>
+<span class="code-line" data-code-key="fanin">merge(out1, out2) // WaitGroup + close</span>
+<span class="code-line" data-code-key="pipeline">stage := func(in) &lt;-chan T { ... }</span>
+<span class="code-line" data-code-key="ordone">select { case v:=&lt;-c: ; case &lt;-ctx.Done(): }</span>
+              </pre>
+            </div>
+            <div class="story-card">
+              <div class="story-step" data-story-step>关卡 1 / 4</div>
+              <h3 class="story-title" data-story-title></h3>
+              <div class="story-metaphor" data-story-metaphor></div>
+              <p class="story-body" data-story-body></p>
+              <div class="story-actions">
+                <button type="button" class="btn" data-story-prev>上一关</button>
+                <button type="button" class="btn btn-primary" data-story-next>下一关</button>
+                <div class="story-dots" data-story-dots></div>
+              </div>
+            </div>
+          </div>
+          <div class="lab-grid-3">
+            <div class="lab-stage" id="pat-stage" aria-live="polite"></div>
+            <div class="lab-log" id="pat-log" aria-live="polite"></div>
+          </div>
+        </div>
+        <h2>速查表</h2>
+        <div class="cheat">
+          <ul>
+            <li>Worker：限流并发 + WaitGroup</li>
+            <li>Fan-out/in：并行处理再合并</li>
+            <li>Pipeline：级级 channel，明确谁 close</li>
+            <li>or-done/ctx：可取消，防泄漏</li>
+          </ul>
+        </div>
+        <nav class="page-nav">
+          <a href="netpoller.html">← Netpoller</a>
+          <a href="memory.html">下一章 内存与逃逸 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+  <script src="assets/js/chapters.js"></script>
+  <script src="assets/js/site.js"></script>
+  <script src="assets/js/motion.js"></script>
+  <script src="assets/js/guide.js"></script>
+  <script src="assets/js/patterns-lab.js"></script>
+</body>
+</html>

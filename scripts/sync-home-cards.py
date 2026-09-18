@@ -12,27 +12,29 @@ entries = re.findall(
 )
 blurb = {
     "string": ("字节还是字符；[]byte/[]rune；range 的字节下标。", "LAB · UTF-8 视图"),
-    "slice": ("len/cap 与共享底层数组陷阱；map 哈希桶。", "LAB · append / 共享写"),
+    "slice": ("len/cap 与共享底层数组；map 桶与扩容直觉。", "LAB · append / 共享写"),
     "iface": ("接口动态派发；defer LIFO；panic/recover。", "LAB · defer 栈"),
     "error": ("哨兵错误、%w 包装、errors.Is / As。", "LAB · 错误链"),
     "generics": ("类型参数与约束集合；编译期检查。", "LAB · 约束实例化"),
-    "gmp": ("G / P / M、本地与全局队列、work stealing。", "LAB · 4 场景 · 可单步"),
-    "channel": ("hchan 与环形缓冲、阻塞 send/recv。", "LAB · 环形表盘"),
-    "select": ("多路 channel 就绪选择、default、超时。", "LAB · 多路 select"),
-    "sync": ("Mutex/WaitGroup/Once；Context 取消树。", "LAB · cancel 传播"),
-    "netpoller": ("阻塞 IO 如何被摘离 CPU；与 GMP 串线。", "LAB · park/wake"),
-    "memory": ("栈与堆；逃逸分析常见原因。", "LAB · 栈还是堆"),
-    "gc": ("三色标记、写屏障、STW。", "LAB · 对比开/关屏障"),
+    "gmp": ("G/P/M、本地与全局队列、work stealing。", "LAB · 4 场景"),
+    "channel": ("hchan 与环形缓冲、阻塞 send/recv、close。", "LAB · 环形表盘"),
+    "select": ("多路就绪、default 非阻塞、超时 case。", "LAB · 多路 select"),
+    "sync": ("Mutex/WaitGroup/Once；取消树传播。", "LAB · cancel"),
+    "netpoller": ("阻塞 IO 摘离 CPU；与 GMP 串线。", "LAB · park/wake"),
+    "patterns": ("Worker Pool、Fan-out/in、Pipeline、可取消。", "LAB · 模式步骤"),
+    "memory": ("栈与堆；闭包/指针/接口装箱。", "LAB · 栈还是堆"),
+    "gc": ("白灰黑、写屏障、STW。", "LAB · 屏障对比"),
     "testing": ("表格驱动、t.Run、benchmark。", "LAB · test + bench"),
     "modules": ("go.mod、require、tidy 与 MVS。", "LAB · go mod tidy"),
-    "perf": ("CPU / Heap profile 热点与优化方向。", "LAB · 热点示意"),
+    "perf": ("CPU / Heap 热点与优化方向。", "LAB · 热点示意"),
+    "drill": ("跨章串联：调度 / Channel / GC / Context。", "LAB · 模拟题"),
 }
-cards = []
+parts = []
 for id_, idx, href, title, short in entries:
     if id_ == "home":
         continue
-    p, m = blurb.get(id_, ("", "LAB"))
-    cards.append(
+    p, m = blurb.get(id_, ("交互讲解与 Lab。", "LAB"))
+    parts.append(
         f'''          <a class="chapter-card" href="{href}">
             <div class="num">{idx} / {short.upper()}</div>
             <h3>{title}</h3>
@@ -40,18 +42,24 @@ for id_, idx, href, title, short in entries:
             <div class="meta">{m}</div>
           </a>'''
     )
-block = '<div class="chapter-grid">\n' + "\n".join(cards) + "\n        </div>"
+block = (
+    '        <div class="chapter-grid">\n'
+    + "\n".join(parts)
+    + "\n        </div>\n"
+)
 html_path = site / "index.html"
 html = html_path.read_text(encoding="utf-8")
-new_html, n = re.subn(
-    r'<div class="chapter-grid">.*?</div>',
-    block,
-    html,
-    count=1,
-    flags=re.S,
-)
-if n != 1:
-    raise SystemExit("chapter-grid not replaced")
-html_path.write_text(new_html, encoding="utf-8")
-print("cards", len(cards) - 0)
-print("ok", html_path)
+start = html.find('        <div class="chapter-grid">')
+if start < 0:
+    start = html.find('<div class="chapter-grid">')
+end = html.find("<h2>设计原则", start)
+if start < 0 or end < 0:
+    raise SystemExit("markers not found")
+html = html[:start] + block + "\n        " + html[end:]
+html_path.write_text(html, encoding="utf-8")
+text = html_path.read_text(encoding="utf-8")
+grids = text.count('class="chapter-grid"')
+cards = text.count('class="chapter-card"')
+print("grids", grids, "cards", cards)
+assert grids == 1 and cards == len(parts), (grids, cards, len(parts))
+print("ok")

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Go 面试综合演练：跨章串联题" />
+  <title>综合演练 · GoLens</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/lab-motion.css" />
+  <link rel="stylesheet" href="assets/css/guide.css" />
+</head>
+<body data-page="drill">
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar" aria-label="站点导航">
+      <a class="brand" href="index.html"><span class="brand-mark">GoLens</span><span class="brand-sub">Runtime Lab</span></a>
+      <nav class="nav-section" aria-label="章节目录"><div class="nav-label">目录</div></nav>
+      <div class="sidebar-foot">先口述，再看解析</div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
+        <div class="topbar-title">GoLens / 17 drill</div>
+        <div class="topbar-actions"><span class="chip">章节 17</span></div>
+      </header>
+      <article class="content lab-wide">
+        <div class="eyebrow">Chapter 17</div>
+        <h1>综合演练</h1>
+        <p class="verdict">
+          用少量选择题把前面章节<strong>串成线</strong>：每题解析会指回对应 Lab / 章节。
+        </p>
+        <h2>Lab</h2>
+        <div class="lab" id="drill-lab">
+          <div class="lab-head">
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>Drill Lab</div>
+            <span class="chip">跨章串联</span>
+          </div>
+          <div class="lab-controls">
+            <div class="btn-row">
+              <button type="button" class="btn btn-primary" id="drill-next">下一题</button>
+              <button type="button" class="btn btn-ghost" id="drill-reset">重置</button>
+            </div>
+          </div>
+          <div class="story-band" id="drill-story">
+            <div class="code-track">
+              <div class="code-title">串联地图</div>
+              <pre>
+<span class="code-line" data-code-key="read">面试题 → 定位章节</span>
+<span class="code-line" data-code-key="ok">GMP steal / Channel handoff</span>
+<span class="code-line" data-code-key="review">对照 Lab 与速查表</span>
+<span class="code-line" data-code-key="score">高并发 + 正确性 + 性能 三条线</span>
+              </pre>
+            </div>
+            <div class="story-card">
+              <div class="story-step" data-story-step>关卡 1 / 4</div>
+              <h3 class="story-title" data-story-title></h3>
+              <div class="story-metaphor" data-story-metaphor></div>
+              <p class="story-body" data-story-body></p>
+              <div class="story-actions">
+                <button type="button" class="btn" data-story-prev>上一关</button>
+                <button type="button" class="btn btn-primary" data-story-next>下一关</button>
+                <div class="story-dots" data-story-dots></div>
+              </div>
+            </div>
+          </div>
+          <div class="lab-grid-3">
+            <div class="lab-stage" id="drill-stage" aria-live="polite"></div>
+            <div class="lab-log" id="drill-log" aria-live="polite"></div>
+          </div>
+        </div>
+        <h2>速查表</h2>
+        <div class="cheat">
+          <ul>
+            <li>并发吞吐 → GMP + netpoller + 模式</li>
+            <li>正确性 → channel / sync / ctx / select</li>
+            <li>性能 → 逃逸 / GC / pprof</li>
+            <li>工程 → error / testing / modules</li>
+          </ul>
+        </div>
+        <nav class="page-nav">
+          <a href="perf.html">← 性能排查直觉</a>
+          <a href="index.html">回首页 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+  <script src="assets/js/chapters.js"></script>
+  <script src="assets/js/site.js"></script>
+  <script src="assets/js/motion.js"></script>
+  <script src="assets/js/guide.js"></script>
+  <script src="assets/js/drill-lab.js"></script>
+</body>
+</html>

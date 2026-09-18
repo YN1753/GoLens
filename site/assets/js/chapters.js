@@ -3,8 +3,7 @@
   const GoLens = (global.GoLens = global.GoLens || {});
 
   /**
-   * Order = 学习路径：语言 → 并发/IO → 内存 → 工程
-   * idx 仅作展示序号，以本数组顺序为准。
+   * Order = 学习路径：语言 → 并发/IO → 内存 → 工程 → 综合
    */
   GoLens.CHAPTERS = [
     { id: "home", idx: "00", href: "index.html", title: "首页", short: "首页", group: "root" },
@@ -20,13 +19,16 @@
     { id: "select", idx: "08", href: "select.html", title: "Select 与定时器", short: "select", group: "并发" },
     { id: "sync", idx: "09", href: "sync-context.html", title: "sync / Context", short: "sync/ctx", group: "并发" },
     { id: "netpoller", idx: "10", href: "netpoller.html", title: "Netpoller 与 IO", short: "netpoller", group: "并发" },
+    { id: "patterns", idx: "11", href: "patterns.html", title: "并发模式", short: "patterns", group: "并发" },
 
-    { id: "memory", idx: "11", href: "memory.html", title: "内存与逃逸", short: "逃逸", group: "内存" },
-    { id: "gc", idx: "12", href: "gc.html", title: "GC 三色标记", short: "GC", group: "内存" },
+    { id: "memory", idx: "12", href: "memory.html", title: "内存与逃逸", short: "逃逸", group: "内存" },
+    { id: "gc", idx: "13", href: "gc.html", title: "GC 三色标记", short: "GC", group: "内存" },
 
-    { id: "testing", idx: "13", href: "testing.html", title: "测试与基准", short: "testing", group: "工程" },
-    { id: "modules", idx: "14", href: "modules.html", title: "模块与依赖", short: "modules", group: "工程" },
-    { id: "perf", idx: "15", href: "perf.html", title: "性能排查直觉", short: "pprof", group: "工程" }
+    { id: "testing", idx: "14", href: "testing.html", title: "测试与基准", short: "testing", group: "工程" },
+    { id: "modules", idx: "15", href: "modules.html", title: "模块与依赖", short: "modules", group: "工程" },
+    { id: "perf", idx: "16", href: "perf.html", title: "性能排查直觉", short: "pprof", group: "工程" },
+
+    { id: "drill", idx: "17", href: "drill.html", title: "综合演练", short: "drill", group: "综合" }
   ];
 
   GoLens.studyChapters = function () {
@@ -52,7 +54,6 @@
     return { chapter: list[0] || null, allRead: true };
   };
 
-  /** prev/next by pedagogical order; includes home only at ends via list bounds */
   GoLens.neighbors = function (id) {
     const list = GoLens.CHAPTERS;
     let i = -1;
