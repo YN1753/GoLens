@@ -3,7 +3,7 @@ feature: content-mem-iface
 status: delivered
 updated: 2026-09-17
 branch: chore/content-mem-iface
-commits: 
+commits: 30c9eaccb7a18b6893b44001b8826b50acb2e726..6951635ca1ff0cd52c7a9ead3d0b7e8163c0368c
 ---
 
 # Content — Memory/Escapes + Interface/defer Chapters
