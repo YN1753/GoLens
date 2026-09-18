@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Go 测试与 benchmark" />
+  <title>测试与基准 · GoLens</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/lab-motion.css" />
+  <link rel="stylesheet" href="assets/css/guide.css" />
+</head>
+<body data-page="testing">
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar" aria-label="站点导航">
+      <a class="brand" href="index.html"><span class="brand-mark">GoLens</span><span class="brand-sub">Runtime Lab</span></a>
+      <nav class="nav-section" aria-label="章节目录"><div class="nav-label">目录</div></nav>
+      <div class="sidebar-foot">go test / go test -bench</div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
+        <div class="topbar-title">GoLens / 13 testing</div>
+        <div class="topbar-actions"><span class="chip">章节 13</span></div>
+      </header>
+      <article class="content lab-wide">
+        <div class="eyebrow">Chapter 13</div>
+        <h1>测试与基准</h1>
+        <p class="verdict">
+          标准库 <code>testing</code> 提供单元测试与 <strong>benchmark</strong>。
+          推荐<strong>表格驱动</strong> + <code>t.Run</code> 子测试；基准用 <code>testing.B</code> 的 <code>b.N</code> 循环。
+        </p>
+
+        <h2>常用命令</h2>
+        <pre><code>go test ./...
+go test -run TestSum/empty ./pkg
+go test -bench=. -benchmem ./pkg</code></pre>
+
+        <h2>交互 Lab</h2>
+        <div class="lab" id="test-lab">
+          <div class="lab-head">
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>Testing Lab</div>
+            <span class="chip">table · b.N</span>
+          </div>
+          <div class="lab-controls">
+            <div class="btn-row">
+              <button type="button" class="btn btn-primary" id="test-run">跑测试</button>
+              <button type="button" class="btn" id="test-bench">跑 Benchmark</button>
+              <button type="button" class="btn btn-ghost" id="test-reset">重置</button>
+            </div>
+          </div>
+          <div class="story-band" id="test-story">
+            <div class="code-track">
+              <div class="code-title">Go 代码 · 观察窗</div>
+              <pre>
+<span class="code-line" data-code-key="table">cases := []struct{ in []int; want int }{...}</span>
+<span class="code-line" data-code-key="run">t.Run(name, func(t *testing.T){ ... })</span>
+<span class="code-line" data-code-key="bench">for i := 0; i &lt; b.N; i++ { Sum(...) }</span>
+              </pre>
+            </div>
+            <div class="story-card">
+              <div class="story-step" data-story-step>关卡 1 / 4</div>
+              <h3 class="story-title" data-story-title></h3>
+              <div class="story-metaphor" data-story-metaphor></div>
+              <p class="story-body" data-story-body></p>
+              <div class="story-actions">
+                <button type="button" class="btn" data-story-prev>上一关</button>
+                <button type="button" class="btn btn-primary" data-story-next>下一关</button>
+                <div class="story-dots" data-story-dots></div>
+              </div>
+            </div>
+          </div>
+          <div class="lab-grid-3">
+            <div class="lab-stage" id="test-stage" aria-live="polite"></div>
+            <div class="lab-log" id="test-log" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <h2>速查表</h2>
+        <div class="cheat">
+          <ul>
+            <li>*_test.go · TestXxx / BenchmarkXxx</li>
+            <li>表格驱动 + t.Run 子测试</li>
+            <li>-bench 与 -benchmem；关注 ns/op</li>
+          </ul>
+        </div>
+
+        <nav class="page-nav">
+          <a href="netpoller.html">← Netpoller 与 IO</a>
+          <a href="index.html">回首页 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+  <script src="assets/js/chapters.js"></script>
+  <script src="assets/js/site.js"></script>
+  <script src="assets/js/motion.js"></script>
+  <script src="assets/js/guide.js"></script>
+  <script src="assets/js/testing-lab.js"></script>
+</body>
+</html>

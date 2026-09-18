@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Go netpoller：网络 IO 与调度关系" />
+  <title>Netpoller 与 IO · GoLens</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/lab-motion.css" />
+  <link rel="stylesheet" href="assets/css/guide.css" />
+</head>
+<body data-page="netpoller">
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar" aria-label="站点导航">
+      <a class="brand" href="index.html"><span class="brand-mark">GoLens</span><span class="brand-sub">Runtime Lab</span></a>
+      <nav class="nav-section" aria-label="章节目录"><div class="nav-label">目录</div></nav>
+      <div class="sidebar-foot">IO 阻塞时 G 让出，不死占 CPU</div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
+        <div class="topbar-title">GoLens / 12 netpoller</div>
+        <div class="topbar-actions"><span class="chip">章节 12</span></div>
+      </header>
+      <article class="content lab-wide">
+        <div class="eyebrow">Chapter 12</div>
+        <h1>Netpoller 与 IO</h1>
+        <p class="verdict">
+          Go 网络模型把「大量空闲连接」和「少量在跑的计算」拆开：G 做 Read 时若无数据，
+          <strong>挂起</strong>并交给 <strong>netpoll</strong>（epoll/kqueue 等）；FD 就绪后 G 再被调度。
+        </p>
+
+        <h2>和 GMP 的关系</h2>
+        <ul>
+          <li>用户代码在 G 上跑；IO 等待让 G 进入等待，而不是让 M 空转死等。</li>
+          <li>netpoll 线程/逻辑负责收集就绪 FD，把对应 G 标为 runnable。</li>
+          <li>sysmon 等还可能扫描长时间阻塞的场景（细节略）。</li>
+        </ul>
+
+        <div class="callout">
+          <div class="callout-title">面试串线</div>
+          <p>「Go 为什么适合高并发网络服务」= 轻量 G + 调度器 + netpoll 把阻塞 IO 从 CPU 时间片上摘下来。</p>
+        </div>
+
+        <h2>交互 Lab · 阻塞与唤醒</h2>
+        <div class="lab" id="net-lab">
+          <div class="lab-head">
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>Netpoller Lab</div>
+            <span class="chip">park · poll · wake</span>
+          </div>
+          <div class="lab-controls">
+            <div class="btn-row">
+              <button type="button" class="btn btn-primary" id="net-block">Read 阻塞</button>
+              <button type="button" class="btn" id="net-ready">epoll 就绪</button>
+              <button type="button" class="btn" id="net-wake">唤醒 G</button>
+              <button type="button" class="btn btn-ghost" id="net-reset">重置</button>
+            </div>
+          </div>
+          <div class="story-band" id="net-story">
+            <div class="code-track">
+              <div class="code-title">Go 代码 · 观察窗</div>
+              <pre>
+<span class="code-line" data-code-key="read">n, err := conn.Read(buf)</span>
+<span class="code-line" data-code-key="park">// 无数据：G park，让出 P</span>
+<span class="code-line" data-code-key="poll">// netpoll: fd ready</span>
+<span class="code-line" data-code-key="wake">// G runnable → schedule</span>
+              </pre>
+            </div>
+            <div class="story-card">
+              <div class="story-step" data-story-step>关卡 1 / 4</div>
+              <h3 class="story-title" data-story-title></h3>
+              <div class="story-metaphor" data-story-metaphor></div>
+              <p class="story-body" data-story-body></p>
+              <div class="story-actions">
+                <button type="button" class="btn" data-story-prev>上一关</button>
+                <button type="button" class="btn btn-primary" data-story-next>下一关</button>
+                <div class="story-dots" data-story-dots></div>
+              </div>
+            </div>
+          </div>
+          <div class="lab-grid-3">
+            <div class="lab-stage" id="net-stage" aria-live="polite"></div>
+            <div class="lab-log" id="net-log" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <h2>速查表</h2>
+        <div class="cheat">
+          <ul>
+            <li>阻塞 IO → G 挂起，不是一连接一线程死等</li>
+            <li>netpoll 报告 FD 就绪 → G runnable</li>
+            <li>与 GMP 一起解释高并发网络</li>
+          </ul>
+        </div>
+
+        <nav class="page-nav">
+          <a href="generics.html">← 泛型直觉</a>
+          <a href="testing.html">下一章 测试与基准 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+  <script src="assets/js/chapters.js"></script>
+  <script src="assets/js/site.js"></script>
+  <script src="assets/js/motion.js"></script>
+  <script src="assets/js/guide.js"></script>
+  <script src="assets/js/netpoller-lab.js"></script>
+</body>
+</html>
