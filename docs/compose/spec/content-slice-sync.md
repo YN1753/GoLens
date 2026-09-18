@@ -3,7 +3,7 @@ feature: content-slice-sync
 status: delivered
 updated: 2026-09-17
 branch: chore/content-slice-sync
-commits: 6500a81e34979f22c9e0e117de80934adbdeb5a5..<pending>
+commits: 6500a81e34979f22c9e0e117de80934adbdeb5a5..5e40d826defe4009ebf2021f618a15adacc0afe0
 ---
 
 # Content — Slice/Map + sync/Context Chapters
