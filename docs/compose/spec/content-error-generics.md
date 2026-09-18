@@ -3,7 +3,7 @@ feature: content-error-generics
 status: delivered
 updated: 2026-09-17
 branch: chore/content-error-generics
-commits: 
+commits: 4c3075c8c89e3f8a005fdb02fe267ac36354b4f9..eba63af129d72de3e56ae24114b42b783fe8fb0c
 ---
 
 # Content — Error Handling + Generics Chapters
