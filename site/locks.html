@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Go 并发模式：worker pool、fan-out/in、pipeline" />
-  <title>并发模式 · GoLens</title>
+  <meta name="description" content="Go 锁与 sync.Map：Mutex、RWMutex、WaitGroup、Once" />
+  <title>锁与 sync.Map · GoLens</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="assets/css/tokens.css" />
   <link rel="stylesheet" href="assets/css/layout.css" />
@@ -12,55 +12,57 @@
   <link rel="stylesheet" href="assets/css/lab-motion.css" />
   <link rel="stylesheet" href="assets/css/guide.css" />
 </head>
-<body data-page="patterns">
+<body data-page="locks">
   <div class="scrim" aria-hidden="true"></div>
   <div class="shell">
     <aside class="sidebar" aria-label="站点导航">
       <a class="brand" href="index.html"><span class="brand-mark">GoLens</span><span class="brand-sub">Runtime Lab</span></a>
       <nav class="nav-section" aria-label="章节目录"><div class="nav-label">目录</div></nav>
-      <div class="sidebar-foot">模式 = channel + goroutine + 收口</div>
+      <div class="sidebar-foot">锁保护内存；channel 传递所有权</div>
     </aside>
     <div class="main">
       <header class="topbar">
         <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
-        <div class="topbar-title">GoLens / 11 patterns</div>
-        <div class="topbar-actions"><span class="chip">章节 11</span></div>
+        <div class="topbar-title">GoLens / 12 locks</div>
+        <div class="topbar-actions"><span class="chip">章节 12</span></div>
       </header>
       <article class="content lab-wide">
-        <div class="eyebrow">Chapter 11</div>
-        <h1>并发模式</h1>
+        <div class="eyebrow">Chapter 12</div>
+        <h1>锁与 sync.Map</h1>
         <p class="verdict">
-          常见模式本质都是：<strong>channel 传数据</strong> + <strong>goroutine 干活</strong> +
-          <strong>WaitGroup / close / ctx</strong> 做生命周期收口。
+          共享内存用<strong>锁</strong>串行化临界区；协调生命周期用 WaitGroup/Once。
+          <code>sync.Map</code> 是特定场景优化，不是默认答案——先测量再引入。
         </p>
         <h2>Lab</h2>
-        <div class="lab" id="pat-lab">
+        <div class="lab" id="lock-lab">
           <div class="lab-head">
-            <div class="lab-title"><span class="led" aria-hidden="true"></span>Patterns Lab</div>
-            <span class="chip">worker · fan · pipeline · cancel</span>
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>Locks Lab</div>
+            <span class="chip">mutex · rw · once · map</span>
           </div>
           <div class="lab-controls">
             <div class="btn-row">
-              <label>模式
-                <select id="pat-mode">
-                  <option value="worker">Worker Pool</option>
-                  <option value="fanin">Fan-out / Fan-in</option>
-                  <option value="pipeline">Pipeline</option>
-                  <option value="ordone">or-done / 超时</option>
+              <label>场景
+                <select id="lock-scenario">
+                  <option value="mutex">Mutex</option>
+                  <option value="rwmutex">RWMutex</option>
+                  <option value="waitgroup">WaitGroup</option>
+                  <option value="once">Once</option>
+                  <option value="syncmap">sync.Map</option>
                 </select>
               </label>
-              <button type="button" class="btn btn-primary" id="pat-step">下一步</button>
-              <button type="button" class="btn btn-ghost" id="pat-reset">重置</button>
+              <button type="button" class="btn btn-primary" id="lock-run">走完流程</button>
+              <button type="button" class="btn btn-ghost" id="lock-reset">重置</button>
             </div>
           </div>
-          <div class="story-band" id="pat-story">
+          <div class="story-band" id="lock-story">
             <div class="code-track">
               <div class="code-title">Go 代码 · 观察窗</div>
               <pre>
-<span class="code-line" data-code-key="worker">for w:=0; w&lt;n; w++ { go worker(jobs, results) }</span>
-<span class="code-line" data-code-key="fanin">merge(out1, out2) // WaitGroup + close</span>
-<span class="code-line" data-code-key="pipeline">stage := func(in) &lt;-chan T { ... }</span>
-<span class="code-line" data-code-key="ordone">select { case v:=&lt;-c: ; case &lt;-ctx.Done(): }</span>
+<span class="code-line" data-code-key="mutex">mu.Lock(); defer mu.Unlock()</span>
+<span class="code-line" data-code-key="rwmutex">rw.RLock() / rw.Lock()</span>
+<span class="code-line" data-code-key="waitgroup">wg.Add(1); defer wg.Done()</span>
+<span class="code-line" data-code-key="once">once.Do(init)</span>
+<span class="code-line" data-code-key="syncmap">var m sync.Map; m.Load/Store</span>
               </pre>
             </div>
             <div class="story-card">
@@ -76,22 +78,22 @@
             </div>
           </div>
           <div class="lab-grid-3">
-            <div class="lab-stage" id="pat-stage" aria-live="polite"></div>
-            <div class="lab-log" id="pat-log" aria-live="polite"></div>
+            <div class="lab-stage" id="lock-stage" aria-live="polite"></div>
+            <div class="lab-log" id="lock-log" aria-live="polite"></div>
           </div>
         </div>
         <h2>速查表</h2>
         <div class="cheat">
           <ul>
-            <li>Worker：限流并发 + WaitGroup</li>
-            <li>Fan-out/in：并行处理再合并</li>
-            <li>Pipeline：级级 channel，明确谁 close</li>
-            <li>or-done/ctx：可取消，防泄漏</li>
+            <li>Mutex：临界区互斥；勿拷贝锁</li>
+            <li>RWMutex：多读一写</li>
+            <li>WaitGroup：Add/Done/Wait；Once：只初始化一次</li>
+            <li>sync.Map：特定模式；通用仍 mutex/分片</li>
           </ul>
         </div>
         <nav class="page-nav">
-          <a href="netpoller.html">← Netpoller</a>
-          <a href="locks.html">下一章 锁与 sync.Map →</a>
+          <a href="patterns.html">← 并发模式</a>
+          <a href="memory.html">下一章 内存与逃逸 →</a>
         </nav>
       </article>
     </div>
@@ -100,6 +102,6 @@
   <script src="assets/js/site.js"></script>
   <script src="assets/js/motion.js"></script>
   <script src="assets/js/guide.js"></script>
-  <script src="assets/js/patterns-lab.js"></script>
+  <script src="assets/js/locks-lab.js"></script>
 </body>
 </html>

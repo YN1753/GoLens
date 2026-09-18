@@ -3,7 +3,7 @@
   const GoLens = (global.GoLens = global.GoLens || {});
 
   /**
-   * Order = 学习路径：语言 → 并发/IO → 内存 → 工程 → 综合
+   * 语言 → 并发/IO → 内存 → 工程 → 综合
    */
   GoLens.CHAPTERS = [
     { id: "home", idx: "00", href: "index.html", title: "首页", short: "首页", group: "root" },
@@ -20,15 +20,17 @@
     { id: "sync", idx: "09", href: "sync-context.html", title: "sync / Context", short: "sync/ctx", group: "并发" },
     { id: "netpoller", idx: "10", href: "netpoller.html", title: "Netpoller 与 IO", short: "netpoller", group: "并发" },
     { id: "patterns", idx: "11", href: "patterns.html", title: "并发模式", short: "patterns", group: "并发" },
+    { id: "locks", idx: "12", href: "locks.html", title: "锁与 sync.Map", short: "locks", group: "并发" },
 
-    { id: "memory", idx: "12", href: "memory.html", title: "内存与逃逸", short: "逃逸", group: "内存" },
-    { id: "gc", idx: "13", href: "gc.html", title: "GC 三色标记", short: "GC", group: "内存" },
+    { id: "memory", idx: "13", href: "memory.html", title: "内存与逃逸", short: "逃逸", group: "内存" },
+    { id: "gc", idx: "14", href: "gc.html", title: "GC 三色标记", short: "GC", group: "内存" },
 
-    { id: "testing", idx: "14", href: "testing.html", title: "测试与基准", short: "testing", group: "工程" },
-    { id: "modules", idx: "15", href: "modules.html", title: "模块与依赖", short: "modules", group: "工程" },
-    { id: "perf", idx: "16", href: "perf.html", title: "性能排查直觉", short: "pprof", group: "工程" },
+    { id: "testing", idx: "15", href: "testing.html", title: "测试与基准", short: "testing", group: "工程" },
+    { id: "modules", idx: "16", href: "modules.html", title: "模块与依赖", short: "modules", group: "工程" },
+    { id: "perf", idx: "17", href: "perf.html", title: "性能排查直觉", short: "pprof", group: "工程" },
 
-    { id: "drill", idx: "17", href: "drill.html", title: "综合演练", short: "drill", group: "综合" }
+    { id: "drill", idx: "18", href: "drill.html", title: "综合演练", short: "drill", group: "综合" },
+    { id: "cheat", idx: "19", href: "cheat.html", title: "速查总览", short: "cheat", group: "综合" }
   ];
 
   GoLens.studyChapters = function () {

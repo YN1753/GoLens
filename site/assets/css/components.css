@@ -868,3 +868,14 @@ mark.search-hit {
   margin: 10px 0 4px;
   padding-top: 4px;
 }
+
+.cheat-ul {
+  margin: 0;
+  padding-left: 1.1em;
+}
+
+.cheat-li {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  margin: 4px 0;
+}
