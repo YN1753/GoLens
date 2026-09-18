@@ -11,6 +11,8 @@ need=(
   "$site/gc.html"
   "$site/slice-map.html"
   "$site/sync-context.html"
+  "$site/memory.html"
+  "$site/iface-defer.html"
   "$site/favicon.svg"
   "$site/assets/css/tokens.css"
   "$site/assets/css/layout.css"
@@ -25,6 +27,8 @@ need=(
   "$site/assets/js/gc-lab.js"
   "$site/assets/js/slice-lab.js"
   "$site/assets/js/context-lab.js"
+  "$site/assets/js/escape-lab.js"
+  "$site/assets/js/defer-lab.js"
 )
 
 echo "== structure =="
@@ -38,7 +42,7 @@ for f in "${need[@]}"; do
 done
 
 echo "== relative assets in HTML =="
-for page in index.html gmp.html channel.html gc.html slice-map.html sync-context.html; do
+for page in index.html gmp.html channel.html gc.html slice-map.html sync-context.html memory.html iface-defer.html; do
   if grep -E 'src="https?://|href="https?://' "$site/$page" >/dev/null 2>&1; then
     echo "FAIL $page references remote asset URL"
     fail=1

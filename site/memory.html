@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="内存分配与逃逸分析：栈还是堆" />
+  <title>内存分配与逃逸 · GoLens</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/lab-motion.css" />
+  <link rel="stylesheet" href="assets/css/guide.css" />
+</head>
+<body data-page="memory">
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar" aria-label="站点导航">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">GoLens</span>
+        <span class="brand-sub">Runtime Lab</span>
+      </a>
+      <nav class="nav-section" aria-label="章节目录">
+        <div class="nav-label">目录</div>
+        <a class="nav-link" data-page="home" href="index.html"><span class="idx">00</span>首页</a>
+        <a class="nav-link" data-page="gmp" href="gmp.html"><span class="idx">01</span>GMP 调度</a>
+        <a class="nav-link" data-page="channel" href="channel.html"><span class="idx">02</span>Channel 底层</a>
+        <a class="nav-link" data-page="gc" href="gc.html"><span class="idx">03</span>GC 三色标记</a>
+        <a class="nav-link" data-page="slice" href="slice-map.html"><span class="idx">04</span>Slice 与 Map</a>
+        <a class="nav-link" data-page="sync" href="sync-context.html"><span class="idx">05</span>sync / Context</a>
+        <a class="nav-link" data-page="memory" href="memory.html"><span class="idx">06</span>内存与逃逸</a>
+        <a class="nav-link" data-page="iface" href="iface-defer.html"><span class="idx">07</span>Interface · defer</a>
+      </nav>
+      <div class="sidebar-foot">面试向简化模型<br />可用 -gcflags=-m 验证</div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
+        <div class="topbar-title">GoLens / 06 memory</div>
+        <div class="topbar-actions"><span class="chip">章节 06</span></div>
+      </header>
+      <article class="content lab-wide">
+        <div class="eyebrow">Chapter 06</div>
+        <h1>内存分配与逃逸分析</h1>
+        <p class="verdict">
+          编译器做<strong>逃逸分析</strong>：值若必须在函数返回后仍可见，通常分配到<strong>堆</strong>并交给 GC；
+          否则可留在<strong>栈</strong>上，随返回自动回收。栈更快，但不是能逃就一定慢到不可接受。
+        </p>
+
+        <h2>栈与堆（心智模型）</h2>
+        <ul>
+          <li><strong>栈</strong>：每个 goroutine 有自己的栈，分配/回收几乎无成本，栈会增长/分段。</li>
+          <li><strong>堆</strong>：全局分配器管理，生命周期由 GC 决定；逃逸对象多 → GC 压力大。</li>
+        </ul>
+
+        <h2>常见逃逸原因</h2>
+        <ul>
+          <li>返回局部变量地址 / 指针被外部持有</li>
+          <li>闭包捕获、在其他 goroutine 中使用</li>
+          <li>发送到 channel、存进接口、map/slice 被传出</li>
+          <li>变量大小不确定或过大（实现细节，面试说「可能」）</li>
+        </ul>
+
+        <div class="callout">
+          <div class="callout-title">如何验证</div>
+          <p><code>go build -gcflags="-m" ./...</code> 会打印逃逸结论。生产优化先测再改，勿过早恐慌式改指针。</p>
+        </div>
+
+        <h2>交互 Lab · 栈还是堆？</h2>
+        <p class="beginner-tip"><strong>怎么用：</strong>读片段 → 点「栈」或「堆」→ 看解释。也可跟右侧关卡听隐喻。</p>
+
+        <div class="lab" id="escape-lab">
+          <div class="lab-head">
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>Escape Lab</div>
+            <span class="chip">stack vs heap</span>
+          </div>
+          <div class="story-band" id="escape-story">
+            <div class="code-track">
+              <div class="code-title">Go 代码 · 观察窗</div>
+              <pre>
+<span class="code-line" data-code-key="escape">x := 1; return &x // 可能逃逸</span>
+<span class="code-line" data-code-key="go">go func(){ use(x) }() // 闭包/goroutine</span>
+<span class="code-line" data-code-key="iface">var i interface{} = x // 装箱</span>
+              </pre>
+            </div>
+            <div class="story-card">
+              <div class="story-step" data-story-step>关卡 1 / 4</div>
+              <h3 class="story-title" data-story-title></h3>
+              <div class="story-metaphor" data-story-metaphor></div>
+              <p class="story-body" data-story-body></p>
+              <div class="story-actions">
+                <button type="button" class="btn" data-story-prev>上一关</button>
+                <button type="button" class="btn btn-primary" data-story-next>下一关</button>
+                <div class="story-dots" data-story-dots></div>
+              </div>
+            </div>
+          </div>
+          <div class="lab-grid-3">
+            <div class="lab-stage" id="escape-stage" aria-live="polite"></div>
+            <div class="lab-log" id="escape-log" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <h2>常见追问</h2>
+        <div class="faq">
+          <details>
+            <summary>逃逸一定有害吗？</summary>
+            <p>不一定。很多对象本来就该共享。只在 profile 证明分配热点时再优化。</p>
+          </details>
+          <details>
+            <summary>值接收者 vs 指针接收者会影响逃逸吗？</summary>
+            <p>会影响复制与是否产生额外指针，间接影响逃逸，但以编译器输出为准。</p>
+          </details>
+        </div>
+
+        <h2>速查表</h2>
+        <div class="cheat">
+          <ul>
+            <li>栈随返回回收；堆交给 GC</li>
+            <li>指针逃逸 / 闭包 / goroutine / interface 装箱常见</li>
+            <li>-gcflags=-m 查看结论；先测量再优化</li>
+          </ul>
+        </div>
+
+        <nav class="page-nav">
+          <a href="sync-context.html">← sync / Context</a>
+          <a href="iface-defer.html">下一章 Interface · defer →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+  <script src="assets/js/site.js"></script>
+  <script src="assets/js/motion.js"></script>
+  <script src="assets/js/guide.js"></script>
+  <script src="assets/js/escape-lab.js"></script>
+</body>
+</html>

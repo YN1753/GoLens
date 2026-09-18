@@ -26,7 +26,9 @@
         <a class="nav-link" data-page="gc" href="gc.html"><span class="idx">03</span>GC 三色标记</a>
         <a class="nav-link" data-page="slice" href="slice-map.html"><span class="idx">04</span>Slice 与 Map</a>
         <a class="nav-link" data-page="sync" href="sync-context.html"><span class="idx">05</span>sync / Context</a>
-      </nav>
+              <a class="nav-link" data-page="memory" href="memory.html"><span class="idx">06</span>内存与逃逸</a>
+        <a class="nav-link" data-page="iface" href="iface-defer.html"><span class="idx">07</span>Interface · defer</a>
+</nav>
       <div class="sidebar-foot">
         纯静态 · 无构建 · 可 GitHub Pages<br />
         面试向简化模型，非 runtime 源码复刻
@@ -88,6 +90,18 @@
             <h3>锁、等待组与取消树</h3>
             <p>Mutex/WaitGroup/Once 速查；Context 父子取消如何级联。</p>
             <div class="meta">LAB · cancel 传播</div>
+          </a>
+          <a class="chapter-card" href="memory.html">
+            <div class="num">06 / MEMORY</div>
+            <h3>内存分配与逃逸</h3>
+            <p>栈与堆心智模型；指针逃逸、闭包、接口装箱；-gcflags=-m 验证。</p>
+            <div class="meta">LAB · 栈还是堆</div>
+          </a>
+          <a class="chapter-card" href="iface-defer.html">
+            <div class="num">07 / IFACE · DEFER</div>
+            <h3>Interface 与 defer</h3>
+            <p>接口动态派发；defer LIFO；panic/recover 展开路径。</p>
+            <div class="meta">LAB · defer 栈</div>
           </a>
         </div>
 

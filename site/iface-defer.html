@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Interface 动态派发与 defer/panic/recover" />
+  <title>Interface 与 defer · GoLens</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/lab-motion.css" />
+  <link rel="stylesheet" href="assets/css/guide.css" />
+</head>
+<body data-page="iface">
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar" aria-label="站点导航">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">GoLens</span>
+        <span class="brand-sub">Runtime Lab</span>
+      </a>
+      <nav class="nav-section" aria-label="章节目录">
+        <div class="nav-label">目录</div>
+        <a class="nav-link" data-page="home" href="index.html"><span class="idx">00</span>首页</a>
+        <a class="nav-link" data-page="gmp" href="gmp.html"><span class="idx">01</span>GMP 调度</a>
+        <a class="nav-link" data-page="channel" href="channel.html"><span class="idx">02</span>Channel 底层</a>
+        <a class="nav-link" data-page="gc" href="gc.html"><span class="idx">03</span>GC 三色标记</a>
+        <a class="nav-link" data-page="slice" href="slice-map.html"><span class="idx">04</span>Slice 与 Map</a>
+        <a class="nav-link" data-page="sync" href="sync-context.html"><span class="idx">05</span>sync / Context</a>
+        <a class="nav-link" data-page="memory" href="memory.html"><span class="idx">06</span>内存与逃逸</a>
+        <a class="nav-link" data-page="iface" href="iface-defer.html"><span class="idx">07</span>Interface · defer</a>
+      </nav>
+      <div class="sidebar-foot">面试向简化模型<br />非 reflect 全量细节</div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
+        <div class="topbar-title">GoLens / 07 iface-defer</div>
+        <div class="topbar-actions"><span class="chip">章节 07</span></div>
+      </header>
+      <article class="content lab-wide">
+        <div class="eyebrow">Chapter 07</div>
+        <h1>Interface 与 defer</h1>
+        <p class="verdict">
+          Interface 用<strong>类型信息 + 数据</strong>实现动态派发；<code>defer</code> 在注册时求值参数，在返回/panic 时按
+          <strong>LIFO</strong> 执行，可与 <code>panic/recover</code> 组成错误展开路径。
+        </p>
+
+        <h2>Interface 心智模型</h2>
+        <ul>
+          <li>空接口 <code>interface{}</code> / <code>any</code>：类型 + 数据。</li>
+          <li>非空接口：方法表（itab）+ 数据；调用是间接的。</li>
+          <li>类型断言 <code>x.(T)</code>、<code>switch x.(type)</code> 提取具体类型。</li>
+          <li>nil 接口与「接口里装着 nil 指针」不是一回事（经典坑）。</li>
+        </ul>
+
+        <h2>defer / panic / recover</h2>
+        <ul>
+          <li>defer 参数立即求值；函数体延后执行。</li>
+          <li>多 defer：后进先出。</li>
+          <li>panic 触发后仍执行 defer；同 defer 中 recover 可止住。</li>
+          <li>goroutine 顶层未 recover 的 panic 会导致进程崩溃。</li>
+        </ul>
+
+        <h2>交互 Lab · defer 栈</h2>
+        <p class="beginner-tip"><strong>怎么用：</strong>多次「注册 defer」→「运行」看 LIFO；再试「模拟 panic」+ recover 开关。</p>
+
+        <div class="lab" id="defer-lab">
+          <div class="lab-head">
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>Defer Lab</div>
+            <span class="chip">LIFO · panic/recover</span>
+          </div>
+          <div class="lab-controls">
+            <div class="btn-row">
+              <button type="button" class="btn btn-primary" id="defer-push">注册 defer</button>
+              <button type="button" class="btn" id="defer-run">运行</button>
+              <button type="button" class="btn" id="defer-panic">模拟 panic</button>
+              <label class="chip"><input type="checkbox" id="defer-recover" /> defer 中 recover</label>
+              <button type="button" class="btn btn-ghost" id="defer-reset">重置</button>
+            </div>
+          </div>
+          <div class="story-band" id="defer-story">
+            <div class="code-track">
+              <div class="code-title">Go 代码 · 观察窗</div>
+              <pre>
+<span class="code-line" data-code-key="iface">var r io.Reader = conn // itab + data</span>
+<span class="code-line" data-code-key="push">defer mu.Unlock() // 参数先求值</span>
+<span class="code-line" data-code-key="run">defer f(); defer g() // g 先跑</span>
+<span class="code-line" data-code-key="panic">panic("boom")</span>
+<span class="code-line" data-code-key="recover">if e := recover(); e != nil { ... }</span>
+              </pre>
+            </div>
+            <div class="story-card">
+              <div class="story-step" data-story-step>关卡 1 / 4</div>
+              <h3 class="story-title" data-story-title></h3>
+              <div class="story-metaphor" data-story-metaphor></div>
+              <p class="story-body" data-story-body></p>
+              <div class="story-actions">
+                <button type="button" class="btn" data-story-prev>上一关</button>
+                <button type="button" class="btn btn-primary" data-story-next>下一关</button>
+                <div class="story-dots" data-story-dots></div>
+              </div>
+            </div>
+          </div>
+          <div class="lab-grid-3">
+            <div class="lab-stage" id="defer-stage" aria-live="polite"></div>
+            <div class="lab-log" id="defer-log" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <h2>常见追问</h2>
+        <div class="faq">
+          <details>
+            <summary>为什么 nil 接口方法调用会 panic？</summary>
+            <p>动态类型为空时无法派发方法；「类型非空但值为 nil 指针」则是另一类坑。</p>
+          </details>
+          <details>
+            <summary>defer 里能改返回值吗？</summary>
+            <p>命名返回值可以；匿名返回值在 defer 中修改通常看不见（除非用命名结果）。</p>
+          </details>
+        </div>
+
+        <h2>速查表</h2>
+        <div class="cheat">
+          <ul>
+            <li>iface ≈ 类型/方法表 + 数据；动态派发</li>
+            <li>defer：参数即刻求值；执行 LIFO</li>
+            <li>panic 仍跑 defer；recover 可止住</li>
+            <li>接口 nil ≠ 值 nil</li>
+          </ul>
+        </div>
+
+        <nav class="page-nav">
+          <a href="memory.html">← 内存与逃逸</a>
+          <a href="index.html">回首页 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+  <script src="assets/js/site.js"></script>
+  <script src="assets/js/motion.js"></script>
+  <script src="assets/js/guide.js"></script>
+  <script src="assets/js/defer-lab.js"></script>
+</body>
+</html>
