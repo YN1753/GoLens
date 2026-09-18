@@ -3,7 +3,7 @@ feature: content-net-test
 status: delivered
 updated: 2026-09-17
 branch: chore/content-net-test
-commits: 
+commits: c460f7a74c0824a77098ba820029ff336798b7c6..90e8694eb6408d13c9fbf9830ac807b40029c6b2
 ---
 
 # Content — Netpoller/IO + Testing Chapters
