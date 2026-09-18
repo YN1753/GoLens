@@ -11,7 +11,9 @@
     { id: "memory", idx: "06", href: "memory.html", title: "内存与逃逸", short: "逃逸" },
     { id: "iface", idx: "07", href: "iface-defer.html", title: "Interface · defer", short: "iface/defer" },
     { id: "select", idx: "08", href: "select.html", title: "Select 与定时器", short: "select" },
-    { id: "string", idx: "09", href: "string.html", title: "string 与 range", short: "string" }
+    { id: "string", idx: "09", href: "string.html", title: "string 与 range", short: "string" },
+    { id: "error", idx: "10", href: "error.html", title: "错误处理", short: "error" },
+    { id: "generics", idx: "11", href: "generics.html", title: "泛型直觉", short: "generics" }
   ];
 
   GoLens.isChapterRead = function (id) {
