@@ -24,6 +24,7 @@ blurb = {
     "netpoller": ("阻塞 IO 摘离 CPU；与 GMP 串线。", "LAB · park/wake"),
     "patterns": ("Worker Pool、Fan-out/in、Pipeline、可取消。", "LAB · 模式步骤"),
     "locks": ("Mutex/RWMutex/WaitGroup/Once/sync.Map。", "LAB · 锁流程"),
+    "memmodel": ("happens-before、data race、-race。", "LAB · 同步边"),
     "memory": ("栈与堆；闭包/指针/接口装箱。", "LAB · 栈还是堆"),
     "gc": ("白灰黑、写屏障、STW。", "LAB · 屏障对比"),
     "testing": ("表格驱动、t.Run、benchmark。", "LAB · test + bench"),

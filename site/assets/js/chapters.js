@@ -20,17 +20,18 @@
     { id: "netpoller", idx: "11", href: "netpoller.html", title: "Netpoller 与 IO", short: "netpoller", group: "并发" },
     { id: "patterns", idx: "12", href: "patterns.html", title: "并发模式", short: "patterns", group: "并发" },
     { id: "locks", idx: "13", href: "locks.html", title: "锁与 sync.Map", short: "locks", group: "并发" },
+    { id: "memmodel", idx: "14", href: "memmodel.html", title: "内存模型", short: "happens-before", group: "并发" },
 
-    { id: "memory", idx: "14", href: "memory.html", title: "内存与逃逸", short: "逃逸", group: "内存" },
-    { id: "gc", idx: "15", href: "gc.html", title: "GC 三色标记", short: "GC", group: "内存" },
+    { id: "memory", idx: "15", href: "memory.html", title: "内存与逃逸", short: "逃逸", group: "内存" },
+    { id: "gc", idx: "16", href: "gc.html", title: "GC 三色标记", short: "GC", group: "内存" },
 
-    { id: "testing", idx: "16", href: "testing.html", title: "测试与基准", short: "testing", group: "工程" },
-    { id: "modules", idx: "17", href: "modules.html", title: "模块与依赖", short: "modules", group: "工程" },
-    { id: "perf", idx: "18", href: "perf.html", title: "性能排查直觉", short: "pprof", group: "工程" },
-    { id: "checklist", idx: "19", href: "checklist.html", title: "工程清单", short: "checklist", group: "工程" },
+    { id: "testing", idx: "17", href: "testing.html", title: "测试与基准", short: "testing", group: "工程" },
+    { id: "modules", idx: "18", href: "modules.html", title: "模块与依赖", short: "modules", group: "工程" },
+    { id: "perf", idx: "19", href: "perf.html", title: "性能排查直觉", short: "pprof", group: "工程" },
+    { id: "checklist", idx: "20", href: "checklist.html", title: "工程清单", short: "checklist", group: "工程" },
 
-    { id: "drill", idx: "20", href: "drill.html", title: "综合演练", short: "drill", group: "综合" },
-    { id: "cheat", idx: "21", href: "cheat.html", title: "速查总览", short: "cheat", group: "综合" }
+    { id: "drill", idx: "21", href: "drill.html", title: "综合演练", short: "drill", group: "综合" },
+    { id: "cheat", idx: "22", href: "cheat.html", title: "速查总览", short: "cheat", group: "综合" }
   ];
 
   GoLens.studyChapters = function () {

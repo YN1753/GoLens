@@ -92,6 +92,64 @@
           <p>G 进入阻塞（如 channel、系统调用）后，M 可能带着 G 挂起；调度器会为 P 另找 M，保证吞吐不塌。系统调用场景下常见「M 与 G 绑住、P 被挪走」的叙述。</p>
         </div>
 
+        <h2>findrunnable 伪代码（面试版）</h2>
+        <pre><code>// 简化，非源码逐行
+schedule():
+  for {
+    // 1) 本地 runnext / 本地队列
+    if g := p.runnext; g != nil { return g }
+    if g := localQueue.poll(); g != nil { return g }
+    // 2) 全局队列（按需批量取）
+    if g := globalQueue.poll(); g != nil { return g }
+    // 3) 从其他 P 偷一半
+    if g := stealWork(p); g != nil { return g }
+    // 4) 都没有：自旋或休眠，等 netpoll / 新任务
+  }</code></pre>
+
+        <h2>G 的状态（高频）</h2>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>状态</th><th>含义</th><th>典型来源</th></tr></thead>
+            <tbody>
+              <tr><td><code>_Grunnable</code></td><td>可运行，在队列里</td><td>新建、唤醒、被偷入队</td></tr>
+              <tr><td><code>_Grunning</code></td><td>正在 CPU 上跑</td><td>M 成功调度到</td></tr>
+              <tr><td><code>_Gwaiting</code></td><td>等待中</td><td>channel / mutex / select 无就绪</td></tr>
+              <tr><td><code>_Gsyscall</code></td><td>系统调用中</td><td>阻塞 syscall；P 可能被拿走</td></tr>
+              <tr><td><code>_Gdead</code></td><td>已结束</td><td>函数返回</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>栈如何增长</h2>
+        <ul>
+          <li>初始栈很小（KB 级），不够时<strong>分段栈/连续栈扩容</strong>（版本演进后多为连续栈复制扩容）。</li>
+          <li>扩容时调整指针，对业务透明；深递归仍要防爆栈。</li>
+          <li><code>runtime.GOMAXPROCS</code> 不改单个 G 的栈策略，只改 P 数量。</li>
+        </ul>
+
+        <h2>与 netpoll / GC 的衔接</h2>
+        <ul>
+          <li>IO 等待：G 让出，netpoll 就绪后再入 runq（见 Netpoller 章）。</li>
+          <li>GC：标记期辅助分配（assist）可能插入 G 的执行；大量分配会抬高 GC 压力。</li>
+          <li>抢占：长时间不进入调度点的 G 可能被异步抢占（Go 1.14+），避免饿死 GC/其他 G。</li>
+        </ul>
+
+        <h2>常见追问（加深）</h2>
+        <div class="faq">
+          <details>
+            <summary>P 与 CPU 核的关系？</summary>
+            <p>P 是逻辑处理器，数量默认跟 GOMAXPROCS（常等于核数）相关；它是调度上下文，不等于「一个线程绑死一个核」。</p>
+          </details>
+          <details>
+            <summary>全局队列为什么还要「每隔一段时间看一眼」？</summary>
+            <p>若只靠本地+偷取，全局里的任务可能被饿死。调度循环会按一定策略检查全局队列，保证公平。</p>
+          </details>
+          <details>
+            <summary>锁与 channel 会不会让 P 空转？</summary>
+            <p>阻塞的 G 会让 M 去跑别的；真正空转的是「无事可做」时的 spinning M，数量有限。</p>
+          </details>
+        </div>
+
         <h2>交互 Lab · 调度器巡检</h2>
         <p class="beginner-tip">
           <strong>零基础怎么用：</strong>先看左边「真实 Go 代码」，再点右边「下一关」跟剧情走。

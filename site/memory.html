@@ -66,6 +66,37 @@
           <p><code>go build -gcflags="-m" ./...</code> 会打印逃逸结论。生产优化先测再改，勿过早恐慌式改指针。</p>
         </div>
 
+        <h2>逃逸清单（更全）</h2>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>模式</th><th>是否常逃逸</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td>返回局部指针</td><td>是</td><td>调用方仍要使用</td></tr>
+              <tr><td>闭包捕获 / 其他 G 使用</td><td>是</td><td>生命期超出栈帧</td></tr>
+              <tr><td>发送指针到 channel</td><td>是</td><td>接收方在别处</td></tr>
+              <tr><td>存入 interface / map / 全局</td><td>常是</td><td>装箱或长生命期</td></tr>
+              <tr><td>仅函数内使用的值类型</td><td>通常否</td><td>可留栈</td></tr>
+              <tr><td>大对象 / 大 slice</td><td>可能</td><td>实现细节，以 -m 为准</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>分配器与 span（面试一句）</h2>
+        <ul>
+          <li>堆由 <strong>span/mspan</strong> 组织不同大小的对象；小对象走 size class。</li>
+          <li>与线程相关的缓存（如 mcache）降低全局锁竞争——细节可一句带过。</li>
+          <li>业务层更该记：分配次数与对象大小决定 GC 压力。</li>
+        </ul>
+
+        <h2>优化套路</h2>
+        <ol>
+          <li>先 profile：alloc_space / alloc_objects 谁最大。</li>
+          <li>复用：<code>sync.Pool</code>、预分配 slice/map cap。</li>
+          <li>减装箱：少走 interface，热路径用具体类型/泛型。</li>
+          <li>字符串/字节：Builder、避免中间 concat。</li>
+          <li>仍不够再谈算法与结构。</li>
+        </ol>
+
         <h2>交互 Lab · 栈还是堆？</h2>
         <p class="beginner-tip"><strong>怎么用：</strong>读片段 → 点「栈」或「堆」→ 看解释。也可跟右侧关卡听隐喻。</p>
 

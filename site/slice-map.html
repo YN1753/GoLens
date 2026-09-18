@@ -66,6 +66,32 @@
           <li>遍历顺序故意随机，不能依赖。</li>
         </ul>
 
+        <h2>slice 细节加深</h2>
+        <h3>扩容策略（面试版）</h3>
+        <p>
+          小容量阶段增长更快（1→2→4→8…），更大之后接近翻倍；
+          具体阈值随 Go 版本有实现细节，面试答「摊还 O(1)，常见翻倍」即可。
+        </p>
+        <h3>copy 与就地更新</h3>
+        <pre><code>dst := make([]int, len(src))
+copy(dst, src)          // 真正解耦底层数组
+s2 := append(s[:0:0], s...) // 也可强制新数组（cap=0 的切片再 append）</code></pre>
+        <h3>三索引切片</h3>
+        <pre><code>s2 := s[low:high:max] // cap = max-low，限制 append 触及共享区</code></pre>
+
+        <h2>map 内部再近一步</h2>
+        <ul>
+          <li>每个桶固定槽位（实现中常为 8），桶内满再挂溢出桶。</li>
+          <li>扩容可能有「增量搬迁」：部分桶先挪，访问时触发迁移逻辑。</li>
+          <li>不可寻址：不能对 map 元素取地址（会随搬迁失效）。</li>
+          <li>零值可用：<code>var m map[K]V</code> 可读，写会 panic；用前 <code>make</code>。</li>
+        </ul>
+
+        <div class="callout">
+          <div class="callout-title">slice vs map 并发</div>
+          <p>slice 本身无并发保护；多 G 写同一底层数组必须外部同步。map 并发写会直接 fatal/panic。</p>
+        </div>
+
         <h2>交互 Lab · Slice 扩容与共享</h2>
         <p class="beginner-tip"><strong>怎么用：</strong>跟右侧关卡走，或直接狂点 append / 切片 / 写入，观察槽位颜色与日志。</p>
 

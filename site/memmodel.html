@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Go 内存模型：happens-before 与数据竞争" />
+  <title>内存模型 · GoLens</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/lab-motion.css" />
+  <link rel="stylesheet" href="assets/css/guide.css" />
+</head>
+<body data-page="memmodel">
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar" aria-label="站点导航">
+      <a class="brand" href="index.html"><span class="brand-mark">GoLens</span><span class="brand-sub">Runtime Lab</span></a>
+      <nav class="nav-section" aria-label="章节目录"><div class="nav-label">目录</div></nav>
+      <div class="sidebar-foot">data race = 未定义行为</div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
+        <div class="topbar-title">GoLens / 14 memmodel</div>
+        <div class="topbar-actions"><span class="chip">章节 14</span></div>
+      </header>
+      <article class="content lab-wide">
+        <div class="eyebrow">Chapter 14</div>
+        <h1>内存模型与 happens-before</h1>
+        <p class="verdict">
+          Go 内存模型回答「一个 goroutine 的写，另一个何时能看见」。
+          <strong>同步原语</strong>（channel / mutex / once / atomic）建立 <code>happens-before</code>；
+          否则可能是<strong>数据竞争</strong>，行为未定义。
+        </p>
+
+        <h2>核心规则（速记）</h2>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>同步点</th><th>happens-before 直觉</th></tr></thead>
+            <tbody>
+              <tr><td><code>go f()</code> 前的写</td><td>在 f 开始前可见</td></tr>
+              <tr><td>channel send</td><td>先于对应 recv 完成</td></tr>
+              <tr><td><code>mutex.Unlock</code></td><td>先于之后的 Lock</td></tr>
+              <tr><td><code>once.Do</code> 返回</td><td>init 的写对其它观察者可见</td></tr>
+              <tr><td>atomic store/load</td><td>按原子操作序提供可见性</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout callout-warn">
+          <div class="callout-title">检测</div>
+          <p><code>go test -race</code> / 带 <code>-race</code> 运行，发现竞争就当 bug 修，不要赌「应该没事」。</p>
+        </div>
+
+        <h2>反例</h2>
+        <pre><code>// 错误：无同步的标志位
+var done bool
+go func() { x = 42; done = true }()
+for !done {} // data race；x 未必可见
+
+// 正确：channel 或 mutex
+ch := make(chan struct{})
+go func() { x = 42; close(ch) }()
+&lt;-ch
+// 此处读 x 安全</code></pre>
+
+        <h2>Lab</h2>
+        <div class="lab" id="hb-lab">
+          <div class="lab-head">
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>Happens-before Lab</div>
+            <span class="chip">sync edges</span>
+          </div>
+          <div class="lab-controls">
+            <div class="btn-row">
+              <label>规则
+                <select id="hb-rule">
+                  <option value="goroutine">go 启动</option>
+                  <option value="channel">channel</option>
+                  <option value="mutex">Mutex</option>
+                  <option value="once">Once</option>
+                  <option value="atomic">atomic</option>
+                </select>
+              </label>
+              <button type="button" class="btn btn-primary" id="hb-run">演示顺序</button>
+              <button type="button" class="btn btn-ghost" id="hb-reset">重置</button>
+            </div>
+          </div>
+          <div class="story-band" id="hb-story">
+            <div class="code-track">
+              <div class="code-title">Go 代码 · 观察窗</div>
+              <pre>
+<span class="code-line" data-code-key="intro">// memory model / happens-before</span>
+<span class="code-line" data-code-key="race">go test -race</span>
+<span class="code-line" data-code-key="goroutine">go f() // 之前写入对 f 可见</span>
+<span class="code-line" data-code-key="channel">ch &lt;- v; &lt;-ch</span>
+<span class="code-line" data-code-key="mutex">mu.Lock(); ...; mu.Unlock()</span>
+<span class="code-line" data-code-key="once">once.Do(init)</span>
+<span class="code-line" data-code-key="atomic">atomic.StoreUint32 / LoadUint32</span>
+              </pre>
+            </div>
+            <div class="story-card">
+              <div class="story-step" data-story-step>关卡 1 / 4</div>
+              <h3 class="story-title" data-story-title></h3>
+              <div class="story-metaphor" data-story-metaphor></div>
+              <p class="story-body" data-story-body></p>
+              <div class="story-actions">
+                <button type="button" class="btn" data-story-prev>上一关</button>
+                <button type="button" class="btn btn-primary" data-story-next>下一关</button>
+                <div class="story-dots" data-story-dots></div>
+              </div>
+            </div>
+          </div>
+          <div class="lab-grid-3">
+            <div class="lab-stage" id="hb-stage" aria-live="polite"></div>
+            <div class="lab-log" id="hb-log" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <h2>速查表</h2>
+        <div class="cheat">
+          <ul>
+            <li>无同步的共享写 = data race</li>
+            <li>channel/mutex/once/atomic 建立 happens-before</li>
+            <li>go 前写对新 G 可见；回传仍要同步</li>
+            <li>-race 必开，竞赛当 bug</li>
+          </ul>
+        </div>
+
+        <nav class="page-nav">
+          <a href="locks.html">← 锁与 sync.Map</a>
+          <a href="memory.html">下一章 内存与逃逸 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+  <script src="assets/js/chapters.js"></script>
+  <script src="assets/js/site.js"></script>
+  <script src="assets/js/motion.js"></script>
+  <script src="assets/js/guide.js"></script>
+  <script src="assets/js/memmodel-lab.js"></script>
+</body>
+</html>

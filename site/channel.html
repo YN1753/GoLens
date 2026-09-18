@@ -72,6 +72,61 @@
           <p>关闭会唤醒所有等待接收者（读到零值与 <code>ok=false</code>）；对已关闭 channel 发送 panic；重复 close 也 panic。向带缓冲 channel 关闭后，缓冲里已有元素仍可被取完。</p>
         </div>
 
+        <h2>chansend / chanrecv（口述伪码）</h2>
+        <pre><code>chansend(c, elem):
+  lock(c)
+  if c.closed { unlock; panic("send on closed") }
+  if sg := c.recvq.dequeue(); sg != nil {
+      sendDirect(sg, elem)   // 交给等待的 recv
+      unlock; return
+  }
+  if c.count &lt; c.cap {
+      c.buf[c.sendx] = elem
+      c.sendx = (c.sendx+1) % c.cap
+      c.count++
+      unlock; return
+  }
+  parkOn(&c.sendq)           // 阻塞，等 recv 唤醒
+  unlock
+
+chanrecv(c):
+  lock(c)
+  if sg := c.sendq.dequeue(); sg != nil {
+      // 缓冲满时：先收 buf，再让 sender 写入空位
+      ...
+  } else if c.count &gt; 0 {
+      elem = c.buf[c.recvx]
+      c.recvx = (c.recvx+1) % c.cap
+      c.count--
+  } else if c.closed {
+      elem = zero; ok = false
+  } else {
+      parkOn(&c.recvq)
+  }</code></pre>
+
+        <h2>死锁与经典坑</h2>
+        <ul>
+          <li><strong>单 goroutine</strong>：无缓冲 send 后同一 G 再 recv → 死锁。</li>
+          <li><strong>nil channel</strong>：收发永久阻塞。</li>
+          <li><strong>忘记 close</strong>：<code>for range</code> 永不退出。</li>
+          <li><strong>向已关闭 channel send</strong>：panic。</li>
+          <li><strong>双 close</strong>：panic。</li>
+          <li><strong>多 sender 谁 close</strong>：约定唯一 closer，或用 <code>context</code> 收敛。</li>
+        </ul>
+
+        <h2>与内存模型</h2>
+        <p>
+          <strong>channel 的发送 happens-before 对应接收完成</strong>（同步传递）。
+          因此「一个 G 写完数据再 send，另一个 recv 后读」通常无需再加锁——这是并发正确性的核心论据之一（详见内存模型章）。
+        </p>
+
+        <h2>缓冲容量怎么选（工程）</h2>
+        <ul>
+          <li><code>0</code>：同步会合，强制交棒，适合「信号/接力」。</li>
+          <li>小缓冲：削峰有限，仍可能阻塞，可暴露背压。</li>
+          <li>大缓冲：吞吐友好，但延迟与内存占用上升，掩盖过载。</li>
+        </ul>
+
         <h2>交互 Lab · 四象限演练</h2>
         <p class="beginner-tip">
           <strong>零基础怎么用：</strong>先跟右边「关卡」走一遍快递柜剧本，再自己狂点 send/recv。

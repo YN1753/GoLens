@@ -41,6 +41,7 @@ need=(
   "$site/assets/js/cheat-lab.js"
   "$site/assets/js/reflect-lab.js"
   "$site/assets/js/checklist-lab.js"
+  "$site/assets/js/memmodel-lab.js"
 )
 for f in "${need[@]}"; do
   if [[ -f "$f" ]]; then echo "OK  ${f#"$root"/}"; else echo "MISS ${f#"$root"/}"; fail=1; fi

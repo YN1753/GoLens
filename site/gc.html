@@ -69,6 +69,40 @@
           <p>典型叙事：标记启动 STW（开启屏障、准备根）→ 并发标记 → 标记终止 STW（收尾、关屏障）→ 并发清扫。目的不是「全程停世界」，而是让并发阶段的不变式可成立。</p>
         </div>
 
+        <h2>写屏障家族（面试深一层）</h2>
+        <ul>
+          <li><strong>Dijkstra 插入屏障</strong>：指针写入时把<strong>新指向的目标</strong>标灰（shade target）。</li>
+          <li><strong>Yuasa 删除屏障</strong>：覆盖旧指针前 shade 旧对象（防止「删掉唯一引用」）。</li>
+          <li><strong>Go 混合写屏障</strong>：结合两者，减少对栈的重扫描成本；Lab 用「插入时灰化」做直觉演示。</li>
+        </ul>
+        <p>面试金句：屏障不是「GC 更快」，而是让「标记与用户代码并发跑」仍然<strong>正确</strong>。</p>
+
+        <h2>标记与清扫阶段</h2>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>阶段</th><th>做什么</th><th>STW?</th></tr></thead>
+            <tbody>
+              <tr><td>Mark Setup</td><td>开屏障、准备根</td><td>短 STW</td></tr>
+              <tr><td>Concurrent Mark</td><td>扫灰、写屏障参与</td><td>并发</td></tr>
+              <tr><td>Mark Termination</td><td>收尾、关屏障</td><td>短 STW</td></tr>
+              <tr><td>Concurrent Sweep</td><td>回收白色 span</td><td>并发</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>GOGC 与触发</h2>
+        <ul>
+          <li><code>GOGC=100</code>：堆增长到约上次标记后的 2 倍触发新 GC（经典默认语义）。</li>
+          <li><code>GOMEMLIMIT</code>：软内存上限，限制最大堆（Go 1.19+）。</li>
+          <li>业务内存暴涨 → GC 频率上升 → CPU 尖刺；先看分配热点（pprof heap）。</li>
+        </ul>
+
+        <h2>漏标长什么样</h2>
+        <p>
+          并发标记中若黑对象 A 指向白对象 B，而 A 已「扫完」，B 可能被当垃圾。
+          写屏障在 <code>A.b = B</code> 这类指针写上介入，把 B 拉回灰队列。Lab 可开关屏障对比。
+        </p>
+
         <h2>交互 Lab · 逐步染色</h2>
         <p class="beginner-tip">
           <strong>零基础怎么用：</strong>把 GC 想成「图书馆盘点」。先跟关卡走：从门口名单（根）出发，灰=待查、黑=已查清、白=还没人碰。

@@ -15,6 +15,7 @@
     { group: "并发", title: "GMP", lines: ["G / P / M，P 等于 GOMAXPROCS", "本地队列 + 全局 + steal", "阻塞可能导致 M 与 P 解绑"] },
     { group: "并发", title: "channel", lines: ["hchan：buf + sendq / recvq", "cap=0 会合交接", "close 后 recv 零值，send panic"] },
     { group: "并发", title: "select / sync / ctx", lines: ["select 多路伪随机", "default 非阻塞", "ctx 取消向子树传播"] },
+    { group: "并发", title: "memmodel", lines: ["无同步共享写 = data race", "channel/mutex/once/atomic 建立 happens-before", "go 前写对新 G 可见"] },
     { group: "并发", title: "locks", lines: ["Mutex 成对 Lock / Unlock", "WaitGroup Add 在启动前", "sync.Map 先测再换"] },
     { group: "内存", title: "escape / GC", lines: ["栈快，堆交给 GC", "指针 / 闭包 / 接口易逃逸", "三色 + 写屏障 + 短 STW"] },
     { group: "工程", title: "test / mod / perf", lines: ["表格驱动 t.Run", "go mod tidy 对齐 import", "pprof 先测量再优化"] }
