@@ -5,6 +5,7 @@
   const topbarActions = document.querySelector(".topbar-actions");
   const content = document.querySelector(".content");
   const page = document.body.getAttribute("data-page");
+  window.GoLens = window.GoLens || {};
 
   function setNavOpen(open) {
     if (!sidebar) return;
@@ -25,16 +26,100 @@
     });
   }
 
-  if (page) {
-    document.querySelectorAll(".nav-link[data-page]").forEach(function (link) {
-      link.classList.toggle("is-active", link.getAttribute("data-page") === page);
-      if (link.getAttribute("data-page") === page) {
-        link.setAttribute("aria-current", "page");
+  function syncNavFromManifest() {
+    const chapters = window.GoLens.CHAPTERS;
+    const nav = sidebar && sidebar.querySelector(".nav-section");
+    if (!nav || !chapters || !chapters.length) {
+      // fallback highlight only
+      if (page) {
+        document.querySelectorAll(".nav-link[data-page]").forEach(function (link) {
+          link.classList.toggle("is-active", link.getAttribute("data-page") === page);
+          if (link.getAttribute("data-page") === page) link.setAttribute("aria-current", "page");
+        });
       }
+      return;
+    }
+    // rebuild list under label
+    let label = nav.querySelector(".nav-label");
+    if (!label) {
+      label = document.createElement("div");
+      label.className = "nav-label";
+      label.textContent = "目录";
+      nav.insertBefore(label, nav.firstChild);
+    }
+    Array.prototype.slice.call(nav.querySelectorAll(".nav-link")).forEach(function (a) {
+      a.remove();
+    });
+    chapters.forEach(function (ch) {
+      const a = document.createElement("a");
+      a.className = "nav-link";
+      a.setAttribute("data-page", ch.id);
+      a.href = ch.href;
+      a.innerHTML = '<span class="idx">' + ch.idx + "</span>" + ch.title;
+      if (page && ch.id === page) {
+        a.classList.add("is-active");
+        a.setAttribute("aria-current", "page");
+      }
+      nav.appendChild(a);
     });
   }
 
-  window.GoLens = window.GoLens || {};
+  function setupLearningPath() {
+    const host = document.getElementById("learn-path");
+    if (!host || !window.GoLens.CHAPTERS) return;
+    const list = window.GoLens.CHAPTERS.filter(function (c) {
+      return c.id !== "home";
+    });
+    const next = window.GoLens.nextUnreadChapter
+      ? window.GoLens.nextUnreadChapter()
+      : list[0];
+    const doneCount = list.filter(function (c) {
+      return window.GoLens.isChapterRead && window.GoLens.isChapterRead(c.id);
+    }).length;
+
+    let steps = "";
+    list.forEach(function (c, i) {
+      const done = window.GoLens.isChapterRead && window.GoLens.isChapterRead(c.id);
+      const isNext = next && next.id === c.id;
+      steps +=
+        '<a class="learn-step' +
+        (done ? " is-done" : "") +
+        (isNext ? " is-next" : "") +
+        '" href="' +
+        c.href +
+        '">' +
+        '<span class="learn-idx">' +
+        c.idx +
+        "</span>" +
+        '<span class="learn-title">' +
+        c.title +
+        "</span>" +
+        '<span class="learn-mark">' +
+        (done ? "已读" : isNext ? "继续" : i + 1) +
+        "</span>" +
+        "</a>";
+    });
+
+    host.innerHTML =
+      '<div class="learn-head">' +
+      '<div><div class="page-toc-title">学习路径</div>' +
+      '<div class="learn-sub">进度 <strong>' +
+      doneCount +
+      " / " +
+      list.length +
+      "</strong> 章</div></div>" +
+      '<div class="btn-row">' +
+      '<a class="btn" href="gmp.html">从第一章开始</a>' +
+      (next
+        ? '<a class="btn btn-primary" href="' + next.href + '">继续 · ' + next.short + "</a>"
+        : "") +
+      "</div></div>" +
+      '<div class="learn-steps">' +
+      steps +
+      "</div>";
+  }
+
+  syncNavFromManifest();
 
   window.GoLens.log = function (el, message, kind) {
     if (!el) return;
@@ -312,6 +397,7 @@
     ensureHeadingIds(content);
     buildToc(content);
   }
+  setupLearningPath();
   setupProgress();
   setupSearch();
 })();

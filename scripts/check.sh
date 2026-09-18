@@ -20,6 +20,7 @@ need=(
   "$site/assets/css/lab-motion.css"
   "$site/assets/css/guide.css"
   "$site/assets/js/site.js"
+  "$site/assets/js/chapters.js"
   "$site/assets/js/motion.js"
   "$site/assets/js/guide.js"
   "$site/assets/js/gmp-lab.js"
@@ -65,6 +66,31 @@ if command -v node >/dev/null 2>&1; then
   done
 else
   echo "SKIP node not installed"
+fi
+
+echo "== chapter manifest =="
+if [[ -f "$site/assets/js/chapters.js" ]]; then
+  echo "OK  chapters.js present"
+  # extract href="..." from chapters.js
+  hrefs=$(grep -oE 'href:[[:space:]]*"[^"]+"' "$site/assets/js/chapters.js" | sed -E 's/.*"([^"]+)"/\1/')
+  ids=$(grep -oE 'id:[[:space:]]*"[^"]+"' "$site/assets/js/chapters.js" | sed -E 's/.*"([^"]+)"/\1/')
+  for h in $hrefs; do
+    if [[ -f "$site/$h" ]]; then echo "OK  manifest href $h"; else echo "MISS manifest href $h"; fail=1; fi
+  done
+  for page in index.html gmp.html channel.html gc.html slice-map.html sync-context.html memory.html iface-defer.html; do
+    key=$(echo "$page" | sed 's/-.*//;s/\.html//')
+    # map filename to id roughly via grep data-page
+    dp=$(grep -oE 'data-page="[^"]+"' "$site/$page" | head -1 | sed -E 's/data-page="([^"]+)"/\1/')
+    if [[ -n "$dp" ]] && echo "$ids" | grep -qx "$dp"; then
+      echo "OK  $page data-page=$dp in manifest"
+    else
+      echo "FAIL $page data-page='$dp' not in manifest"
+      fail=1
+    fi
+  done
+else
+  echo "MISS chapters.js"
+  fail=1
 fi
 
 if [[ "$fail" -ne 0 ]]; then
