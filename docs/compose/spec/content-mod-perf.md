@@ -3,7 +3,7 @@ feature: content-mod-perf
 status: delivered
 updated: 2026-09-17
 branch: chore/content-mod-perf
-commits: 
+commits: 27864fda02b442b87315da4d6b1155aa68c0087e..38435ccf117f035ef2c889c1ab3fb3b075c17498
 ---
 
 # Content — Modules + Performance Chapters
