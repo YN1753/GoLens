@@ -22,6 +22,7 @@ blurb = {
     "select": ("多路就绪、default 非阻塞、超时 case。", "LAB · 多路 select"),
     "sync": ("Mutex/WaitGroup/Once；取消树传播。", "LAB · cancel"),
     "netpoller": ("阻塞 IO 摘离 CPU；与 GMP 串线。", "LAB · park/wake"),
+    "nethttp": ("Accept + 每连接 goroutine + Handler。", "LAB · 请求生命周期"),
     "patterns": ("Worker Pool、Fan-out/in、Pipeline、可取消。", "LAB · 模式步骤"),
     "locks": ("Mutex/RWMutex/WaitGroup/Once/sync.Map。", "LAB · 锁流程"),
     "memmodel": ("happens-before、data race、-race。", "LAB · 同步边"),
@@ -31,6 +32,7 @@ blurb = {
     "modules": ("go.mod、require、tidy 与 MVS。", "LAB · go mod tidy"),
     "perf": ("CPU / Heap 热点与优化方向。", "LAB · 热点示意"),
     "checklist": ("质量 / 测试 / 发布 / Review 检查单。", "LAB · 可勾选清单"),
+    "shutdown": ("Shutdown、限流、信号量、超时。", "LAB · 下线与限流"),
     "drill": ("跨章串联：调度 / Channel / GC / Context。", "LAB · 模拟题"),
     "cheat": ("全站速查口袋卡片，按分组筛选。", "LAB · 速查过滤"),
 }

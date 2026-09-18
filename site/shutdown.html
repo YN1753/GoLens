@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Go 优雅关闭与限流：Shutdown、令牌桶、信号量、超时" />
+  <title>优雅关闭与限流 · GoLens</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/lab-motion.css" />
+  <link rel="stylesheet" href="assets/css/guide.css" />
+</head>
+<body data-page="shutdown">
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar" aria-label="站点导航">
+      <a class="brand" href="index.html"><span class="brand-mark">GoLens</span><span class="brand-sub">Runtime Lab</span></a>
+      <nav class="nav-section" aria-label="章节目录"><div class="nav-label">目录</div></nav>
+      <div class="sidebar-foot">Shutdown · 限流 · 超时</div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
+        <div class="topbar-title">GoLens / 22 shutdown</div>
+        <div class="topbar-actions"><span class="chip">章节 22</span></div>
+      </header>
+      <article class="content lab-wide">
+        <div class="eyebrow">Chapter 22</div>
+        <h1>优雅关闭与限流</h1>
+        <p class="verdict">
+          上线不止「能跑」：<strong>Shutdown</strong> 等在飞请求结束；<strong>限流/信号量</strong>控制压力；
+          <strong>超时 + ctx</strong> 防止请求悬挂。面试常把这三件事和 net/http、context 串起来问。
+        </p>
+        <h2>Lab</h2>
+        <div class="lab" id="sd-lab">
+          <div class="lab-head">
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>Shutdown Lab</div>
+            <span class="chip">graceful · limit · timeout</span>
+          </div>
+          <div class="lab-controls">
+            <div class="btn-row">
+              <label>场景
+                <select id="sd-mode">
+                  <option value="shutdown">优雅关闭 Shutdown</option>
+                  <option value="ratelimit">令牌桶限流</option>
+                  <option value="semaphore">并发信号量</option>
+                  <option value="timeout">请求超时</option>
+                </select>
+              </label>
+              <button type="button" class="btn btn-primary" id="sd-step">下一步</button>
+              <button type="button" class="btn btn-ghost" id="sd-reset">重置</button>
+            </div>
+          </div>
+          <div class="story-band" id="sd-story">
+            <div class="code-track">
+              <div class="code-title">Go 代码 · 观察窗</div>
+              <pre>
+<span class="code-line" data-code-key="shutdown">srv.Shutdown(ctx)</span>
+<span class="code-line" data-code-key="ratelimit">// token bucket</span>
+<span class="code-line" data-code-key="semaphore">sem := make(chan struct{}, N)</span>
+<span class="code-line" data-code-key="timeout">context.WithTimeout(...)</span>
+              </pre>
+            </div>
+            <div class="story-card">
+              <div class="story-step" data-story-step>关卡 1 / 4</div>
+              <h3 class="story-title" data-story-title></h3>
+              <div class="story-metaphor" data-story-metaphor></div>
+              <p class="story-body" data-story-body></p>
+              <div class="story-actions">
+                <button type="button" class="btn" data-story-prev>上一关</button>
+                <button type="button" class="btn btn-primary" data-story-next>下一关</button>
+                <div class="story-dots" data-story-dots></div>
+              </div>
+            </div>
+          </div>
+          <div class="lab-grid-3">
+            <div class="lab-stage" id="sd-stage" aria-live="polite"></div>
+            <div class="lab-log" id="sd-log" aria-live="polite"></div>
+          </div>
+        </div>
+        <nav class="page-nav">
+          <a href="checklist.html">← 工程清单</a>
+          <a href="drill.html">下一章 综合演练 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+  <script src="assets/js/chapters.js"></script>
+  <script src="assets/js/site.js"></script>
+  <script src="assets/js/motion.js"></script>
+  <script src="assets/js/guide.js"></script>
+  <script src="assets/js/shutdown-lab.js"></script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Go net/http 服务模型：Accept 与每连接 goroutine" />
+  <title>net/http 服务模型 · GoLens</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/lab-motion.css" />
+  <link rel="stylesheet" href="assets/css/guide.css" />
+</head>
+<body data-page="nethttp">
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar" aria-label="站点导航">
+      <a class="brand" href="index.html"><span class="brand-mark">GoLens</span><span class="brand-sub">Runtime Lab</span></a>
+      <nav class="nav-section" aria-label="章节目录"><div class="nav-label">目录</div></nav>
+      <div class="sidebar-foot">Accept → 每连接一个 G</div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
+        <div class="topbar-title">GoLens / 12 net/http</div>
+        <div class="topbar-actions"><span class="chip">章节 12</span></div>
+      </header>
+      <article class="content lab-wide">
+        <div class="eyebrow">Chapter 12</div>
+        <h1>net/http 服务模型</h1>
+        <p class="verdict">
+          标准库 HTTP 服务器 = <strong>监听</strong> + 循环 <strong>Accept</strong> + <strong>每个连接一个 goroutine</strong> 处理请求；
+          IO 阻塞由 netpoller 摘离 CPU，因此能扛大量空闲连接。
+        </p>
+        <h2>骨架</h2>
+        <pre><code>http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+    // 尽量传 r.Context() 给下游
+})
+http.ListenAndServe(":8080", nil)</code></pre>
+        <h2>Lab</h2>
+        <div class="lab" id="http-lab">
+          <div class="lab-head">
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>net/http Lab</div>
+            <span class="chip">lifecycle</span>
+          </div>
+          <div class="lab-controls">
+            <div class="btn-row">
+              <button type="button" class="btn btn-primary" id="http-step">下一步</button>
+              <button type="button" class="btn btn-ghost" id="http-reset">重置</button>
+            </div>
+          </div>
+          <div class="story-band" id="http-story">
+            <div class="code-track">
+              <div class="code-title">Go 代码 · 观察窗</div>
+              <pre>
+<span class="code-line" data-code-key="listen">http.ListenAndServe(":8080", h)</span>
+<span class="code-line" data-code-key="accept">c, err := ln.Accept()</span>
+<span class="code-line" data-code-key="goroutine">go c.serve() // 每连接</span>
+<span class="code-line" data-code-key="handler">h.ServeHTTP(w, r)</span>
+<span class="code-line" data-code-key="conn">keep-alive / close</span>
+              </pre>
+            </div>
+            <div class="story-card">
+              <div class="story-step" data-story-step>关卡 1 / 4</div>
+              <h3 class="story-title" data-story-title></h3>
+              <div class="story-metaphor" data-story-metaphor></div>
+              <p class="story-body" data-story-body></p>
+              <div class="story-actions">
+                <button type="button" class="btn" data-story-prev>上一关</button>
+                <button type="button" class="btn btn-primary" data-story-next>下一关</button>
+                <div class="story-dots" data-story-dots></div>
+              </div>
+            </div>
+          </div>
+          <div class="lab-grid-3">
+            <div class="lab-stage" id="http-stage" aria-live="polite"></div>
+            <div class="lab-log" id="http-log" aria-live="polite"></div>
+          </div>
+        </div>
+        <nav class="page-nav">
+          <a href="netpoller.html">← Netpoller 与 IO</a>
+          <a href="patterns.html">下一章 并发模式 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+  <script src="assets/js/chapters.js"></script>
+  <script src="assets/js/site.js"></script>
+  <script src="assets/js/motion.js"></script>
+  <script src="assets/js/guide.js"></script>
+  <script src="assets/js/nethttp-lab.js"></script>
+</body>
+</html>

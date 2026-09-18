@@ -18,20 +18,22 @@
     { id: "select", idx: "09", href: "select.html", title: "Select 与定时器", short: "select", group: "并发" },
     { id: "sync", idx: "10", href: "sync-context.html", title: "sync / Context", short: "sync/ctx", group: "并发" },
     { id: "netpoller", idx: "11", href: "netpoller.html", title: "Netpoller 与 IO", short: "netpoller", group: "并发" },
-    { id: "patterns", idx: "12", href: "patterns.html", title: "并发模式", short: "patterns", group: "并发" },
-    { id: "locks", idx: "13", href: "locks.html", title: "锁与 sync.Map", short: "locks", group: "并发" },
-    { id: "memmodel", idx: "14", href: "memmodel.html", title: "内存模型", short: "happens-before", group: "并发" },
+    { id: "nethttp", idx: "12", href: "nethttp.html", title: "net/http 服务模型", short: "net/http", group: "并发" },
+    { id: "patterns", idx: "13", href: "patterns.html", title: "并发模式", short: "patterns", group: "并发" },
+    { id: "locks", idx: "14", href: "locks.html", title: "锁与 sync.Map", short: "locks", group: "并发" },
+    { id: "memmodel", idx: "15", href: "memmodel.html", title: "内存模型", short: "happens-before", group: "并发" },
 
-    { id: "memory", idx: "15", href: "memory.html", title: "内存与逃逸", short: "逃逸", group: "内存" },
-    { id: "gc", idx: "16", href: "gc.html", title: "GC 三色标记", short: "GC", group: "内存" },
+    { id: "memory", idx: "16", href: "memory.html", title: "内存与逃逸", short: "逃逸", group: "内存" },
+    { id: "gc", idx: "17", href: "gc.html", title: "GC 三色标记", short: "GC", group: "内存" },
 
-    { id: "testing", idx: "17", href: "testing.html", title: "测试与基准", short: "testing", group: "工程" },
-    { id: "modules", idx: "18", href: "modules.html", title: "模块与依赖", short: "modules", group: "工程" },
-    { id: "perf", idx: "19", href: "perf.html", title: "性能排查直觉", short: "pprof", group: "工程" },
-    { id: "checklist", idx: "20", href: "checklist.html", title: "工程清单", short: "checklist", group: "工程" },
+    { id: "testing", idx: "18", href: "testing.html", title: "测试与基准", short: "testing", group: "工程" },
+    { id: "modules", idx: "19", href: "modules.html", title: "模块与依赖", short: "modules", group: "工程" },
+    { id: "perf", idx: "20", href: "perf.html", title: "性能排查直觉", short: "pprof", group: "工程" },
+    { id: "checklist", idx: "21", href: "checklist.html", title: "工程清单", short: "checklist", group: "工程" },
+    { id: "shutdown", idx: "22", href: "shutdown.html", title: "优雅关闭与限流", short: "shutdown", group: "工程" },
 
-    { id: "drill", idx: "21", href: "drill.html", title: "综合演练", short: "drill", group: "综合" },
-    { id: "cheat", idx: "22", href: "cheat.html", title: "速查总览", short: "cheat", group: "综合" }
+    { id: "drill", idx: "23", href: "drill.html", title: "综合演练", short: "drill", group: "综合" },
+    { id: "cheat", idx: "24", href: "cheat.html", title: "速查总览", short: "cheat", group: "综合" }
   ];
 
   GoLens.studyChapters = function () {
