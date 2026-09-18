@@ -3,7 +3,7 @@ feature: content-patterns-drill
 status: delivered
 updated: 2026-09-17
 branch: chore/content-patterns-drill
-commits: 
+commits: a2e6e1ec274a8023265233636e87f503babdc133..6bfe152350b6978c1e709050c347dd840fde0428
 ---
 
 # Content — Patterns + Drill
