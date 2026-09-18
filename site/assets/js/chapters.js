@@ -9,7 +9,9 @@
     { id: "slice", idx: "04", href: "slice-map.html", title: "Slice 与 Map", short: "Slice/Map" },
     { id: "sync", idx: "05", href: "sync-context.html", title: "sync / Context", short: "sync/ctx" },
     { id: "memory", idx: "06", href: "memory.html", title: "内存与逃逸", short: "逃逸" },
-    { id: "iface", idx: "07", href: "iface-defer.html", title: "Interface · defer", short: "iface/defer" }
+    { id: "iface", idx: "07", href: "iface-defer.html", title: "Interface · defer", short: "iface/defer" },
+    { id: "select", idx: "08", href: "select.html", title: "Select 与定时器", short: "select" },
+    { id: "string", idx: "09", href: "string.html", title: "string 与 range", short: "string" }
   ];
 
   GoLens.isChapterRead = function (id) {

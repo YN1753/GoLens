@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Go select 多路复用与定时器直觉" />
+  <title>Select 与定时器 · GoLens</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/lab-motion.css" />
+  <link rel="stylesheet" href="assets/css/guide.css" />
+</head>
+<body data-page="select">
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar" aria-label="站点导航">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">GoLens</span>
+        <span class="brand-sub">Runtime Lab</span>
+      </a>
+      <nav class="nav-section" aria-label="章节目录"><div class="nav-label">目录</div></nav>
+      <div class="sidebar-foot">面试向简化模型<br />select 多路就绪为伪随机</div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
+        <div class="topbar-title">GoLens / 08 select</div>
+        <div class="topbar-actions"><span class="chip">章节 08</span></div>
+      </header>
+      <article class="content lab-wide">
+        <div class="eyebrow">Chapter 08</div>
+        <h1>Select 与定时器</h1>
+        <p class="verdict">
+          <code>select</code> 同时等待多个 channel 操作：任一就绪则执行其一；多个就绪时<strong>伪随机</strong>选择；
+          全未就绪时阻塞，或立刻走 <code>default</code>。超时常用 <code>time.After</code> / <code>Timer</code> 作为其中一个 case。
+        </p>
+
+        <h2>基本形态</h2>
+        <pre><code>select {
+case v := &lt;-a:
+    // 从 a 收
+case b &lt;- x:
+    // 向 b 发
+case &lt;-time.After(d):
+    // 超时
+default:
+    // 非阻塞
+}</code></pre>
+
+        <h2>要点</h2>
+        <ul>
+          <li>空 select <code>select{}</code> 永久阻塞（可用作「挂起主 goroutine」技巧，但要小心）。</li>
+          <li>循环 + <code>time.After</code> 每次可能新建 timer，注意资源；热点路径用 <code>time.NewTimer</code> 并 Stop。</li>
+          <li>与 <code>ctx.Done()</code> 组合是超时/取消的标准姿势。</li>
+        </ul>
+
+        <h2>交互 Lab · 多路选择</h2>
+        <p class="beginner-tip"><strong>怎么用：</strong>向 A/B 发送，再点「执行 select」；勾选 default 看非阻塞路径。</p>
+
+        <div class="lab" id="select-lab">
+          <div class="lab-head">
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>Select Lab</div>
+            <span class="chip">multi-way · default</span>
+          </div>
+          <div class="lab-controls">
+            <div class="btn-row">
+              <button type="button" class="btn" id="sel-send-a">向 A 发送</button>
+              <button type="button" class="btn" id="sel-send-b">向 B 发送</button>
+              <button type="button" class="btn btn-primary" id="sel-run">执行 select</button>
+              <label class="chip"><input type="checkbox" id="sel-default" /> 含 default</label>
+              <button type="button" class="btn btn-ghost" id="sel-reset">重置</button>
+            </div>
+          </div>
+          <div class="story-band" id="select-story">
+            <div class="code-track">
+              <div class="code-title">Go 代码 · 观察窗</div>
+              <pre>
+<span class="code-line" data-code-key="select">select { case v := &lt;-a: ... }</span>
+<span class="code-line" data-code-key="send">a &lt;- 1; b &lt;- 2</span>
+<span class="code-line" data-code-key="race">// 多路就绪：随机挑一个</span>
+<span class="code-line" data-code-key="default">default: // 不阻塞</span>
+<span class="code-line" data-code-key="timer">case &lt;-time.After(d): // 超时</span>
+              </pre>
+            </div>
+            <div class="story-card">
+              <div class="story-step" data-story-step>关卡 1 / 4</div>
+              <h3 class="story-title" data-story-title></h3>
+              <div class="story-metaphor" data-story-metaphor></div>
+              <p class="story-body" data-story-body></p>
+              <div class="story-actions">
+                <button type="button" class="btn" data-story-prev>上一关</button>
+                <button type="button" class="btn btn-primary" data-story-next>下一关</button>
+                <div class="story-dots" data-story-dots></div>
+              </div>
+            </div>
+          </div>
+          <div class="lab-grid-3">
+            <div class="lab-stage" id="select-stage" aria-live="polite"></div>
+            <div class="lab-log" id="select-log" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <h2>常见追问</h2>
+        <div class="faq">
+          <details>
+            <summary>为什么 select 多个就绪还要随机？</summary>
+            <p>防止某一 case 长期饿死，保证公平性（实现细节为伪随机）。</p>
+          </details>
+          <details>
+            <summary>default 里能再写 select 吗？</summary>
+            <p>可以，但容易把控制流写复杂；优先保持单层清晰。</p>
+          </details>
+        </div>
+
+        <h2>速查表</h2>
+        <div class="cheat">
+          <ul>
+            <li>多路 channel 一起等；就绪随机挑一</li>
+            <li>default → 非阻塞；全空且无 default → 阻塞</li>
+            <li>超时用 time.After / Timer + ctx</li>
+          </ul>
+        </div>
+
+        <nav class="page-nav">
+          <a href="iface-defer.html">← Interface · defer</a>
+          <a href="string.html">下一章 string →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+  <script src="assets/js/chapters.js"></script>
+  <script src="assets/js/site.js"></script>
+  <script src="assets/js/motion.js"></script>
+  <script src="assets/js/guide.js"></script>
+  <script src="assets/js/select-lab.js"></script>
+</body>
+</html>

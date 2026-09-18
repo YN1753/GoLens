@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Go string 底层：[]byte、[]rune 与 range" />
+  <title>string 与 range · GoLens</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/lab-motion.css" />
+  <link rel="stylesheet" href="assets/css/guide.css" />
+</head>
+<body data-page="string">
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar" aria-label="站点导航">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">GoLens</span>
+        <span class="brand-sub">Runtime Lab</span>
+      </a>
+      <nav class="nav-section" aria-label="章节目录"><div class="nav-label">目录</div></nav>
+      <div class="sidebar-foot">len(s) 是字节不是字符</div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
+        <div class="topbar-title">GoLens / 09 string</div>
+        <div class="topbar-actions"><span class="chip">章节 09</span></div>
+      </header>
+      <article class="content lab-wide">
+        <div class="eyebrow">Chapter 09</div>
+        <h1>string 与 range</h1>
+        <p class="verdict">
+          Go 的 <code>string</code> 是<strong>只读的字节序列</strong>（通常 UTF-8）。<code>len(s)</code> 是字节数；
+          <code>range s</code> 按 <strong>rune</strong> 前进，下标是<strong>字节位置</strong>。中文/emoji 下两者差很大。
+        </p>
+
+        <h2>转换</h2>
+        <ul>
+          <li><code>[]byte(s)</code>：得到 UTF-8 字节，常用于 IO/哈希。</li>
+          <li><code>[]rune(s)</code>：按码点，适合按「字符」处理。</li>
+          <li>频繁拼接用 <code>strings.Builder</code>，避免 <code>+</code> 产生大量临时 string。</li>
+        </ul>
+
+        <div class="callout callout-warn">
+          <div class="callout-title">经典坑</div>
+          <p>对含中文的字符串用 <code>s[i]</code> 或 <code>s[i:j]</code> 按「字符」切会截断 UTF-8，产生乱码。应先 <code>[]rune</code>。</p>
+        </div>
+
+        <h2>交互 Lab · 字节 vs 字符</h2>
+        <p class="beginner-tip"><strong>怎么用：</strong>切换 ASCII / 中文 / emoji，再点 []byte、[]rune、逐步 range。</p>
+
+        <div class="lab" id="string-lab">
+          <div class="lab-head">
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>String Lab</div>
+            <span class="chip">utf-8 · range</span>
+          </div>
+          <div class="lab-controls">
+            <div class="btn-row">
+              <button type="button" class="btn" data-str-sample="ascii">ASCII</button>
+              <button type="button" class="btn" data-str-sample="cjk">中文</button>
+              <button type="button" class="btn" data-str-sample="emoji">Emoji</button>
+              <button type="button" class="btn" id="str-bytes">[]byte</button>
+              <button type="button" class="btn" id="str-runes">[]rune</button>
+              <button type="button" class="btn btn-primary" id="str-range">range 下一步</button>
+              <button type="button" class="btn btn-ghost" id="str-reset">重置</button>
+            </div>
+          </div>
+          <div class="story-band" id="string-story">
+            <div class="code-track">
+              <div class="code-title">Go 代码 · 观察窗</div>
+              <pre>
+<span class="code-line" data-code-key="string">s := "你好"; len(s) // 字节数</span>
+<span class="code-line" data-code-key="bytes">b := []byte(s) // UTF-8</span>
+<span class="code-line" data-code-key="runes">r := []rune(s) // 码点</span>
+<span class="code-line" data-code-key="range">for i, r := range s { } // i=字节下标</span>
+              </pre>
+            </div>
+            <div class="story-card">
+              <div class="story-step" data-story-step>关卡 1 / 4</div>
+              <h3 class="story-title" data-story-title></h3>
+              <div class="story-metaphor" data-story-metaphor></div>
+              <p class="story-body" data-story-body></p>
+              <div class="story-actions">
+                <button type="button" class="btn" data-story-prev>上一关</button>
+                <button type="button" class="btn btn-primary" data-story-next>下一关</button>
+                <div class="story-dots" data-story-dots></div>
+              </div>
+            </div>
+          </div>
+          <div class="lab-grid-3">
+            <div class="lab-stage" id="string-stage" aria-live="polite"></div>
+            <div class="lab-log" id="string-log" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <h2>常见追问</h2>
+        <div class="faq">
+          <details>
+            <summary>string 可以原地改吗？</summary>
+            <p>不能；底层字节视为只读。需要可变缓冲用 []byte。</p>
+          </details>
+          <details>
+            <summary>range map 和 range string 顺序？</summary>
+            <p>string 按 rune 顺序稳定；map 顺序故意随机。</p>
+          </details>
+        </div>
+
+        <h2>速查表</h2>
+        <div class="cheat">
+          <ul>
+            <li>string = 只读字节（UTF-8）</li>
+            <li>len=字节；range 按 rune，i 是字节下标</li>
+            <li>字符处理用 []rune；拼接用 strings.Builder</li>
+          </ul>
+        </div>
+
+        <nav class="page-nav">
+          <a href="select.html">← Select 与定时器</a>
+          <a href="index.html">回首页 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+  <script src="assets/js/chapters.js"></script>
+  <script src="assets/js/site.js"></script>
+  <script src="assets/js/motion.js"></script>
+  <script src="assets/js/guide.js"></script>
+  <script src="assets/js/string-lab.js"></script>
+</body>
+</html>
