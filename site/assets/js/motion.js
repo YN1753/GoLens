@@ -119,7 +119,8 @@
     STW: "accent",
     MARK: "accent",
     SYS: "warn",
-    BIND: "ok"
+    BIND: "ok",
+    CANCEL: "warn"
   };
 
   /**

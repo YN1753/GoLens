@@ -19,8 +19,9 @@
   let status = {};
 
   function setCode(key) {
-    if (!codePanel) return;
-    codePanel.querySelectorAll(".code-line").forEach(function (line) {
+    const panel = codePanel || document.querySelector("#ctx-story .code-track");
+    if (!panel) return;
+    panel.querySelectorAll(".code-line").forEach(function (line) {
       line.classList.toggle("is-active", line.getAttribute("data-code-key") === key);
     });
   }

@@ -1,14 +1,21 @@
 ---
 feature: content-slice-sync
-status: designed
+status: delivered
 updated: 2026-09-17
 branch: chore/content-slice-sync
-commits: 
+commits: 6500a81e34979f22c9e0e117de80934adbdeb5a5..<pending>
 ---
 
 # Content — Slice/Map + sync/Context Chapters
 
 ## Report
+
+**What was built** — 新增《Slice 与 Map》《sync / Context》两章：完整八股结构 + 关卡剧本 + 代码观察窗 + Slice 扩容/共享 Lab 与 Context 取消树 Lab。侧栏与首页扩展至 5 章，导航链 GC→Slice→sync。
+
+**Verification** — `scripts/check.sh` PASS；slice 就地 append→cap 翻倍扩容→共享写日志正确；context cancel 级联 work→db；gc page-nav 指向 slice-map；console 0 error。
+
+**Journey log** — StoryGuide 已高亮 `.code-track`，Lab `setCode` 应落到 story 面板而非不存在的 id。别名写需按 t 的 len 边界判断，不能只看底层数组长度。
+
 
 ## [S1] Problem
 
@@ -53,7 +60,7 @@ commits:
 
 ## Tasks
 
-- [ ] T1: 站点导航与首页扩展 — acceptance: 侧栏/首页可进入两新章 (covers: S2)
-- [ ] T2: Slice/Map 章正文 + Slice Lab — acceptance: append 扩容与切片共享写可演示且日志正确 (covers: S2)
-- [ ] T3: sync/Context 章正文 + Context Lab — acceptance: cancel 父节点后子树状态级联更新 (covers: S2)
-- [ ] T4: 验收 — acceptance: npm run check；五页冒烟无 console error (covers: S2; depends: T1,T2,T3)
+- [x] T1: 站点导航与首页扩展 — acceptance: 侧栏/首页可进入两新章 (covers: S2)
+- [x] T2: Slice/Map 章正文 + Slice Lab — acceptance: append 扩容与切片共享写可演示且日志正确 (covers: S2)
+- [x] T3: sync/Context 章正文 + Context Lab — acceptance: cancel 父节点后子树状态级联更新 (covers: S2)
+- [x] T4: 验收 — acceptance: npm run check；五页冒烟无 console error (covers: S2; depends: T1,T2,T3)

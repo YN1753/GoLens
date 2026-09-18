@@ -14,8 +14,9 @@
   let state = null;
 
   function setCode(key) {
-    if (!codePanel) return;
-    codePanel.querySelectorAll(".code-line").forEach(function (line) {
+    const panel = codePanel || document.querySelector("#slice-story .code-track");
+    if (!panel) return;
+    panel.querySelectorAll(".code-line").forEach(function (line) {
       line.classList.toggle("is-active", line.getAttribute("data-code-key") === key);
     });
   }
@@ -74,14 +75,15 @@
     const idx = Number(capSel.value);
     const v = state.nextVal++;
     if (state.alias) {
-      // write through alias into shared array at alias.start+idx if in range
-      const abs = state.alias.start + idx;
-      if (idx >= 0 && abs < state.arr.length) {
+      const aliasLen = state.alias.end - state.alias.start;
+      if (idx >= 0 && idx < aliasLen) {
+        const abs = state.alias.start + idx;
         state.arr[abs] = v;
         setCode("write_shared");
         log("PANIC", "t[" + idx + "]=" + v + " 写入共享槽 arr[" + abs + "]，s 也会看到变化");
       } else {
-        log("BLOCK", "别名写入越界");
+        setCode("write_shared");
+        log("BLOCK", "t 下标越界（t 的 len=" + aliasLen + "），真实代码会 panic");
       }
     } else if (idx >= 0 && idx < state.len) {
       state.arr[idx] = v;
@@ -196,18 +198,25 @@
           run: function () {
             reset();
             doAppend();
+            doAppend();
+            doAppend();
             doSubslice();
+            capSel.value = "0";
+            doWrite();
           }
         },
         {
           title: "写共享槽：演示互相影响",
           metaphor: "两个人用同一格柜，一人改了另一人以为闹鬼",
-          body: "点「写 t[k]」，观察同一带颜色的槽位变化。面试可答：需要隔离时用 copy，或 append 到新切片触发扩容。",
+          body: "在别名有效下标内写入（如 t[0]），观察同一带颜色的槽位变化。越界写在真实 Go 里会 panic。需要隔离时用 copy。",
           codeKeys: ["write_shared"],
           run: function () {
             reset();
             doAppend();
+            doAppend();
+            doAppend();
             doSubslice();
+            capSel.value = "0";
             doWrite();
           }
         }
