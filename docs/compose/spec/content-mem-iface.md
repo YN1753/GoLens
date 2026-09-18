@@ -1,6 +1,6 @@
 ---
 feature: content-mem-iface
-status: designed
+status: delivered
 updated: 2026-09-17
 branch: chore/content-mem-iface
 commits: 
@@ -9,6 +9,13 @@ commits:
 # Content — Memory/Escapes + Interface/defer Chapters
 
 ## Report
+
+**What was built** — 新增第 06《内存分配与逃逸》、07《Interface 与 defer》：完整章节结构 + 关卡 + 逃逸选择 Lab 与 defer LIFO/panic Lab；侧栏 00–07、首页卡片与阅读链更新。
+
+**Verification** — check PASS；逃逸 Lab 判 heap 正确；defer LIFO #2→#1；nav 8 / cards 7；冒烟 console 0 error。
+
+**Journey log** — 新章沿用 guide/motion 即可；Lab 代码高亮挂在 story `.code-track`。教学文案对「是否逃逸」宜保留「可能」类表述。
+
 
 ## [S1] Problem
 
@@ -50,7 +57,7 @@ commits:
 
 ## Tasks
 
-- [ ] T1: 导航与首页 — acceptance: 侧栏 7 项，卡片可进新章 (covers: S2)
-- [ ] T2: memory.html + 逃逸 Lab — acceptance: 选择后给出对错与解释 (covers: S2)
-- [ ] T3: iface-defer.html + defer Lab — acceptance: push 后 run 按 LIFO 日志输出；panic/recover 文案正确 (covers: S2)
-- [ ] T4: 验收 — acceptance: check + 新页冒烟 0 console error (covers: S2; depends: T1,T2,T3)
+- [x] T1: 导航与首页 — acceptance: 侧栏 7 项，卡片可进新章 (covers: S2)
+- [x] T2: memory.html + 逃逸 Lab — acceptance: 选择后给出对错与解释 (covers: S2)
+- [x] T3: iface-defer.html + defer Lab — acceptance: push 后 run 按 LIFO 日志输出；panic/recover 文案正确 (covers: S2)
+- [x] T4: 验收 — acceptance: check + 新页冒烟 0 console error (covers: S2; depends: T1,T2,T3)

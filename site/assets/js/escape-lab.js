@@ -26,7 +26,7 @@
       title: "装入 interface{}",
       code: "var i interface{} = x",
       answer: "heap",
-      why: "接口装箱常把值复制到堆上（类型/数据指针），具体是否逃逸看场景，八股常答可能逃逸"
+      why: "接口装箱常涉及堆上数据（类型/数据指针）；小值是否逃逸看编译器，八股答「可能到堆」更稳妥"
     },
     {
       id: "local-sum",

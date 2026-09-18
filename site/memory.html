@@ -57,7 +57,7 @@
         <ul>
           <li>返回局部变量地址 / 指针被外部持有</li>
           <li>闭包捕获、在其他 goroutine 中使用</li>
-          <li>发送到 channel、存进接口、map/slice 被传出</li>
+          <li>指针被 channel 传出、存进接口、map/slice 被传出（值拷贝不一定逃逸）</li>
           <li>变量大小不确定或过大（实现细节，面试说「可能」）</li>
         </ul>
 
