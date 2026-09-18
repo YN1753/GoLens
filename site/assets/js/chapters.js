@@ -15,7 +15,9 @@
     { id: "error", idx: "10", href: "error.html", title: "错误处理", short: "error" },
     { id: "generics", idx: "11", href: "generics.html", title: "泛型直觉", short: "generics" },
     { id: "netpoller", idx: "12", href: "netpoller.html", title: "Netpoller 与 IO", short: "netpoller" },
-    { id: "testing", idx: "13", href: "testing.html", title: "测试与基准", short: "testing" }
+    { id: "testing", idx: "13", href: "testing.html", title: "测试与基准", short: "testing" },
+    { id: "modules", idx: "14", href: "modules.html", title: "模块与依赖", short: "modules" },
+    { id: "perf", idx: "15", href: "perf.html", title: "性能排查直觉", short: "pprof" }
   ];
 
   GoLens.isChapterRead = function (id) {

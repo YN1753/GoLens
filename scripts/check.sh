@@ -19,6 +19,8 @@ need=(
   "$site/generics.html"
   "$site/netpoller.html"
   "$site/testing.html"
+  "$site/modules.html"
+  "$site/perf.html"
   "$site/favicon.svg"
   "$site/assets/css/tokens.css"
   "$site/assets/css/layout.css"
@@ -42,6 +44,8 @@ need=(
   "$site/assets/js/generics-lab.js"
   "$site/assets/js/netpoller-lab.js"
   "$site/assets/js/testing-lab.js"
+  "$site/assets/js/modules-lab.js"
+  "$site/assets/js/perf-lab.js"
 )
 
 echo "== structure =="
@@ -55,7 +59,7 @@ for f in "${need[@]}"; do
 done
 
 echo "== relative assets in HTML =="
-for page in index.html gmp.html channel.html gc.html slice-map.html sync-context.html memory.html iface-defer.html select.html string.html error.html generics.html netpoller.html testing.html; do
+for page in index.html gmp.html channel.html gc.html slice-map.html sync-context.html memory.html iface-defer.html select.html string.html error.html generics.html netpoller.html testing.html modules.html perf.html; do
   if grep -E 'src="https?://|href="https?://' "$site/$page" >/dev/null 2>&1; then
     echo "FAIL $page references remote asset URL"
     fail=1
@@ -89,7 +93,7 @@ if [[ -f "$site/assets/js/chapters.js" ]]; then
   for h in $hrefs; do
     if [[ -f "$site/$h" ]]; then echo "OK  manifest href $h"; else echo "MISS manifest href $h"; fail=1; fi
   done
-  for page in index.html gmp.html channel.html gc.html slice-map.html sync-context.html memory.html iface-defer.html select.html string.html error.html generics.html netpoller.html testing.html; do
+  for page in index.html gmp.html channel.html gc.html slice-map.html sync-context.html memory.html iface-defer.html select.html string.html error.html generics.html netpoller.html testing.html modules.html perf.html; do
     key=$(echo "$page" | sed 's/-.*//;s/\.html//')
     # map filename to id roughly via grep data-page
     dp=$(grep -oE 'data-page="[^"]+"' "$site/$page" | head -1 | sed -E 's/data-page="([^"]+)"/\1/')

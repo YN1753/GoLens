@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Go 测试与 benchmark" />
-  <title>测试与基准 · GoLens</title>
+  <meta name="description" content="Go modules 与依赖管理" />
+  <title>模块与依赖 · GoLens</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="assets/css/tokens.css" />
   <link rel="stylesheet" href="assets/css/layout.css" />
@@ -12,53 +12,49 @@
   <link rel="stylesheet" href="assets/css/lab-motion.css" />
   <link rel="stylesheet" href="assets/css/guide.css" />
 </head>
-<body data-page="testing">
+<body data-page="modules">
   <div class="scrim" aria-hidden="true"></div>
   <div class="shell">
     <aside class="sidebar" aria-label="站点导航">
       <a class="brand" href="index.html"><span class="brand-mark">GoLens</span><span class="brand-sub">Runtime Lab</span></a>
       <nav class="nav-section" aria-label="章节目录"><div class="nav-label">目录</div></nav>
-      <div class="sidebar-foot">go test / go test -bench</div>
+      <div class="sidebar-foot">go.mod / go.sum / tidy</div>
     </aside>
     <div class="main">
       <header class="topbar">
         <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
-        <div class="topbar-title">GoLens / 13 testing</div>
-        <div class="topbar-actions"><span class="chip">章节 13</span></div>
+        <div class="topbar-title">GoLens / 14 modules</div>
+        <div class="topbar-actions"><span class="chip">章节 14</span></div>
       </header>
       <article class="content lab-wide">
-        <div class="eyebrow">Chapter 13</div>
-        <h1>测试与基准</h1>
+        <div class="eyebrow">Chapter 14</div>
+        <h1>模块与依赖</h1>
         <p class="verdict">
-          标准库 <code>testing</code> 提供单元测试与 <strong>benchmark</strong>。
-          推荐<strong>表格驱动</strong> + <code>t.Run</code> 子测试；基准用 <code>testing.B</code> 的 <code>b.N</code> 循环。
+          <code>go.mod</code> 声明<strong>模块路径</strong>与依赖版本；<code>go.sum</code> 记录校验和；
+          <code>go mod tidy</code> 按源码 import 对齐依赖清单。
         </p>
-
-        <h2>常用命令</h2>
-        <pre><code>go test ./...
-go test -run TestSum/empty ./pkg
-go test -bench=. -benchmem ./pkg</code></pre>
-
-        <h2>交互 Lab</h2>
-        <div class="lab" id="test-lab">
+        <h2>Lab</h2>
+        <div class="lab" id="mod-lab">
           <div class="lab-head">
-            <div class="lab-title"><span class="led" aria-hidden="true"></span>Testing Lab</div>
-            <span class="chip">table · b.N</span>
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>Module Lab</div>
+            <span class="chip">module · require · tidy</span>
           </div>
           <div class="lab-controls">
             <div class="btn-row">
-              <button type="button" class="btn btn-primary" id="test-run">跑测试</button>
-              <button type="button" class="btn" id="test-bench">跑 Benchmark</button>
-              <button type="button" class="btn btn-ghost" id="test-reset">重置</button>
+              <button type="button" class="btn" id="mod-module">module 字段</button>
+              <button type="button" class="btn" id="mod-require">require</button>
+              <button type="button" class="btn btn-primary" id="mod-tidy">go mod tidy</button>
+              <button type="button" class="btn btn-ghost" id="mod-reset">重置</button>
             </div>
           </div>
-          <div class="story-band" id="test-story">
+          <div class="story-band" id="mod-story">
             <div class="code-track">
               <div class="code-title">Go 代码 · 观察窗</div>
               <pre>
-<span class="code-line" data-code-key="table">cases := []struct{ in []int; want int }{...}</span>
-<span class="code-line" data-code-key="run">t.Run(name, func(t *testing.T){ ... })</span>
-<span class="code-line" data-code-key="bench">for i := 0; i &lt; b.N; i++ { Sum(...) }</span>
+<span class="code-line" data-code-key="gomod">module golens.example/hello</span>
+<span class="code-line" data-code-key="module">module &lt;import path&gt;</span>
+<span class="code-line" data-code-key="require">require github.com/pkg/errors v0.9.1</span>
+<span class="code-line" data-code-key="tidy">go mod tidy</span>
               </pre>
             </div>
             <div class="story-card">
@@ -74,23 +70,22 @@ go test -bench=. -benchmem ./pkg</code></pre>
             </div>
           </div>
           <div class="lab-grid-3">
-            <div class="lab-stage" id="test-stage" aria-live="polite"></div>
-            <div class="lab-log" id="test-log" aria-live="polite"></div>
+            <div class="lab-stage" id="mod-stage" aria-live="polite"></div>
+            <div class="lab-log" id="mod-log" aria-live="polite"></div>
           </div>
         </div>
-
         <h2>速查表</h2>
         <div class="cheat">
           <ul>
-            <li>*_test.go · TestXxx / BenchmarkXxx</li>
-            <li>表格驱动 + t.Run 子测试</li>
-            <li>-bench 与 -benchmem；关注 ns/op</li>
+            <li>module 路径 = 导入前缀</li>
+            <li>require 版本；go.sum 校验</li>
+            <li>go mod tidy 对齐 import</li>
+            <li>MVS：最小可满足版本集合</li>
           </ul>
         </div>
-
         <nav class="page-nav">
-          <a href="netpoller.html">← Netpoller 与 IO</a>
-          <a href="modules.html">下一章 模块与依赖 →</a>
+          <a href="testing.html">← 测试与基准</a>
+          <a href="perf.html">下一章 性能排查 →</a>
         </nav>
       </article>
     </div>
@@ -99,6 +94,6 @@ go test -bench=. -benchmem ./pkg</code></pre>
   <script src="assets/js/site.js"></script>
   <script src="assets/js/motion.js"></script>
   <script src="assets/js/guide.js"></script>
-  <script src="assets/js/testing-lab.js"></script>
+  <script src="assets/js/modules-lab.js"></script>
 </body>
 </html>
