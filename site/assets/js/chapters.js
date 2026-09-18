@@ -26,8 +26,8 @@
       return c.id !== "home";
     });
     for (let i = 0; i < list.length; i++) {
-      if (!GoLens.isChapterRead(list[i].id)) return list[i];
+      if (!GoLens.isChapterRead(list[i].id)) return { chapter: list[i], allRead: false };
     }
-    return list[0] || null;
+    return { chapter: list[0] || null, allRead: true };
   };
 })(window);

@@ -1,6 +1,6 @@
 ---
 feature: project-optimize
-status: designed
+status: delivered
 updated: 2026-09-17
 branch: chore/project-optimize
 commits: 
@@ -9,6 +9,13 @@ commits:
 # Project Optimize — Shared Chrome + Learning Path
 
 ## Report
+
+**What was built** — `chapters.js` 作为章节单一清单；`site.js` 按清单重建侧栏并高亮；首页「学习路径」显示已读进度与「继续 / 再复习」；`check.sh` 校验清单 href 与各页 `data-page`。
+
+**Verification** — check 清单段 PASS；首页 7 步学习路径、继续指向 GMP；章节页 nav 8、active 正确；console 0 error。
+
+**Journey log** — 导航 DOM 重建不影响 TOC/搜索/进度（挂在 content/topbar）。加新章只改 `chapters.js` + 新 HTML 即可。
+
 
 ## [S1] Problem
 
@@ -55,7 +62,7 @@ commits:
 
 ## Tasks
 
-- [ ] T1: chapters.js + 导航注入/校验 — acceptance: 8 页侧栏链接完整且与清单一致；data-page 高亮正确 (covers: S2)
-- [ ] T2: 首页学习路径 + 继续学习 — acceptance: 路径 01–07 渲染；已读标记与「继续」目标正确 (covers: S2)
-- [ ] T3: check.sh 清单校验 — acceptance: 缺文件或缺 data-page 时 check 失败 (covers: S2)
-- [ ] T4: 验收 — acceptance: check + 首页/章节冒烟 0 console error (covers: S2; depends: T1,T2,T3)
+- [x] T1: chapters.js + 导航注入/校验 — acceptance: 8 页侧栏链接完整且与清单一致；data-page 高亮正确 (covers: S2)
+- [x] T2: 首页学习路径 + 继续学习 — acceptance: 路径 01–07 渲染；已读标记与「继续」目标正确 (covers: S2)
+- [x] T3: check.sh 清单校验 — acceptance: 缺文件或缺 data-page 时 check 失败 (covers: S2)
+- [x] T4: 验收 — acceptance: check + 首页/章节冒烟 0 console error (covers: S2; depends: T1,T2,T3)

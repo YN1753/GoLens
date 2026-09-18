@@ -70,9 +70,10 @@
     const list = window.GoLens.CHAPTERS.filter(function (c) {
       return c.id !== "home";
     });
-    const next = window.GoLens.nextUnreadChapter
+    const nextInfo = window.GoLens.nextUnreadChapter
       ? window.GoLens.nextUnreadChapter()
-      : list[0];
+      : { chapter: list[0], allRead: false };
+    const next = nextInfo.chapter;
     const doneCount = list.filter(function (c) {
       return window.GoLens.isChapterRead && window.GoLens.isChapterRead(c.id);
     }).length;
@@ -80,7 +81,7 @@
     let steps = "";
     list.forEach(function (c, i) {
       const done = window.GoLens.isChapterRead && window.GoLens.isChapterRead(c.id);
-      const isNext = next && next.id === c.id;
+      const isNext = next && !nextInfo.allRead && next.id === c.id;
       steps +=
         '<a class="learn-step' +
         (done ? " is-done" : "") +
@@ -100,6 +101,12 @@
         "</a>";
     });
 
+    const continueLabel = nextInfo.allRead
+      ? "再复习 · " + (next ? next.short : "GMP")
+      : next
+        ? "继续 · " + next.short
+        : "";
+
     host.innerHTML =
       '<div class="learn-head">' +
       '<div><div class="page-toc-title">学习路径</div>' +
@@ -107,11 +114,13 @@
       doneCount +
       " / " +
       list.length +
-      "</strong> 章</div></div>" +
+      "</strong> 章" +
+      (nextInfo.allRead ? " · 已全部读过" : "") +
+      "</div></div>" +
       '<div class="btn-row">' +
       '<a class="btn" href="gmp.html">从第一章开始</a>' +
-      (next
-        ? '<a class="btn btn-primary" href="' + next.href + '">继续 · ' + next.short + "</a>"
+      (next && continueLabel
+        ? '<a class="btn btn-primary" href="' + next.href + '">' + continueLabel + "</a>"
         : "") +
       "</div></div>" +
       '<div class="learn-steps">' +
