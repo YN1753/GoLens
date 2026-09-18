@@ -3,7 +3,7 @@ feature: project-optimize
 status: delivered
 updated: 2026-09-17
 branch: chore/project-optimize
-commits: 
+commits: 74615982a56706570bd79c557f5e0ca64c1b47fc..d433dd8da72ee6694517642a399c7e341cb43559
 ---
 
 # Project Optimize — Shared Chrome + Learning Path
