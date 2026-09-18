@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="sync 原语与 Context 取消树：Mutex、WaitGroup、Once、WithCancel 传播" />
+  <title>sync 与 Context · GoLens</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/lab-motion.css" />
+  <link rel="stylesheet" href="assets/css/guide.css" />
+</head>
+<body data-page="sync">
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar" aria-label="站点导航">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">GoLens</span>
+        <span class="brand-sub">Runtime Lab</span>
+      </a>
+      <nav class="nav-section" aria-label="章节目录">
+        <div class="nav-label">目录</div>
+        <a class="nav-link" data-page="home" href="index.html"><span class="idx">00</span>首页</a>
+        <a class="nav-link" data-page="gmp" href="gmp.html"><span class="idx">01</span>GMP 调度</a>
+        <a class="nav-link" data-page="channel" href="channel.html"><span class="idx">02</span>Channel 底层</a>
+        <a class="nav-link" data-page="gc" href="gc.html"><span class="idx">03</span>GC 三色标记</a>
+        <a class="nav-link" data-page="slice" href="slice-map.html"><span class="idx">04</span>Slice 与 Map</a>
+        <a class="nav-link" data-page="sync" href="sync-context.html"><span class="idx">05</span>sync / Context</a>
+      </nav>
+      <div class="sidebar-foot">面试向简化模型<br />非 runtime 全量细节</div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
+        <div class="topbar-title">GoLens / 05 sync-context</div>
+        <div class="topbar-actions"><span class="chip">章节 05</span></div>
+      </header>
+      <article class="content lab-wide">
+        <div class="eyebrow">Chapter 05</div>
+        <h1>sync 与 Context</h1>
+        <p class="verdict">
+          <code>sync</code> 解决<strong>共享内存</strong>的互斥与协作（锁、等待组、只初始化一次）；
+          <code>context</code> 解决<strong>跨 API 的取消与超时</strong>，以树形信号向下传播，避免 goroutine 泄漏。
+        </p>
+
+        <h2>sync 原语速览</h2>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>原语</th><th>用途</th><th>面试一句</th></tr></thead>
+            <tbody>
+              <tr><td><code>Mutex</code></td><td>临界区互斥</td><td>Lock/Unlock 成对；可用 defer Unlock</td></tr>
+              <tr><td><code>RWMutex</code></td><td>多读一写</td><td>读多写少时吞吐更好</td></tr>
+              <tr><td><code>WaitGroup</code></td><td>等一组 goroutine</td><td>Add 在启动前；Done；Wait</td></tr>
+              <tr><td><code>Once</code></td><td>只执行一次初始化</td><td>Do 内 panic 也会视为已执行（注意）</td></tr>
+              <tr><td><code>atomic</code></td><td>无锁计数等</td><td>简单计数器优先 atomic</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Context 树</h2>
+        <p>
+          根是 <code>context.Background()</code>（或 <code>TODO()</code>）。派生节点：
+          <code>WithCancel</code> / <code>WithTimeout</code> / <code>WithDeadline</code> / <code>WithValue</code>。
+          父取消 → 子树取消；子取消不影响父。
+        </p>
+
+        <div class="callout">
+          <div class="callout-title">工程习惯</div>
+          <p>请求入口创建 ctx，函数签名第一个参数传 ctx；底层用 <code>select &lt;-ctx.Done()</code> 或支持 ctx 的库退出。不要用 context 传可选业务参数当配置中心。</p>
+        </div>
+
+        <h2>交互 Lab · 取消传播</h2>
+        <p class="beginner-tip"><strong>怎么用：</strong>点图中节点或「cancel(work)」，看子树是否一起变红。</p>
+
+        <div class="lab" id="ctx-lab">
+          <div class="lab-head">
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>Context Lab</div>
+            <span class="chip">cancel subtree</span>
+          </div>
+          <div class="lab-controls">
+            <div class="btn-row">
+              <button type="button" class="btn btn-primary" id="ctx-cancel">cancel(work)</button>
+              <button type="button" class="btn btn-ghost" id="ctx-reset">重置</button>
+            </div>
+          </div>
+          <div class="story-band" id="ctx-story">
+            <div class="code-track">
+              <div class="code-title">Go 代码 · 观察窗</div>
+              <pre>
+<span class="code-line" data-code-key="mutex">mu.Lock(); defer mu.Unlock()</span>
+<span class="code-line" data-code-key="waitgroup">wg.Add(1); go func(){ defer wg.Done() ... }(); wg.Wait()</span>
+<span class="code-line" data-code-key="once">once.Do(func(){ init() })</span>
+<span class="code-line" data-code-key="withcancel">ctx, cancel := context.WithCancel(parent)</span>
+<span class="code-line" data-code-key="cancel">cancel() // 子树 ctx.Done() 关闭</span>
+              </pre>
+            </div>
+            <div class="story-card">
+              <div class="story-step" data-story-step>关卡 1 / 4</div>
+              <h3 class="story-title" data-story-title></h3>
+              <div class="story-metaphor" data-story-metaphor></div>
+              <p class="story-body" data-story-body></p>
+              <div class="story-actions">
+                <button type="button" class="btn" data-story-prev>上一关</button>
+                <button type="button" class="btn btn-primary" data-story-next>下一关</button>
+                <div class="story-dots" data-story-dots></div>
+              </div>
+            </div>
+          </div>
+          <div class="lab-grid-3">
+            <div class="lab-stage" id="ctx-stage" aria-live="polite"></div>
+            <div class="lab-log" id="ctx-log" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <h2>常见追问</h2>
+        <div class="faq">
+          <details>
+            <summary>为什么不能把 Mutex 按值传递？</summary>
+            <p>复制锁会破坏互斥语义，应传指针或放在结构体中由指针持有。</p>
+          </details>
+          <details>
+            <summary>WithValue 适合放什么？</summary>
+            <p>请求级元数据（trace id 等），不适合放可选配置或大对象。</p>
+          </details>
+          <details>
+            <summary>WaitGroup 可以 Add 负数吗？</summary>
+            <p>Done 等价 Add(-1)；计数不能为负，否则 panic。</p>
+          </details>
+        </div>
+
+        <h2>速查表</h2>
+        <div class="cheat">
+          <ul>
+            <li>Mutex/RWMutex：共享内存互斥；WaitGroup：等人齐</li>
+            <li>Once：初始化一次；简单计数用 atomic</li>
+            <li>Context：取消/超时向子树传播</li>
+            <li>ctx 做函数首参；Done 协调退出，防泄漏</li>
+          </ul>
+        </div>
+
+        <nav class="page-nav">
+          <a href="slice-map.html">← Slice 与 Map</a>
+          <a href="index.html">回首页 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+  <script src="assets/js/site.js"></script>
+  <script src="assets/js/motion.js"></script>
+  <script src="assets/js/guide.js"></script>
+  <script src="assets/js/context-lab.js"></script>
+</body>
+</html>

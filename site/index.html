@@ -24,6 +24,8 @@
         <a class="nav-link" data-page="gmp" href="gmp.html"><span class="idx">01</span>GMP 调度</a>
         <a class="nav-link" data-page="channel" href="channel.html"><span class="idx">02</span>Channel 底层</a>
         <a class="nav-link" data-page="gc" href="gc.html"><span class="idx">03</span>GC 三色标记</a>
+        <a class="nav-link" data-page="slice" href="slice-map.html"><span class="idx">04</span>Slice 与 Map</a>
+        <a class="nav-link" data-page="sync" href="sync-context.html"><span class="idx">05</span>sync / Context</a>
       </nav>
       <div class="sidebar-foot">
         纯静态 · 无构建 · 可 GitHub Pages<br />
@@ -73,6 +75,19 @@
             <h3>三色标记与写屏障</h3>
             <p>白灰黑怎么染、根从哪来、并发标记时 mutator 改指针为何危险、写屏障救什么。</p>
             <div class="meta">LAB · 对比开/关屏障</div>
+          </a>
+        
+          <a class="chapter-card" href="slice-map.html">
+            <div class="num">04 / SLICE · MAP</div>
+            <h3>切片扩容与 Map 桶</h3>
+            <p>len/cap 与共享底层数组陷阱；map 哈希桶、溢出与扩容直觉。</p>
+            <div class="meta">LAB · append / 共享写</div>
+          </a>
+          <a class="chapter-card" href="sync-context.html">
+            <div class="num">05 / SYNC · CTX</div>
+            <h3>锁、等待组与取消树</h3>
+            <p>Mutex/WaitGroup/Once 速查；Context 父子取消如何级联。</p>
+            <div class="meta">LAB · cancel 传播</div>
           </a>
         </div>
 

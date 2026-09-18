@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Slice 与 Map 底层：扩容、共享底层数组、map 桶结构直觉" />
+  <title>Slice 与 Map · GoLens</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/lab-motion.css" />
+  <link rel="stylesheet" href="assets/css/guide.css" />
+</head>
+<body data-page="slice">
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar" aria-label="站点导航">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">GoLens</span>
+        <span class="brand-sub">Runtime Lab</span>
+      </a>
+      <nav class="nav-section" aria-label="章节目录">
+        <div class="nav-label">目录</div>
+        <a class="nav-link" data-page="home" href="index.html"><span class="idx">00</span>首页</a>
+        <a class="nav-link" data-page="gmp" href="gmp.html"><span class="idx">01</span>GMP 调度</a>
+        <a class="nav-link" data-page="channel" href="channel.html"><span class="idx">02</span>Channel 底层</a>
+        <a class="nav-link" data-page="gc" href="gc.html"><span class="idx">03</span>GC 三色标记</a>
+        <a class="nav-link" data-page="slice" href="slice-map.html"><span class="idx">04</span>Slice 与 Map</a>
+        <a class="nav-link" data-page="sync" href="sync-context.html"><span class="idx">05</span>sync / Context</a>
+      </nav>
+      <div class="sidebar-foot">面试向简化模型<br />非 runtime 全量细节</div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
+        <div class="topbar-title">GoLens / 04 slice-map</div>
+        <div class="topbar-actions"><span class="chip">章节 04</span></div>
+      </header>
+      <article class="content lab-wide">
+        <div class="eyebrow">Chapter 04</div>
+        <h1>Slice 与 Map 底层</h1>
+        <p class="verdict">
+          Slice 是指向底层数组的<strong>头 + len + cap</strong> 描述符；append 可能扩容搬家，子切片可能与父<strong>共享数组</strong>。
+          Map 是哈希表：桶 + 溢出桶 + 扩容搬迁，访问 O(1) 建立在良好哈希与负载因子上。
+        </p>
+
+        <h2>Slice 三元组</h2>
+        <p>写 <code>s := make([]int, 1, 4)</code> 时得到：指针指向一段连续数组，<code>len=1</code> 表示可见长度，<code>cap=4</code> 表示不扩容还能 append 的空间。</p>
+
+        <h2>append 与扩容</h2>
+        <p>len &lt; cap：就地写入。否则分配更大数组（常见策略是容量翻倍，小切片阶段有更细的增长表），拷贝旧数据后再写入。扩容后旧数组与新切片不再共享。</p>
+
+        <div class="callout callout-warn">
+          <div class="callout-title">共享底层数组陷阱</div>
+          <p><code>t := s[1:3]</code> 往往与 s 共用数组。向 t 写入，s 的重叠区间也会变。需要隔离时使用 <code>copy</code>。</p>
+        </div>
+
+        <h2>Map 直觉</h2>
+        <ul>
+          <li>key 经哈希映射到桶；桶内再精确比较 key。</li>
+          <li>负载过高会扩容：新建更大桶组，逐步搬迁。</li>
+          <li>并发读写 map 会 panic——要么加锁，要么用分片 / sync.Map（场景特殊）。</li>
+          <li>遍历顺序故意随机，不能依赖。</li>
+        </ul>
+
+        <h2>交互 Lab · Slice 扩容与共享</h2>
+        <p class="beginner-tip"><strong>怎么用：</strong>跟右侧关卡走，或直接狂点 append / 切片 / 写入，观察槽位颜色与日志。</p>
+
+        <div class="lab" id="slice-lab">
+          <div class="lab-head">
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>Slice Lab</div>
+            <span class="chip">len / cap · shared array</span>
+          </div>
+          <div class="lab-controls">
+            <div class="btn-row">
+              <button type="button" class="btn btn-primary" id="slice-append">append</button>
+              <button type="button" class="btn" id="slice-sub">切片 t=s[1:3]</button>
+              <label>写 t[<select id="slice-write-idx"><option>0</option><option selected>1</option><option>2</option></select>]
+                <button type="button" class="btn" id="slice-write">写入</button>
+              </label>
+              <button type="button" class="btn btn-ghost" id="slice-reset">重置</button>
+            </div>
+          </div>
+          <div class="story-band" id="slice-story">
+            <div class="code-track">
+              <div class="code-title">Go 代码 · 观察窗</div>
+              <pre>
+<span class="code-line" data-code-key="make">s := make([]int, 1, 4)</span>
+<span class="code-line" data-code-key="append_inplace">s = append(s, 20) // 就地</span>
+<span class="code-line" data-code-key="append_grow">s = append(s, 50) // 可能扩容搬家</span>
+<span class="code-line" data-code-key="subslice">t := s[1:3]       // 可能共享数组</span>
+<span class="code-line" data-code-key="write_own">s[0] = 99</span>
+<span class="code-line" data-code-key="write_shared">t[0] = 77         // s 可能一起变</span>
+              </pre>
+            </div>
+            <div class="story-card">
+              <div class="story-step" data-story-step>关卡 1 / 4</div>
+              <h3 class="story-title" data-story-title></h3>
+              <div class="story-metaphor" data-story-metaphor></div>
+              <p class="story-body" data-story-body></p>
+              <div class="story-actions">
+                <button type="button" class="btn" data-story-prev>上一关</button>
+                <button type="button" class="btn btn-primary" data-story-next>下一关</button>
+                <div class="story-dots" data-story-dots></div>
+              </div>
+            </div>
+          </div>
+          <div class="lab-grid-3">
+            <div class="lab-stage" id="slice-stage" aria-live="polite"></div>
+            <div class="lab-log" id="slice-log" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <h2>常见追问</h2>
+        <div class="faq">
+          <details>
+            <summary>append 一定会分配新数组吗？</summary>
+            <p>不一定。len &lt; cap 时原地写；只有容量不够才搬家。</p>
+          </details>
+          <details>
+            <summary>为什么 range map 顺序不稳定？</summary>
+            <p>运行时故意随机化起点，避免程序依赖遍历顺序。</p>
+          </details>
+          <details>
+            <summary>nil slice 和 empty slice？</summary>
+            <p>都能 len==0；nil 的指针为 nil。append 对两者通常都能工作。</p>
+          </details>
+        </div>
+
+        <h2>速查表</h2>
+        <div class="cheat">
+          <ul>
+            <li>slice = ptr + len + cap；cap 不够 append 才扩容</li>
+            <li>子切片可能共享底层数组 → 写入互相影响</li>
+            <li>隔离用 copy；map 并发读写会 panic</li>
+            <li>map：桶 + 溢出桶 + 扩容搬迁；遍历顺序随机</li>
+          </ul>
+        </div>
+
+        <nav class="page-nav">
+          <a href="gc.html">← GC 三色标记</a>
+          <a href="sync-context.html">下一章 sync / Context →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+  <script src="assets/js/site.js"></script>
+  <script src="assets/js/motion.js"></script>
+  <script src="assets/js/guide.js"></script>
+  <script src="assets/js/slice-lab.js"></script>
+</body>
+</html>
