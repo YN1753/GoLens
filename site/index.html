@@ -62,8 +62,97 @@
         <section id="learn-path" class="learn-path" aria-label="学习路径"></section>
 
         <div class="chapter-grid">
+          <a class="chapter-card" href="string.html">
+            <div class="num">01 / STRING</div>
+            <h3>string 与 range</h3>
+            <p>字节还是字符；[]byte/[]rune；range 的字节下标。</p>
+            <div class="meta">LAB · UTF-8 视图</div>
+          </a>
+          <a class="chapter-card" href="slice-map.html">
+            <div class="num">02 / SLICE/MAP</div>
+            <h3>Slice 与 Map</h3>
+            <p>len/cap 与共享底层数组陷阱；map 哈希桶。</p>
+            <div class="meta">LAB · append / 共享写</div>
+          </a>
+          <a class="chapter-card" href="iface-defer.html">
+            <div class="num">03 / IFACE/DEFER</div>
+            <h3>Interface · defer</h3>
+            <p>接口动态派发；defer LIFO；panic/recover。</p>
+            <div class="meta">LAB · defer 栈</div>
+          </a>
+          <a class="chapter-card" href="error.html">
+            <div class="num">04 / ERROR</div>
+            <h3>错误处理</h3>
+            <p>哨兵错误、%w 包装、errors.Is / As。</p>
+            <div class="meta">LAB · 错误链</div>
+          </a>
+          <a class="chapter-card" href="generics.html">
+            <div class="num">05 / GENERICS</div>
+            <h3>泛型直觉</h3>
+            <p>类型参数与约束集合；编译期检查。</p>
+            <div class="meta">LAB · 约束实例化</div>
+          </a>
           <a class="chapter-card" href="gmp.html">
-            <div class="num">01 / GMP</div>
+            <div class="num">06 / GMP</div>
+            <h3>GMP 调度</h3>
+            <p>G / P / M、本地与全局队列、work stealing。</p>
+            <div class="meta">LAB · 4 场景 · 可单步</div>
+          </a>
+          <a class="chapter-card" href="channel.html">
+            <div class="num">07 / CHANNEL</div>
+            <h3>Channel 底层</h3>
+            <p>hchan 与环形缓冲、阻塞 send/recv。</p>
+            <div class="meta">LAB · 环形表盘</div>
+          </a>
+          <a class="chapter-card" href="select.html">
+            <div class="num">08 / SELECT</div>
+            <h3>Select 与定时器</h3>
+            <p>多路 channel 就绪选择、default、超时。</p>
+            <div class="meta">LAB · 多路 select</div>
+          </a>
+          <a class="chapter-card" href="sync-context.html">
+            <div class="num">09 / SYNC/CTX</div>
+            <h3>sync / Context</h3>
+            <p>Mutex/WaitGroup/Once；Context 取消树。</p>
+            <div class="meta">LAB · cancel 传播</div>
+          </a>
+          <a class="chapter-card" href="netpoller.html">
+            <div class="num">10 / NETPOLLER</div>
+            <h3>Netpoller 与 IO</h3>
+            <p>阻塞 IO 如何被摘离 CPU；与 GMP 串线。</p>
+            <div class="meta">LAB · park/wake</div>
+          </a>
+          <a class="chapter-card" href="memory.html">
+            <div class="num">11 / 逃逸</div>
+            <h3>内存与逃逸</h3>
+            <p>栈与堆；逃逸分析常见原因。</p>
+            <div class="meta">LAB · 栈还是堆</div>
+          </a>
+          <a class="chapter-card" href="gc.html">
+            <div class="num">12 / GC</div>
+            <h3>GC 三色标记</h3>
+            <p>三色标记、写屏障、STW。</p>
+            <div class="meta">LAB · 对比开/关屏障</div>
+          </a>
+          <a class="chapter-card" href="testing.html">
+            <div class="num">13 / TESTING</div>
+            <h3>测试与基准</h3>
+            <p>表格驱动、t.Run、benchmark。</p>
+            <div class="meta">LAB · test + bench</div>
+          </a>
+          <a class="chapter-card" href="modules.html">
+            <div class="num">14 / MODULES</div>
+            <h3>模块与依赖</h3>
+            <p>go.mod、require、tidy 与 MVS。</p>
+            <div class="meta">LAB · go mod tidy</div>
+          </a>
+          <a class="chapter-card" href="perf.html">
+            <div class="num">15 / PPROF</div>
+            <h3>性能排查直觉</h3>
+            <p>CPU / Heap profile 热点与优化方向。</p>
+            <div class="meta">LAB · 热点示意</div>
+          </a>
+        </div>
             <h3>调度器如何派活</h3>
             <p>G / P / M 三角、本地队列与全局队列、work stealing、阻塞导致的 M–P 解绑。</p>
             <div class="meta">LAB · 4 场景 · 可单步</div>

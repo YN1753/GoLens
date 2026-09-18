@@ -50,7 +50,14 @@
     Array.prototype.slice.call(nav.querySelectorAll(".nav-link")).forEach(function (a) {
       a.remove();
     });
-    chapters.forEach(function (ch) {
+    chapters.forEach(function (ch, idx) {
+      const prev = chapters[idx - 1];
+      if (ch.group && ch.group !== "root" && (!prev || prev.group !== ch.group)) {
+        const sep = document.createElement("div");
+        sep.className = "nav-group";
+        sep.textContent = ch.group;
+        nav.appendChild(sep);
+      }
       const a = document.createElement("a");
       a.className = "nav-link";
       a.setAttribute("data-page", ch.id);
@@ -64,22 +71,53 @@
     });
   }
 
+  /** Inject prev/next footer links from CHAPTERS order. */
+  function syncPageNav() {
+    const host = document.querySelector(".page-nav");
+    if (!host || !page || !window.GoLens.neighbors) return;
+    const n = window.GoLens.neighbors(page);
+    const prev = n.prev;
+    const next = n.next;
+    const prevHtml = prev
+      ? '<a href="' + prev.href + '">← ' + prev.title + "</a>"
+      : "<span></span>";
+    const nextHtml = next
+      ? '<a href="' + next.href + '">下一章 ' + next.title + " →</a>"
+      : '<a href="index.html">回首页 →</a>';
+    // home page: hide chapter pager
+    if (page === "home") {
+      host.innerHTML = "";
+      host.hidden = true;
+      return;
+    }
+    host.hidden = false;
+    host.innerHTML = prevHtml + nextHtml;
+  }
+
   function setupLearningPath() {
     const host = document.getElementById("learn-path");
     if (!host || !window.GoLens.CHAPTERS) return;
-    const list = window.GoLens.CHAPTERS.filter(function (c) {
-      return c.id !== "home";
-    });
+    const list = window.GoLens.studyChapters
+      ? window.GoLens.studyChapters()
+      : window.GoLens.CHAPTERS.filter(function (c) {
+          return c.id !== "home";
+        });
+    const first = list[0];
     const nextInfo = window.GoLens.nextUnreadChapter
       ? window.GoLens.nextUnreadChapter()
-      : { chapter: list[0], allRead: false };
+      : { chapter: first, allRead: false };
     const next = nextInfo.chapter;
     const doneCount = list.filter(function (c) {
       return window.GoLens.isChapterRead && window.GoLens.isChapterRead(c.id);
     }).length;
 
     let steps = "";
+    let lastGroup = null;
     list.forEach(function (c, i) {
+      if (c.group && c.group !== lastGroup) {
+        lastGroup = c.group;
+        steps += '<div class="learn-group">' + c.group + "</div>";
+      }
       const done = window.GoLens.isChapterRead && window.GoLens.isChapterRead(c.id);
       const isNext = next && !nextInfo.allRead && next.id === c.id;
       steps +=
@@ -102,7 +140,7 @@
     });
 
     const continueLabel = nextInfo.allRead
-      ? "再复习 · " + (next ? next.short : "GMP")
+      ? "再复习 · " + (next ? next.short : "")
       : next
         ? "继续 · " + next.short
         : "";
@@ -115,10 +153,10 @@
       " / " +
       list.length +
       "</strong> 章" +
-      (nextInfo.allRead ? " · 已全部读过" : "") +
+      (nextInfo.allRead ? " · 已全部读过" : " · 建议顺序：语言 → 并发 → 内存 → 工程") +
       "</div></div>" +
       '<div class="btn-row">' +
-      '<a class="btn" href="gmp.html">从第一章开始</a>' +
+      (first ? '<a class="btn" href="' + first.href + '">从第一章开始</a>' : "") +
       (next && continueLabel
         ? '<a class="btn btn-primary" href="' + next.href + '">' + continueLabel + "</a>"
         : "") +
@@ -407,6 +445,7 @@
     buildToc(content);
   }
   setupLearningPath();
+  syncPageNav();
   setupProgress();
   setupSearch();
 })();

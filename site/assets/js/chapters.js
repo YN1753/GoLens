@@ -1,24 +1,39 @@
-/** Single source of truth for site chapters. */
+/** Single source of truth for site chapters (pedagogical order). */
 (function (global) {
   const GoLens = (global.GoLens = global.GoLens || {});
+
+  /**
+   * Order = 学习路径：语言 → 并发/IO → 内存 → 工程
+   * idx 仅作展示序号，以本数组顺序为准。
+   */
   GoLens.CHAPTERS = [
-    { id: "home", idx: "00", href: "index.html", title: "首页", short: "首页" },
-    { id: "gmp", idx: "01", href: "gmp.html", title: "GMP 调度", short: "GMP" },
-    { id: "channel", idx: "02", href: "channel.html", title: "Channel 底层", short: "Channel" },
-    { id: "gc", idx: "03", href: "gc.html", title: "GC 三色标记", short: "GC" },
-    { id: "slice", idx: "04", href: "slice-map.html", title: "Slice 与 Map", short: "Slice/Map" },
-    { id: "sync", idx: "05", href: "sync-context.html", title: "sync / Context", short: "sync/ctx" },
-    { id: "memory", idx: "06", href: "memory.html", title: "内存与逃逸", short: "逃逸" },
-    { id: "iface", idx: "07", href: "iface-defer.html", title: "Interface · defer", short: "iface/defer" },
-    { id: "select", idx: "08", href: "select.html", title: "Select 与定时器", short: "select" },
-    { id: "string", idx: "09", href: "string.html", title: "string 与 range", short: "string" },
-    { id: "error", idx: "10", href: "error.html", title: "错误处理", short: "error" },
-    { id: "generics", idx: "11", href: "generics.html", title: "泛型直觉", short: "generics" },
-    { id: "netpoller", idx: "12", href: "netpoller.html", title: "Netpoller 与 IO", short: "netpoller" },
-    { id: "testing", idx: "13", href: "testing.html", title: "测试与基准", short: "testing" },
-    { id: "modules", idx: "14", href: "modules.html", title: "模块与依赖", short: "modules" },
-    { id: "perf", idx: "15", href: "perf.html", title: "性能排查直觉", short: "pprof" }
+    { id: "home", idx: "00", href: "index.html", title: "首页", short: "首页", group: "root" },
+
+    { id: "string", idx: "01", href: "string.html", title: "string 与 range", short: "string", group: "语言" },
+    { id: "slice", idx: "02", href: "slice-map.html", title: "Slice 与 Map", short: "Slice/Map", group: "语言" },
+    { id: "iface", idx: "03", href: "iface-defer.html", title: "Interface · defer", short: "iface/defer", group: "语言" },
+    { id: "error", idx: "04", href: "error.html", title: "错误处理", short: "error", group: "语言" },
+    { id: "generics", idx: "05", href: "generics.html", title: "泛型直觉", short: "generics", group: "语言" },
+
+    { id: "gmp", idx: "06", href: "gmp.html", title: "GMP 调度", short: "GMP", group: "并发" },
+    { id: "channel", idx: "07", href: "channel.html", title: "Channel 底层", short: "Channel", group: "并发" },
+    { id: "select", idx: "08", href: "select.html", title: "Select 与定时器", short: "select", group: "并发" },
+    { id: "sync", idx: "09", href: "sync-context.html", title: "sync / Context", short: "sync/ctx", group: "并发" },
+    { id: "netpoller", idx: "10", href: "netpoller.html", title: "Netpoller 与 IO", short: "netpoller", group: "并发" },
+
+    { id: "memory", idx: "11", href: "memory.html", title: "内存与逃逸", short: "逃逸", group: "内存" },
+    { id: "gc", idx: "12", href: "gc.html", title: "GC 三色标记", short: "GC", group: "内存" },
+
+    { id: "testing", idx: "13", href: "testing.html", title: "测试与基准", short: "testing", group: "工程" },
+    { id: "modules", idx: "14", href: "modules.html", title: "模块与依赖", short: "modules", group: "工程" },
+    { id: "perf", idx: "15", href: "perf.html", title: "性能排查直觉", short: "pprof", group: "工程" }
   ];
+
+  GoLens.studyChapters = function () {
+    return GoLens.CHAPTERS.filter(function (c) {
+      return c.id !== "home";
+    });
+  };
 
   GoLens.isChapterRead = function (id) {
     if (id === "home") return false;
@@ -30,12 +45,24 @@
   };
 
   GoLens.nextUnreadChapter = function () {
-    const list = GoLens.CHAPTERS.filter(function (c) {
-      return c.id !== "home";
-    });
+    const list = GoLens.studyChapters();
     for (let i = 0; i < list.length; i++) {
       if (!GoLens.isChapterRead(list[i].id)) return { chapter: list[i], allRead: false };
     }
     return { chapter: list[0] || null, allRead: true };
+  };
+
+  /** prev/next by pedagogical order; includes home only at ends via list bounds */
+  GoLens.neighbors = function (id) {
+    const list = GoLens.CHAPTERS;
+    let i = -1;
+    for (let k = 0; k < list.length; k++) {
+      if (list[k].id === id) {
+        i = k;
+        break;
+      }
+    }
+    if (i < 0) return { prev: null, next: null };
+    return { prev: list[i - 1] || null, next: list[i + 1] || null };
   };
 })(window);

@@ -848,3 +848,23 @@ mark.search-hit {
 .learn-step.is-next .learn-mark {
   color: var(--accent);
 }
+
+.nav-group {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 10px var(--space-2) 2px;
+  border-top: 1px solid var(--line);
+  margin-top: 6px;
+}
+
+.learn-group {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin: 10px 0 4px;
+  padding-top: 4px;
+}

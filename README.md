@@ -2,6 +2,12 @@
 
 可视化交互的 Go 运行时八股知识站。纯静态、无打包器，适合 GitHub Pages。
 
+## 学习顺序（chapters.js）
+
+语言 → 并发/IO → 内存 → 工程：string · slice/map · iface/defer · error · generics · GMP · channel · select · sync/ctx · netpoller · 逃逸 · GC · testing · modules · pprof
+
+侧栏、学习路径、上下章导航均由 `site/assets/js/chapters.js` 驱动。
+
 ## 结构
 
 ```
