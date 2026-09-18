@@ -1,6 +1,6 @@
 ---
 feature: content-net-test
-status: designed
+status: delivered
 updated: 2026-09-17
 branch: chore/content-net-test
 commits: 
@@ -9,6 +9,13 @@ commits:
 # Content — Netpoller/IO + Testing Chapters
 
 ## Report
+
+**What was built** — 第 12《Netpoller 与 IO》、13《测试与基准》：IO 阻塞→就绪→唤醒 Lab，以及表格驱动测试 + benchmark 示意 Lab；清单注册 00–13。
+
+**Verification** — check 全绿；net 日志 BLOCK/STW/WAKE 链路完整；testing 出现 PASS×2、FAIL×1 与 ns/op 示意；nav 14、cards 13；console 0 error。评审子代理超时，以本地 check+冒烟为准。
+
+**Journey log** — 新章继续走 chapters.js 模式；testing Lab 保留一条故意 FAIL 便于对照 got/want。
+
 
 ## [S1] Problem
 
@@ -43,7 +50,7 @@ commits:
 
 ## Tasks
 
-- [ ] T1: 清单/首页/check — acceptance: manifest 12/13 可达 (covers: S2)
-- [ ] T2: netpoller 章 + Lab — acceptance: 阻塞→就绪→唤醒日志完整 (covers: S2)
-- [ ] T3: testing 章 + Lab — acceptance: 用例 pass/fail 与 benchmark 模拟输出 (covers: S2)
-- [ ] T4: 验收 — acceptance: check + smoke 0 error (covers: S2; depends: T1,T2,T3)
+- [x] T1: 清单/首页/check — acceptance: manifest 12/13 可达 (covers: S2)
+- [x] T2: netpoller 章 + Lab — acceptance: 阻塞→就绪→唤醒日志完整 (covers: S2)
+- [x] T3: testing 章 + Lab — acceptance: 用例 pass/fail 与 benchmark 模拟输出 (covers: S2)
+- [x] T4: 验收 — acceptance: check + smoke 0 error (covers: S2; depends: T1,T2,T3)
