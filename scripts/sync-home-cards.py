@@ -16,6 +16,7 @@ blurb = {
     "iface": ("接口动态派发；defer LIFO；panic/recover。", "LAB · defer 栈"),
     "error": ("哨兵错误、%w 包装、errors.Is / As。", "LAB · 错误链"),
     "generics": ("类型参数与约束集合；编译期检查。", "LAB · 约束实例化"),
+    "reflect": ("TypeOf/ValueOf/Elem 与结构体 Tag。", "LAB · 反射步骤"),
     "gmp": ("G/P/M、本地与全局队列、work stealing。", "LAB · 4 场景"),
     "channel": ("hchan 与环形缓冲、阻塞 send/recv、close。", "LAB · 环形表盘"),
     "select": ("多路就绪、default 非阻塞、超时 case。", "LAB · 多路 select"),
@@ -28,6 +29,7 @@ blurb = {
     "testing": ("表格驱动、t.Run、benchmark。", "LAB · test + bench"),
     "modules": ("go.mod、require、tidy 与 MVS。", "LAB · go mod tidy"),
     "perf": ("CPU / Heap 热点与优化方向。", "LAB · 热点示意"),
+    "checklist": ("质量 / 测试 / 发布 / Review 检查单。", "LAB · 可勾选清单"),
     "drill": ("跨章串联：调度 / Channel / GC / Context。", "LAB · 模拟题"),
     "cheat": ("全站速查口袋卡片，按分组筛选。", "LAB · 速查过滤"),
 }
