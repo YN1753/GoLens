@@ -133,6 +133,9 @@
             sendTo("a");
             sendTo("b");
             runSelect();
+            // refill both so second select is again multi-ready
+            sendTo("a");
+            sendTo("b");
             runSelect();
           }
         },

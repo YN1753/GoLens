@@ -70,9 +70,20 @@
 
   function stepRange() {
     const rs = Array.from(text);
+    const enc = new TextEncoder();
+    let byteIdx = 0;
+    for (let i = 0; i < rangeI + 1 && i < rs.length; i++) {
+      byteIdx += enc.encode(rs[i]).length;
+    }
+    if (rangeI + 1 >= rs.length) {
+      // allow stepping to end once
+    }
     rangeI++;
     if (rangeI >= rs.length) {
       rangeI = rs.length - 1;
+      // recompute byte index for current
+      byteIdx = 0;
+      for (let i = 0; i <= rangeI; i++) byteIdx += enc.encode(rs[i]).length;
       log("BLOCK", "range 已到末尾");
       render();
       return;
@@ -80,8 +91,11 @@
     view = "range";
     setCode("range");
     const r = rs[rangeI];
-    const bytesOf = new TextEncoder().encode(r).length;
-    log("WAKE", "range 第 " + rangeI + " 次：rune=" + JSON.stringify(r) + " UTF-8≈" + bytesOf + " 字节");
+    const bytesOf = enc.encode(r).length;
+    byteIdx = 0;
+    for (let i = 0; i <= rangeI; i++) byteIdx += enc.encode(rs[i]).length;
+    const startIdx = byteIdx - bytesOf;
+    log("WAKE", "range i=" + startIdx + " r=" + JSON.stringify(r) + "（该 rune " + bytesOf + " 字节）");
     render();
   }
 

@@ -1,6 +1,6 @@
 ---
 feature: content-select-string
-status: designed
+status: delivered
 updated: 2026-09-17
 branch: chore/content-select-string
 commits: 
@@ -9,6 +9,13 @@ commits:
 # Content — Select/Timer + String Chapters
 
 ## Report
+
+**What was built** — 第 08《Select 与定时器》、09《string 与 range》：清单注册、关卡+代码双轨、多路 select Lab、UTF-8 字节/rune 视图 Lab；首页卡片与阅读链更新。
+
+**Verification** — check 清单含 select/string；select 双就绪伪随机日志；string 中文 6 字节/2 rune 与 range 字节下标；nav 10；console 0 error。
+
+**Journey log** — 新章只需改 `chapters.js` + HTML；Lab 依赖 `motion.js` 的 `logLine`。range 日志应打印字节下标 i。
+
 
 ## [S1] Problem
 
@@ -45,7 +52,7 @@ commits:
 
 ## Tasks
 
-- [ ] T1: 注册清单 + 首页/底链 — acceptance: 侧栏出现 08/09；check 清单通过 (covers: S2)
-- [ ] T2: select 章 + Lab — acceptance: 双 channel 就绪与 default 行为日志正确 (covers: S2)
-- [ ] T3: string 章 + Lab — acceptance: 中文/rune 与 byte 数对比可见 (covers: S2)
-- [ ] T4: 验收 — acceptance: check + 新页冒烟 0 error (covers: S2; depends: T1,T2,T3)
+- [x] T1: 注册清单 + 首页/底链 — acceptance: 侧栏出现 08/09；check 清单通过 (covers: S2)
+- [x] T2: select 章 + Lab — acceptance: 双 channel 就绪与 default 行为日志正确 (covers: S2)
+- [x] T3: string 章 + Lab — acceptance: 中文/rune 与 byte 数对比可见 (covers: S2)
+- [x] T4: 验收 — acceptance: check + 新页冒烟 0 error (covers: S2; depends: T1,T2,T3)
