@@ -3,7 +3,7 @@ feature: deepen-content
 status: delivered
 updated: 2026-09-17
 branch: chore/deepen-content
-commits: 
+commits: 4b05f13049f59ed5729281c5b79f49bc537f074f..1de08dbd11a49a86a50460199de169e141850fa7
 ---
 
 # Deepen Content + Memory Model Chapter
