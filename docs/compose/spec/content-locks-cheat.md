@@ -3,7 +3,7 @@ feature: content-locks-cheat
 status: delivered
 updated: 2026-09-17
 branch: chore/content-locks-cheat
-commits: 
+commits: 9390107f293840203eb72135a4ba75e4b30a486c..0eba3019f3ac81b73db57af33fdac64c082979a5
 ---
 
 # Content — Locks + Cheat Overview
