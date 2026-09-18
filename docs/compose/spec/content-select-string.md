@@ -3,7 +3,7 @@ feature: content-select-string
 status: delivered
 updated: 2026-09-17
 branch: chore/content-select-string
-commits: 
+commits: 6115d1f55306d3118b1ceb97997016a9a472fb4b..06b2fb339d9f5ab4addfafd650253bc88df8c9a0
 ---
 
 # Content — Select/Timer + String Chapters
