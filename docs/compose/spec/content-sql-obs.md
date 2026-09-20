@@ -3,7 +3,7 @@ feature: content-sql-obs
 status: delivered
 updated: 2026-09-20
 branch: chore/content-sql-obs
-commits: 
+commits: 21f3f965904420cb6a77b358324cb4b3e77b2658..0ab1965672655967c0e6a2747718b8ca118d0a76
 ---
 
 # Content — SQL Pool + Observability
