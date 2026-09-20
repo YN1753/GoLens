@@ -30,9 +30,11 @@ blurb = {
     "gc": ("白灰黑、写屏障、STW。", "LAB · 屏障对比"),
     "testing": ("表格驱动、t.Run、benchmark。", "LAB · test + bench"),
     "modules": ("go.mod、require、tidy 与 MVS。", "LAB · go mod tidy"),
+    "sql": ("连接池、事务、参数化防注入。", "LAB · SQL 流程"),
     "perf": ("CPU / Heap 热点与优化方向。", "LAB · 热点示意"),
     "checklist": ("质量 / 测试 / 发布 / Review 检查单。", "LAB · 可勾选清单"),
     "shutdown": ("Shutdown、限流、信号量、超时。", "LAB · 下线与限流"),
+    "observability": ("Logs / Metrics / Tracing / SLO。", "LAB · 三支柱"),
     "drill": ("跨章串联：调度 / Channel / GC / Context。", "LAB · 模拟题"),
     "cheat": ("全站速查口袋卡片，按分组筛选。", "LAB · 速查过滤"),
 }

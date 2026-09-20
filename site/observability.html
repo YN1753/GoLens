@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Go 可观测性：logs metrics tracing SLO" />
+  <title>可观测性 · GoLens</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/lab-motion.css" />
+  <link rel="stylesheet" href="assets/css/guide.css" />
+</head>
+<body data-page="observability">
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar" aria-label="站点导航">
+      <a class="brand" href="index.html"><span class="brand-mark">GoLens</span><span class="brand-sub">Runtime Lab</span></a>
+      <nav class="nav-section" aria-label="章节目录"><div class="nav-label">目录</div></nav>
+      <div class="sidebar-foot">Logs · Metrics · Traces · SLO</div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
+        <div class="topbar-title">GoLens / 24 observability</div>
+        <div class="topbar-actions"><span class="chip">章节 24</span></div>
+      </header>
+      <article class="content lab-wide">
+        <div class="eyebrow">Chapter 24</div>
+        <h1>可观测性</h1>
+        <p class="verdict">
+          服务上线后要能回答：「现在正不正常？为什么变慢？」——
+          <strong>日志</strong>看细节、<strong>指标</strong>看趋势与告警、<strong>链路</strong>看耗时分布；用 <strong>SLO</strong> 约束可靠性目标。
+        </p>
+        <h2>Lab</h2>
+        <div class="lab" id="obs-lab">
+          <div class="lab-head">
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>Observability Lab</div>
+            <span class="chip">pillars</span>
+          </div>
+          <div class="lab-controls">
+            <div class="btn-row">
+              <label>支柱
+                <select id="obs-pillar">
+                  <option value="logs">Logs</option>
+                  <option value="metrics">Metrics</option>
+                  <option value="trace">Tracing</option>
+                  <option value="slo">SLO</option>
+                </select>
+              </label>
+              <button type="button" class="btn btn-primary" id="obs-run">展开要点</button>
+              <button type="button" class="btn btn-ghost" id="obs-reset">重置</button>
+            </div>
+          </div>
+          <div class="story-band" id="obs-story">
+            <div class="code-track">
+              <div class="code-title">观察轴</div>
+              <pre>
+<span class="code-line" data-code-key="logs">log.Info("msg", "trace_id", tid)</span>
+<span class="code-line" data-code-key="metrics">// RED: rate errors duration</span>
+<span class="code-line" data-code-key="trace">// span HTTP → DB → cache</span>
+<span class="code-line" data-code-key="slo">// SLO 99.9% &lt; 200ms</span>
+              </pre>
+            </div>
+            <div class="story-card">
+              <div class="story-step" data-story-step>关卡 1 / 4</div>
+              <h3 class="story-title" data-story-title></h3>
+              <div class="story-metaphor" data-story-metaphor></div>
+              <p class="story-body" data-story-body></p>
+              <div class="story-actions">
+                <button type="button" class="btn" data-story-prev>上一关</button>
+                <button type="button" class="btn btn-primary" data-story-next>下一关</button>
+                <div class="story-dots" data-story-dots></div>
+              </div>
+            </div>
+          </div>
+          <div class="lab-grid-3">
+            <div class="lab-stage" id="obs-stage" aria-live="polite"></div>
+            <div class="lab-log" id="obs-log" aria-live="polite"></div>
+          </div>
+        </div>
+        <nav class="page-nav">
+          <a href="shutdown.html">← 优雅关闭与限流</a>
+          <a href="drill.html">下一章 综合演练 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+  <script src="assets/js/chapters.js"></script>
+  <script src="assets/js/site.js"></script>
+  <script src="assets/js/motion.js"></script>
+  <script src="assets/js/guide.js"></script>
+  <script src="assets/js/observability-lab.js"></script>
+</body>
+</html>

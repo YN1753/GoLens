@@ -28,12 +28,14 @@
 
     { id: "testing", idx: "18", href: "testing.html", title: "测试与基准", short: "testing", group: "工程" },
     { id: "modules", idx: "19", href: "modules.html", title: "模块与依赖", short: "modules", group: "工程" },
-    { id: "perf", idx: "20", href: "perf.html", title: "性能排查直觉", short: "pprof", group: "工程" },
-    { id: "checklist", idx: "21", href: "checklist.html", title: "工程清单", short: "checklist", group: "工程" },
-    { id: "shutdown", idx: "22", href: "shutdown.html", title: "优雅关闭与限流", short: "shutdown", group: "工程" },
+    { id: "sql", idx: "20", href: "sql.html", title: "SQL 与连接池", short: "sql/pool", group: "工程" },
+    { id: "perf", idx: "21", href: "perf.html", title: "性能排查直觉", short: "pprof", group: "工程" },
+    { id: "checklist", idx: "22", href: "checklist.html", title: "工程清单", short: "checklist", group: "工程" },
+    { id: "shutdown", idx: "23", href: "shutdown.html", title: "优雅关闭与限流", short: "shutdown", group: "工程" },
+    { id: "observability", idx: "24", href: "observability.html", title: "可观测性", short: "logs/metrics", group: "工程" },
 
-    { id: "drill", idx: "23", href: "drill.html", title: "综合演练", short: "drill", group: "综合" },
-    { id: "cheat", idx: "24", href: "cheat.html", title: "速查总览", short: "cheat", group: "综合" }
+    { id: "drill", idx: "25", href: "drill.html", title: "综合演练", short: "drill", group: "综合" },
+    { id: "cheat", idx: "26", href: "cheat.html", title: "速查总览", short: "cheat", group: "综合" }
   ];
 
   GoLens.studyChapters = function () {
