@@ -4,9 +4,12 @@
 
 ## 学习顺序（chapters.js）
 
-语言 → 并发/IO → 内存 → 工程：string · slice/map · iface/defer · error · generics · GMP · channel · select · sync/ctx · netpoller · 逃逸 · GC · testing · modules · pprof
+语言 → 并发/IO → 内存 → 工程 → 综合：30 个学习章（string…json → GMP…atomic/memmodel → escape/GC → test…embed/sql/pprof/清单/shutdown/观测 → drill/cheat）
 
 侧栏、学习路径、上下章导航均由 `site/assets/js/chapters.js` 驱动。
+
+## 章节数量
+站点由 `chapters.js` 驱动，当前 **30** 个学习章（另含首页）。
 
 ## 结构
 

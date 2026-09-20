@@ -7,18 +7,20 @@
   if (!stage) return;
 
   const SHEETS = [
-    { group: "语言", title: "string", lines: ["len = 字节不是字符", "range 按 rune，i 是字节下标", "拼接用 strings.Builder"] },
-    { group: "语言", title: "slice", lines: ["ptr + len + cap", "append 满则扩容搬家", "子切片可能共享底层数组"] },
-    { group: "语言", title: "error", lines: ["%w 保留错误链", "errors.Is 哨兵", "errors.As 取类型"] },
-    { group: "语言", title: "iface / defer", lines: ["iface 大致等于类型加数据", "defer LIFO", "panic 仍跑 defer，recover 可止"] },
-    { group: "语言", title: "generics", lines: ["类型参数加约束", "不满足约束在编译期失败"] },
-    { group: "并发", title: "GMP", lines: ["G / P / M，P 等于 GOMAXPROCS", "本地队列 + 全局 + steal", "阻塞可能导致 M 与 P 解绑"] },
-    { group: "并发", title: "channel", lines: ["hchan：buf + sendq / recvq", "cap=0 会合交接", "close 后 recv 零值，send panic"] },
-    { group: "并发", title: "select / sync / ctx", lines: ["select 多路伪随机", "default 非阻塞", "ctx 取消向子树传播"] },
-    { group: "并发", title: "memmodel", lines: ["无同步共享写 = data race", "channel/mutex/once/atomic 建立 happens-before", "go 前写对新 G 可见"] },
-    { group: "并发", title: "locks", lines: ["Mutex 成对 Lock / Unlock", "WaitGroup Add 在启动前", "sync.Map 先测再换"] },
-    { group: "内存", title: "escape / GC", lines: ["栈快，堆交给 GC", "指针 / 闭包 / 接口易逃逸", "三色 + 写屏障 + 短 STW"] },
-    { group: "工程", title: "test / mod / perf", lines: ["表格驱动 t.Run", "go mod tidy 对齐 import", "pprof 先测量再优化"] }
+    { group: "语言", title: "string / slice", lines: ["len=字节；range 按 rune", "slice=ptr+len+cap", "append 满则扩容；共享数组用 copy"] },
+    { group: "语言", title: "iface / defer / error", lines: ["iface≈类型+数据", "defer LIFO；panic 仍执行 defer", "%w 包装；Is/As 沿链"] },
+    { group: "语言", title: "generics / reflect", lines: ["[T Constraint] 编译期检查", "TypeOf/Kind；改值要指针+Elem"] },
+    { group: "语言", title: "json", lines: ["struct tag 映射字段", "omitempty 省略零值", "Encoder/Decoder 流式"] },
+    { group: "并发", title: "GMP / channel", lines: ["G/P/M；P=GOMAXPROCS", "本地+全局+steal", "hchan buf+sendq/recvq；cap=0 会合"] },
+    { group: "并发", title: "select / sync / ctx", lines: ["多路伪随机；default 非阻塞", "Mutex/WG/Once", "ctx 取消向子树传播"] },
+    { group: "并发", title: "netpoller / net/http", lines: ["IO 阻塞 G 让出，netpoll 唤醒", "Accept → 每连接一个 G", "Handler 传 r.Context()"] },
+    { group: "并发", title: "patterns / locks / atomic", lines: ["Worker/Fan/Pipeline/or-done", "锁保护多字段临界区", "单值计数用 atomic/CAS"] },
+    { group: "并发", title: "memmodel", lines: ["无同步共享写=data race", "channel/mutex/once/atomic 建 hb", "-race 当 bug 修"] },
+    { group: "内存", title: "escape / GC", lines: ["栈快堆 GC 托管", "指针/闭包/接口易逃逸", "三色+写屏障+短 STW；GOGC/GOMEMLIMIT"] },
+    { group: "工程", title: "test / modules / toolchain", lines: ["table-driven + -race", "go mod tidy；go work 多模块", "build/run/vet 工具链"] },
+    { group: "工程", title: "embed / sql / perf", lines: ["//go:embed 编译期打包", "sql.DB 池；参数化防注入", "pprof 先测量再优化"] },
+    { group: "工程", title: "checklist / shutdown / obs", lines: ["质量/测试/发布/Review", "Shutdown + 限流 + 超时", "Logs/Metrics/Trace/SLO"] },
+    { group: "综合", title: "drill 方法", lines: ["先口述再对照 Lab", "高并发=调度+IO+模式", "正确性=channel/sync/ctx；性能=逃逸/GC/pprof"] }
   ];
 
   function setCode(key) {
@@ -53,7 +55,7 @@
   filterSel.addEventListener("change", function () {
     setCode(filterSel.value);
     render();
-    log("MARK", "筛选：" + filterSel.options[filterSel.selectedIndex].text);
+    log("MARK", "筛选：" + filterSel.options[filterSel.selectedIndex].text + " · " + stage.querySelectorAll(".rt-box").length + " 组");
   });
 
   if (storyRoot && M.StoryGuide) {
@@ -62,54 +64,42 @@
       codePanel: storyRoot.querySelector(".code-track"),
       levels: [
         {
-          title: "这是什么",
-          metaphor: "考前口袋卡片",
-          body: "把各章速查收成一页，按语言 / 并发 / 内存 / 工程筛选。",
+          title: "口袋卡片",
+          metaphor: "考前 5 分钟",
+          body: "覆盖语言/并发/内存/工程/综合，按组筛选后遮住答案口述。",
           codeKeys: ["all"],
           run: function () {
             filterSel.value = "all";
             setCode("all");
             render();
-            log("MARK", "速查总览：默认显示全部");
+            log("MARK", "速查总览：全部分组");
           }
         },
         {
           title: "语言卡",
-          metaphor: "基础口算表",
-          body: "string / slice / error / defer / generics 最容易被追问细节。",
+          metaphor: "基础口算",
+          body: "string/slice/error/defer/json/generics/reflect。",
           codeKeys: ["语言"],
-          run: function () {
-            filterSel.value = "语言";
-            setCode("语言");
-            render();
-          }
+          run: function () { filterSel.value = "语言"; setCode("语言"); render(); }
         },
         {
           title: "并发卡",
-          metaphor: "调度与管道的口诀",
-          body: "GMP + channel + select / sync / ctx + 锁。",
+          metaphor: "调度与管道口诀",
+          body: "GMP、channel、select/sync/ctx、HTTP、模式、锁、atomic、内存模型。",
           codeKeys: ["并发"],
-          run: function () {
-            filterSel.value = "并发";
-            setCode("并发");
-            render();
-          }
+          run: function () { filterSel.value = "并发"; setCode("并发"); render(); }
         },
         {
-          title: "怎么用",
-          metaphor: "先遮住答案口述",
-          body: "看到关键词能否 30 秒说清机制？不能就回对应章节 Lab。",
-          codeKeys: ["all"],
-          run: function () {
-            filterSel.value = "all";
-            setCode("all");
-            render();
-          }
+          title: "工程与综合",
+          metaphor: "出厂检验与收口",
+          body: "test/modules/toolchain/embed/sql/perf/checklist/shutdown/obs/drill。",
+          codeKeys: ["工程", "综合"],
+          run: function () { filterSel.value = "工程"; setCode("工程"); render(); }
         }
       ]
     });
   }
 
   render();
-  log("MARK", "速查总览就绪");
+  log("MARK", "速查总览就绪（已覆盖全站主题）");
 })();
