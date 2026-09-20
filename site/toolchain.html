@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="go toolchain：build run test vet work" />
+  <title>go toolchain · GoLens</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/lab-motion.css" />
+  <link rel="stylesheet" href="assets/css/guide.css" />
+</head>
+<body data-page="toolchain">
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar" aria-label="站点导航">
+      <a class="brand" href="index.html"><span class="brand-mark">GoLens</span><span class="brand-sub">Runtime Lab</span></a>
+      <nav class="nav-section" aria-label="章节目录"><div class="nav-label">目录</div></nav>
+      <div class="sidebar-foot">go build / test / vet / work</div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
+        <div class="topbar-title">GoLens / 21 toolchain</div>
+        <div class="topbar-actions"><span class="chip">章节 21</span></div>
+      </header>
+      <article class="content lab-wide">
+        <div class="eyebrow">Chapter 21</div>
+        <h1>go toolchain</h1>
+        <p class="verdict">
+          日常工具链最少要熟：编译 <code>go build</code> / <code>run</code>，质量 <code>test</code> / <code>vet</code>，
+          多模块联调 <code>go work</code>。CI 里通常 <code>fmt + vet + test</code> 三件套。
+        </p>
+        <h2>Lab</h2>
+        <div class="lab" id="tc-lab">
+          <div class="lab-head">
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>Toolchain Lab</div>
+            <span class="chip">commands</span>
+          </div>
+          <div class="lab-controls">
+            <div class="btn-row">
+              <label>命令
+                <select id="tc-cmd">
+                  <option value="build">go build</option>
+                  <option value="run">go run</option>
+                  <option value="test">go test</option>
+                  <option value="vet">go vet</option>
+                  <option value="work">go work</option>
+                </select>
+              </label>
+              <button type="button" class="btn btn-primary" id="tc-run">说明</button>
+              <button type="button" class="btn btn-ghost" id="tc-reset">重置</button>
+            </div>
+          </div>
+          <div class="story-band" id="tc-story">
+            <div class="code-track">
+              <div class="code-title">命令 · 观察窗</div>
+              <pre>
+<span class="code-line" data-code-key="build">go build -o app ./cmd/app</span>
+<span class="code-line" data-code-key="run">go run ./cmd/app</span>
+<span class="code-line" data-code-key="test">go test ./... -race</span>
+<span class="code-line" data-code-key="vet">go vet ./...</span>
+<span class="code-line" data-code-key="work">go work init ./svc-a ./svc-b</span>
+              </pre>
+            </div>
+            <div class="story-card">
+              <div class="story-step" data-story-step>关卡 1 / 3</div>
+              <h3 class="story-title" data-story-title></h3>
+              <div class="story-metaphor" data-story-metaphor></div>
+              <p class="story-body" data-story-body></p>
+              <div class="story-actions">
+                <button type="button" class="btn" data-story-prev>上一关</button>
+                <button type="button" class="btn btn-primary" data-story-next>下一关</button>
+                <div class="story-dots" data-story-dots></div>
+              </div>
+            </div>
+          </div>
+          <div class="lab-grid-3">
+            <div class="lab-stage" id="tc-stage" aria-live="polite"></div>
+            <div class="lab-log" id="tc-log" aria-live="polite"></div>
+          </div>
+        </div>
+        <nav class="page-nav">
+          <a href="modules.html">← 模块与依赖</a>
+          <a href="sql.html">下一章 SQL →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+  <script src="assets/js/chapters.js"></script>
+  <script src="assets/js/site.js"></script>
+  <script src="assets/js/motion.js"></script>
+  <script src="assets/js/guide.js"></script>
+  <script src="assets/js/toolchain-lab.js"></script>
+</body>
+</html>
