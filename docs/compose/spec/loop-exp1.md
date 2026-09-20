@@ -3,7 +3,7 @@ feature: loop-exp1
 status: delivered
 updated: 2026-09-20
 branch: chore/loop-exp1
-commits: 
+commits: 772da36d26eab800bb70ecbeb1b15245ee93b5ee..0d5993263a3ab478d93b617978c1c2e8af39a474
 ---
 
 # Loop expansion #1 — JSON + toolchain
