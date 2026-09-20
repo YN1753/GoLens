@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="go:embed 静态资源嵌入" />
+  <title>go:embed · GoLens</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/lab-motion.css" />
+  <link rel="stylesheet" href="assets/css/guide.css" />
+</head>
+<body data-page="embed">
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="shell">
+    <aside class="sidebar" aria-label="站点导航">
+      <a class="brand" href="index.html"><span class="brand-mark">GoLens</span><span class="brand-sub">Runtime Lab</span></a>
+      <nav class="nav-section" aria-label="章节目录"><div class="nav-label">目录</div></nav>
+      <div class="sidebar-foot">编译期打包文件</div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <button class="btn btn-ghost menu-btn" type="button" aria-expanded="false" aria-label="打开目录">菜单</button>
+        <div class="topbar-title">GoLens / 23 embed</div>
+        <div class="topbar-actions"><span class="chip">章节 23</span></div>
+      </header>
+      <article class="content lab-wide">
+        <div class="eyebrow">Chapter 23</div>
+        <h1>go:embed</h1>
+        <p class="verdict">
+          <code>//go:embed</code> 在<strong>编译期</strong>把文件/目录打进二进制，适合 CLI 默认配置、模板与小静态资源。
+          路径相对当前包，不能跳出模块根。
+        </p>
+        <h2>Lab</h2>
+        <div class="lab" id="em-lab">
+          <div class="lab-head">
+            <div class="lab-title"><span class="led" aria-hidden="true"></span>Embed Lab</div>
+            <span class="chip">file · fs.FS</span>
+          </div>
+          <div class="lab-controls">
+            <div class="btn-row">
+              <label>主题
+                <select id="em-item">
+                  <option value="file">嵌入单文件</option>
+                  <option value="fs">embed.FS 目录</option>
+                  <option value="pattern">路径与限制</option>
+                  <option value="why">何时使用</option>
+                </select>
+              </label>
+              <button type="button" class="btn btn-primary" id="em-run">说明</button>
+              <button type="button" class="btn btn-ghost" id="em-reset">重置</button>
+            </div>
+          </div>
+          <div class="story-band" id="em-story">
+            <div class="code-track">
+              <div class="code-title">Go 代码 · 观察窗</div>
+              <pre>
+<span class="code-line" data-code-key="file">//go:embed config.json</span>
+<span class="code-line" data-code-key="fs">//go:embed templates/*</span>
+<span class="code-line" data-code-key="pattern">// 相对当前包目录</span>
+<span class="code-line" data-code-key="why">// 小资源进二进制</span>
+              </pre>
+            </div>
+            <div class="story-card">
+              <div class="story-step" data-story-step>关卡 1 / 3</div>
+              <h3 class="story-title" data-story-title></h3>
+              <div class="story-metaphor" data-story-metaphor></div>
+              <p class="story-body" data-story-body></p>
+              <div class="story-actions">
+                <button type="button" class="btn" data-story-prev>上一关</button>
+                <button type="button" class="btn btn-primary" data-story-next>下一关</button>
+                <div class="story-dots" data-story-dots></div>
+              </div>
+            </div>
+          </div>
+          <div class="lab-grid-3">
+            <div class="lab-stage" id="em-stage" aria-live="polite"></div>
+            <div class="lab-log" id="em-log" aria-live="polite"></div>
+          </div>
+        </div>
+        <nav class="page-nav">
+          <a href="toolchain.html">← go toolchain</a>
+          <a href="sql.html">下一章 SQL →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+  <script src="assets/js/chapters.js"></script>
+  <script src="assets/js/site.js"></script>
+  <script src="assets/js/motion.js"></script>
+  <script src="assets/js/guide.js"></script>
+  <script src="assets/js/embed-lab.js"></script>
+</body>
+</html>
